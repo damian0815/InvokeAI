@@ -20,7 +20,7 @@ opt = parser.parse_args()
 
 
 from flask_socketio import SocketIO
-from flask import Flask, send_from_directory, url_for, jsonify
+from flask import Flask, send_from_directory, url_for, jsonify, request
 from pathlib import Path
 from PIL import Image
 from pytorch_lightning import logging
@@ -89,6 +89,31 @@ def outputs(filename):
 def serve(path):
     return send_from_directory(app.static_folder, "index.html")
 
+
+@app.route("/dream", methods=["POST"])
+def dream():
+    data = json.loads(request.data)
+    if "iterations" not in data:
+        data["iterations"] = 1
+    if "progress_images" not in data:
+        data["progress_images"] = False
+    if data["prompt"] is dict:
+        print("multiple weights not supported, use single string prompt")
+        data["prompt"] = data["prompt"]["prompt"]
+    if "init_image_path" in data:
+        data["init_img"] = data["init_image_path"]
+    if "sampler_name" not in data:
+        data["sampler_name"] = data["sampler"] if "sampler" in data else "k_euler"
+    generation_parameters = data
+    esrgan_parameters = None
+    gfpgan_parameters = None
+    try:
+        generate_images(generation_parameters=generation_parameters, esrgan_parameters=esrgan_parameters, gfpgan_parameters=gfpgan_parameters)
+    except Exception as e:
+        print("failed to generate image:", e)
+        return "fail"
+
+    return "ok"
 
 logger = True if verbose else False
 engineio_logger = True if verbose else False
