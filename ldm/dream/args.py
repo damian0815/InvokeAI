@@ -584,6 +584,12 @@ class Args(object):
             dest='hires_fix',
             help='Create hires image using img2img to prevent duplicated objects'
         )
+        render_group.add_argument(
+            '--write_intermediates',
+            action='store_true',
+            dest='write_intermediates',
+            help='If specified, write an approximate image from latents for each step to intermediates/'
+        )
         img2img_group.add_argument(
             '-I',
             '--init_img',
