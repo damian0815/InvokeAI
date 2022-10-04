@@ -49,7 +49,7 @@ Put simply: starting from a frame of fuzz/static, SD finds details in each frame
 
 ### A concrete example
 
-Say I want SD to draw a fire based on this hand-drawn image, and I want Stable Diffusion to draw a fire from it.
+Say I want SD to draw a fire based on this hand-drawn image:
 
 ![drawing of a fireplace](../assets/img2img/fire-drawing.png)
 
