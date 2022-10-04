@@ -35,7 +35,7 @@ The main difference between `img2img` and `prompt2img` is the starting point. Wh
 gaussian noise and progressively refines it over the requested number of steps, `img2img` skips some of these earlier steps 
 (how many it skips is indirectly controlled by the `--strength` parameter), and uses instead your initial image mixed with gaussian noise as the starting image. 
 
-Let's start by thinking about vanilla `prompt2img`, just generating an image from a prompt. If the step count is 10, then the "latent space" (Stable Diffusion's internal representation of the image) for the prompt "fire" with seed `1592514025` develops something like this:
+**Let's start** by thinking about vanilla `prompt2img`, just generating an image from a prompt. If the step count is 10, then the "latent space" (Stable Diffusion's internal representation of the image) for the prompt "fire" with seed `1592514025` develops something like this:
 
 ```commandline
 dream> "fire" -S10 -W384 -H384
@@ -43,7 +43,7 @@ dream> "fire" -S10 -W384 -H384
 
 ![latent steps](../assets/img2img/000019.steps.png)
 
-Put simply: starting from a frame of fuzz/static, SD finds details in each frame that it thinks look like "fire" and magnifies them, gradually scrubbing out the fuzz until a clear image remains. 
+Put simply: starting from a frame of fuzz/static, SD finds details in each frame that it thinks look like "fire" and brings them more into focus them, gradually scrubbing out the fuzz until a clear image remains. 
 
 **When you use `img2img`** some of the earlier steps are cut, and instead an initial image of your choice is used. But because of how the maths behind Stable Diffusion works, this image needs to be mixed with just the right amount of noise (fuzz/static) for where it is being inserted. This is where the strength parameter comes in. Depending on the set strength, your image will be inserted into the sequence at the appropriate point, with just the right amount of noise. 
 
