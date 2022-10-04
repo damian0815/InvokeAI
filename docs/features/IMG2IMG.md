@@ -43,7 +43,7 @@ dream> "fire" -s10 -W384 -H384 -S1592514025
 
 ![latent steps](../assets/img2img/000019.steps.png)
 
-Put simply: starting from a frame of fuzz/static, SD finds details in each frame that it thinks look like "fire" and brings them more into focus them, gradually scrubbing out the fuzz until a clear image remains. 
+Put simply: starting from a frame of fuzz/static, SD finds details in each frame that it thinks look like "fire" and brings them a little bit more into focus, gradually scrubbing out the fuzz until a clear image remains. 
 
 **When you use `img2img`** some of the earlier steps are cut, and instead an initial image of your choice is used. But because of how the maths behind Stable Diffusion works, this image needs to be mixed with just the right amount of noise (fuzz/static) for where it is being inserted. This is where the strength parameter comes in. Depending on the set strength, your image will be inserted into the sequence at the appropriate point, with just the right amount of noise. 
 
