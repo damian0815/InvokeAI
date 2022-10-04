@@ -38,7 +38,7 @@ gaussian noise and progressively refines it over the requested number of steps, 
 **Let's start** by thinking about vanilla `prompt2img`, just generating an image from a prompt. If the step count is 10, then the "latent space" (Stable Diffusion's internal representation of the image) for the prompt "fire" with seed `1592514025` develops something like this:
 
 ```commandline
-dream> "fire" -S10 -W384 -H384
+dream> "fire" -s10 -W384 -H384 -S1592514025
 ```
 
 ![latent steps](../assets/img2img/000019.steps.png)
