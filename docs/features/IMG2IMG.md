@@ -35,17 +35,21 @@ The main difference between `img2img` and `prompt2img` is the starting point. Wh
 gaussian noise and progressively refines it over the requested number of steps, `img2img` skips some of these earlier steps 
 (how many it skips is indirectly controlled by the `--strength` parameter), and uses instead your initial image mixed with gaussian noise as the starting image. 
 
-If the image is being generated in 10 steps using `prompt2img`, the "latent space" (Stable Diffusion's internal representation of the image) develops something like this (the prompt is "fire"):
+**Let's start** by thinking about vanilla `prompt2img`, just generating an image from a prompt. If the step count is 10, then the "latent space" (Stable Diffusion's internal representation of the image) for the prompt "fire" with seed `1592514025` develops something like this:
+
+```commandline
+dream> "fire" -s10 -W384 -H384 -S1592514025
+```
 
 ![latent steps](../assets/img2img/000019.steps.png)
 
-Put simply: starting from a frame of fuzz/static, SD finds details in each frame that it thinks look like "fire" and magnifies them, gradually scrubbing out the fuzz until a clear remains. 
+Put simply: starting from a frame of fuzz/static, SD finds details in each frame that it thinks look like "fire" and brings them a little bit more into focus, gradually scrubbing out the fuzz until a clear image remains. 
 
 **When you use `img2img`** some of the earlier steps are cut, and instead an initial image of your choice is used. But because of how the maths behind Stable Diffusion works, this image needs to be mixed with just the right amount of noise (fuzz/static) for where it is being inserted. This is where the strength parameter comes in. Depending on the set strength, your image will be inserted into the sequence at the appropriate point, with just the right amount of noise. 
 
 ### A concrete example
 
-Say I want SD to draw a fire based on this hand-drawn image, and I want Stable Diffusion to draw a fire from it.
+Say I want SD to draw a fire based on this hand-drawn image:
 
 ![drawing of a fireplace](../assets/img2img/fire-drawing.png)
 
@@ -59,7 +63,7 @@ With strength `0.4`, the steps look more like this:
 
 Notice how much more fuzzy the starting image is for strength `0.7` compared to `0.4`, and notice also how much longer the sequence is with `0.7`:
 
-| strength | 0.7 | 0.4 |
+|  | strength = 0.7 | strength = 0.4 |
 | -- | -- | -- |
 | initial image that SD sees | ![](../assets/img2img/000032.step-0.png) | ![](../assets/img2img/000030.step-0.png) |
 | steps argument to `dream>` | `-S10` | `-S10` |
