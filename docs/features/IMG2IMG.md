@@ -102,7 +102,7 @@ dream> "fire" -s30 -W384 -H384 -S1592514025 -I /tmp/fire-drawing.png -f 0.7
 
 ![](../assets/img2img/000046.1592514025.png)
 
-In both cases the image is nice and clean and "finished", but because at strength `0.7` Stable Diffusion has been give so much more freedom to improve on my badly-drawn flames, they've come out looking much better. You can really see the difference when looking at the latent steps. There's so much more noise on the first image with strength `0.7`:
+In both cases the image is nice and clean and "finished", but because at strength `0.7` Stable Diffusion has been give so much more freedom to improve on my badly-drawn flames, they've come out looking much better. You can really see the difference when looking at the latent steps. There's more noise on the first image with strength `0.7`:
 
 ![](../assets/img2img/000046.steps.gravity.png)
 
@@ -110,7 +110,9 @@ than there is for strength `0.4`:
 
 ![](../assets/img2img/000035.steps.gravity.png)
 
-Unfortunately, `img2img` is very sensitive to the step count. Here's strength `0.7` with a step count of `29` (SD did 19 steps from my image):
+and that extra noise gives the algorithm more choices when it is evaluating how to denoise any particular pixel in the image. 
+
+Unfortunately, it seems that `img2img` is very sensitive to the step count. Here's strength `0.7` with a step count of `29` (SD did 19 steps from my image):
 
 ![](../assets/img2img/000045.1592514025.png)
 
