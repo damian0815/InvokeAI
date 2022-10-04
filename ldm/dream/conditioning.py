@@ -26,7 +26,7 @@ def get_uc_and_c(prompt, model, log_tokens=False, skip_normalize=False):
         clean_prompt = unconditional_regex_compile.sub(' ', prompt)
         prompt = re.sub(' +', ' ', clean_prompt)
 
-    uc = model.get_learned_conditioning([unconditioned_words])
+    uc = model.get_learned_conditioning([unconditioned_words], [1] * len(unconditioned_words))
 
     # get weighted sub-prompts
     weighted_subprompts = split_weighted_subprompts(

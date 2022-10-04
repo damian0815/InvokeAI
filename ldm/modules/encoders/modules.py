@@ -466,6 +466,8 @@ class WeightedFrozenCLIPEmbedder(FrozenCLIPEmbedder):
             padding='max_length',
             return_tensors='pt',
         )
+        batch_weights = kwargs["weights"] if "weights" in kwargs else torch.ones((len(text), 77))
+        kwargs.pop("weights")
         tokens = batch_encoding['input_ids'].to(self.device)
         print("encoded",text,"to",tokens)
         z = self.transformer(input_ids=tokens, **kwargs)
