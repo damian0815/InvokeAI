@@ -29,7 +29,7 @@ information underneath the transparent needs to be preserved, not erased.
 More details can be found here:
 [Creating Transparent Images For Inpainting](./INPAINTING.md#creating-transparent-regions-for-inpainting)
 
-## Technical explanation
+## How does it actually work, though?
 
 The main difference between `img2img` and `prompt2img` is the starting point. While `prompt2img` always starts with pure 
 gaussian noise and progressively refines it over the requested number of steps, `img2img` skips some of these earlier steps 
