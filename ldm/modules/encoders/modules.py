@@ -454,6 +454,23 @@ class FrozenCLIPEmbedder(AbstractEncoder):
     def encode(self, text, **kwargs):
         return self(text, **kwargs)
 
+class WeightedFrozenCLIPEmbedder(FrozenCLIPEmbedder):
+
+    def forward(self, text, **kwargs):
+        batch_encoding = self.tokenizer(
+            text,
+            truncation=True,
+            max_length=self.max_length,
+            return_length=True,
+            return_overflowing_tokens=False,
+            padding='max_length',
+            return_tensors='pt',
+        )
+        tokens = batch_encoding['input_ids'].to(self.device)
+        print("encoded",text,"to",tokens)
+        z = self.transformer(input_ids=tokens, **kwargs)
+
+        return z
 
 class FrozenCLIPTextEmbedder(nn.Module):
     """
