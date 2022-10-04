@@ -63,11 +63,11 @@ With strength `0.4`, the steps look more like this:
 
 Notice how much more fuzzy the starting image is for strength `0.7` compared to `0.4`, and notice also how much longer the sequence is with `0.7`:
 
-|  |: strength = 0.7 :|: strength = 0.4 :|
+|  | strength = 0.7 | strength = 0.4 |
 | -- | -- | -- |
-| initial image that SD sees |: ![](../assets/img2img/000032.step-0.png) :|: ![](../assets/img2img/000030.step-0.png) :|
-| steps argument to `dream>` |: `-S10` :|: `-S10` :|
-| steps actually taken |: 7 :|: 4 :|
+| initial image that SD sees | ![](../assets/img2img/000032.step-0.png) | ![](../assets/img2img/000030.step-0.png) |
+| steps argument to `dream>` | `-S10` | `-S10` |
+| steps actually taken | 7 | 4 |
 | latent space at each step | ![](../assets/img2img/000032.steps.gravity.png) | ![](../assets/img2img/000030.steps.gravity.png) |
 | output | ![](../assets/img2img/000032.1592514025.png) | ![](../assets/img2img/000030.1592514025.png) |
 
