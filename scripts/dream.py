@@ -8,6 +8,14 @@ import shlex
 import copy
 import warnings
 import time
+
+import torch
+from PIL import Image
+
+from torchvision import transforms
+
+from scripts.modules.preview_decoder import ApproximateDecoder
+
 sys.path.append('.')    # corrects a weird problem on Macs
 from ldm.dream.readline import get_completer
 from ldm.dream.args import Args, metadata_dumps, metadata_from_png, dream_cmd_from_png
@@ -276,6 +284,32 @@ def main_loop(gen, opt, infile):
             prior_variations = opt.with_variations or []
             prefix = file_writer.unique_prefix()
 
+
+            def step_writer(x, i):
+                #print("step", i)
+                #nonlocal prefix
+                #latent_decoder = ApproximateDecoder(x.device, x.dtype)
+
+                v1_4_latent_rgb_factors = torch.tensor([
+                    #   R        G        B
+                    [0.298, 0.207, 0.208],  # L1
+                    [0.187, 0.286, 0.173],  # L2
+                    [-0.158, 0.189, 0.264],  # L3
+                    [-0.184, -0.271, -0.473],  # L4
+                ], dtype=x.dtype, device=x.device)
+
+                latent_image = x[0].permute(1, 2, 0) @ v1_4_latent_rgb_factors
+
+                latents_ubyte = (((latent_image + 1) / 2)
+                                 .clamp(0, 1)  # change scale from -1..1 to 0..1
+                                 .mul(0xFF)  # to 0..255
+                                 .byte()).cpu()
+
+                image = Image.fromarray(latents_ubyte.numpy())
+                filename = "intermediates/" + prefix + ".step-" + str(i) + ".png"
+                file_writer.save_image_and_prompt_to_png(image, "<too lazy to implement>", filename)
+                return
+
             def image_writer(image, seed, upscaled=False, first_seed=None, use_prefix=None):
                 # note the seed is the seed of the current image
                 # the first_seed is the original seed that noise is added to
@@ -323,6 +357,7 @@ def main_loop(gen, opt, infile):
                 opt.last_operation='generate'
                 gen.prompt2image(
                     image_callback=image_writer,
+                    step_callback=step_writer,
                     catch_interrupts=catch_ctrl_c,
                     **vars(opt)
                 )
