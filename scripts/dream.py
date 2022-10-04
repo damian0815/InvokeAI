@@ -108,7 +108,7 @@ def main():
     gen.free_gpu_mem = opt.free_gpu_mem
 
     # web server loops forever
-    if opt.web:
+    if opt.web or opt.gui:
         invoke_ai_web_server_loop(gen, gfpgan, codeformer, esrgan)
         sys.exit(0)
 
@@ -201,9 +201,7 @@ def main_loop(gen, opt, infile):
                     oldargs    = metadata_from_png(opt.init_img)
                     opt.prompt = oldargs.prompt
                     print(f'>> Retrieved old prompt "{opt.prompt}" from {opt.init_img}')
-            except AttributeError:
-                pass
-            except KeyError:
+            except (OSError, AttributeError, KeyError):
                 pass
 
         if len(opt.prompt) == 0:
@@ -234,7 +232,7 @@ def main_loop(gen, opt, infile):
                 path     = os.path.join(opt.outdir,basename)
                 setattr(opt,attr,path)
 
-        # retrieve previous valueof seed if requested
+        # retrieve previous value of seed if requested
         if opt.seed is not None and opt.seed < 0:   
             try:
                 opt.seed = last_results[opt.seed][1]
@@ -279,9 +277,6 @@ def main_loop(gen, opt, infile):
             prefix = file_writer.unique_prefix()
 
             def image_writer(image, seed, upscaled=False, first_seed=None, use_prefix=None):
-                print(f'DEBUG:upscaled={upscaled}, first_seed={first_seed}, use_prefix={use_prefix}')
-
-                
                 # note the seed is the seed of the current image
                 # the first_seed is the original seed that noise is added to
                 # when the -v switch is used to generate variations
@@ -304,13 +299,12 @@ def main_loop(gen, opt, infile):
                         postprocessed,
                         first_seed
                     )
-
                     path = file_writer.save_image_and_prompt_to_png(
                         image           = image,
                         dream_prompt    = formatted_dream_prompt,
                         metadata        = metadata_dumps(
                             opt,
-                            seeds      = [seed],
+                            seeds      = [seed if opt.variation_amount==0 and len(prior_variations)==0 else first_seed],
                             model_hash = gen.model_hash,
                         ),
                         name      = filename,
@@ -379,9 +373,6 @@ def do_postprocess (gen, opt, callback):
     file_path = opt.prompt     # treat the prompt as the file pathname
     if os.path.dirname(file_path) == '': #basename given
         file_path = os.path.join(opt.outdir,file_path)
-    if not os.path.exists(file_path):
-        print(f'* file {file_path} does not exist')
-        return
 
     tool=None
     if opt.gfpgan_strength > 0:
@@ -394,17 +385,24 @@ def do_postprocess (gen, opt, callback):
         tool = 'outpaint'
     opt.save_original = True # do not overwrite old image!
     opt.last_operation    = f'postprocess:{tool}'
-    gen.apply_postprocessor(
-        image_path      = file_path,
-        tool            = tool,
-        gfpgan_strength = opt.gfpgan_strength,
-        codeformer_fidelity = opt.codeformer_fidelity,
-        save_original       = opt.save_original,
-        upscale             = opt.upscale,
-        out_direction       = opt.out_direction,
-        callback            = callback,
-        opt                 = opt,
+    try:
+        gen.apply_postprocessor(
+            image_path      = file_path,
+            tool            = tool,
+            gfpgan_strength = opt.gfpgan_strength,
+            codeformer_fidelity = opt.codeformer_fidelity,
+            save_original       = opt.save_original,
+            upscale             = opt.upscale,
+            out_direction       = opt.out_direction,
+            callback            = callback,
+            opt                 = opt,
         )
+    except OSError:
+        print(f'** {file_path}: file could not be read')
+        return
+    except (KeyError, AttributeError):
+        print(f'** {file_path}: file has no metadata')
+        return
     return opt.last_operation
     
 def prepare_image_metadata(
@@ -420,8 +418,8 @@ def prepare_image_metadata(
     if postprocessed and opt.save_original:
         filename = choose_postprocess_name(opt,prefix,seed)
     else:
-        filename = f'{prefix}.{seed}.png'        
-        
+        filename = f'{prefix}.{seed}.png'
+
     if opt.variation_amount > 0:
         first_seed             = first_seed or seed
         this_variation         = [[seed, opt.variation_amount]]
@@ -521,8 +519,11 @@ def retrieve_dream_command(opt,file_path,completer):
         path = file_path
     try:
         cmd = dream_cmd_from_png(path)
-    except FileNotFoundError:
-        print(f'** {path}: file not found')
+    except OSError:
+        print(f'** {path}: file could not be read')
+        return
+    except (KeyError, AttributeError):
+        print(f'** {path}: file has no metadata')
         return
     completer.set_line(cmd)
 

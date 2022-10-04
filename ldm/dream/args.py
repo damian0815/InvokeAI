@@ -193,7 +193,7 @@ class Args(object):
         # img2img generations have parameters relevant only to them and have special handling
         if a['init_img'] and len(a['init_img'])>0:
             switches.append(f'-I {a["init_img"]}')
-            switches.append(f'-A ddim') # TODO: FIX ME WHEN IMG2IMG SUPPORTS ALL SAMPLERS
+            switches.append(f'-A {a["sampler_name"]}')
             if a['fit']:
                 switches.append(f'--fit')
             if a['init_mask'] and len(a['init_mask'])>0:
@@ -227,8 +227,8 @@ class Args(object):
         # 2. However, they come out of the CLI (and probably web) with the keyword "with_variations" and
         #    in broken-out form. Variation (1) should be changed to comply with (2)
         if a['with_variations']:
-            formatted_variations = ','.join(f'{seed}:{weight}' for seed, weight in (a["variations"]))
-            switches.append(f'-V {a["formatted_variations"]}')
+            formatted_variations = ','.join(f'{seed}:{weight}' for seed, weight in (a["with_variations"]))
+            switches.append(f'-V {formatted_variations}')
         if 'variations' in a:
             switches.append(f'-V {a["variations"]}')
         return ' '.join(switches)
@@ -274,7 +274,10 @@ class Args(object):
         # the arg value. For example, the --grid and --individual options are a little
         # funny because of their push/pull relationship. This is how to handle it.
         if name=='grid':
-            return not cmd_switches.individual and value_arg  # arg supersedes cmd
+            if cmd_switches.individual:
+                return False
+            else:
+                return value_cmd or value_arg
         return value_cmd if value_cmd is not None else value_arg
 
     def __setattr__(self,name,value):
@@ -458,6 +461,12 @@ class Args(object):
             default='9090',
             help='Web server: Port to listen on'
         )
+        web_server_group.add_argument(
+            '--gui',
+            dest='gui',
+            action='store_true',
+            help='Start InvokeAI GUI',
+        )
         return parser
 
     # This creates the parser that processes commands on the dream> command line
@@ -568,6 +577,12 @@ class Args(object):
             '-o',
             type=str,
             help='Directory to save generated images and a log of prompts and seeds',
+        )
+        render_group.add_argument(
+            '--hires_fix',
+            action='store_true',
+            dest='hires_fix',
+            help='Create hires image using img2img to prevent duplicated objects'
         )
         img2img_group.add_argument(
             '-I',
