@@ -61,10 +61,9 @@ Notice how much more fuzzy the starting image is for strength `0.7` compared to 
 
 | strength | 0.7 | 0.4 |
 | -- | -- | -- |
+| steps argument to `dream>` | `-S10` | `-S10` |
 | initial image that SD sees | ![](../assets/img2img/000032.step-0.png) | ![](../assets/img2img/000030.step-0.png) |
-| steps passed to `dream>` | 10 | 10 |
-| steps actually taken | 7 | 4 |
-| latent steps | ![](../assets/img2img/000032.steps.gravity.png) | ![](../assets/img2img/000030.steps.gravity.png) |
+| steps actually taken | 7: ![](../assets/img2img/000032.steps.gravity.png) | 4: ![](../assets/img2img/000030.steps.gravity.png) |
 | output | ![](../assets/img2img/000032.1592514025.png) | ![](../assets/img2img/000030.1592514025.png) |
 
 Both of the outputs look kind of like what I was thinking of. With the strength higher, my input becomes more vague, *and* Stable Diffusion has more steps to refine its output. But it's not really making what I want, which is a picture of cheery open fire. With the strength lower, my input is more clear, *but* Stable Diffusion has less chance to refine itself, so the result ends up inheriting all the problems of my bad drawing.
