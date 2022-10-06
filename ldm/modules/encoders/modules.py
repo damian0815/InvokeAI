@@ -485,10 +485,9 @@ class WeightedFrozenCLIPEmbedder(FrozenCLIPEmbedder):
                 item_fragments,
                 truncation=True,
                 max_length=self.max_length,
-                return_length=True,
                 return_overflowing_tokens=False,
                 padding='do_not_pad',
-                return_tensors=None,  # just give me a python list of ints
+                return_tensors=None,  # just give me a list of ints
             )['input_ids']
             all_tokens = []
             per_token_weights = []
@@ -502,13 +501,13 @@ class WeightedFrozenCLIPEmbedder(FrozenCLIPEmbedder):
                 all_tokens.extend(fragment_tokens[1:-1])
                 per_token_weights.extend([weight] * (len(fragment_tokens) - 2))
 
-            if len(all_tokens) > self.tokenizer.model_max_length-2:
+            if len(all_tokens) > self.max_length-2:
                 print("prompt is too long and has been truncated")
-                all_tokens = all_tokens[:self.tokenizer.model_max_length-2]
+                all_tokens = all_tokens[:self.max_length-2]
 
             # build a 77-entry array: [eos_token, <prompt tokens>, eos_token, ..., eos_token]
-            # (77 = self.tokenizer.model_max_length)
-            pad_length = self.tokenizer.model_max_length - 1 - len(all_tokens)
+            # (77 = self.max_length)
+            pad_length = self.max_length - 1 - len(all_tokens)
             all_tokens.insert(0, self.tokenizer.bos_token_id)
             all_tokens.extend([self.tokenizer.eos_token_id] * pad_length)
             per_token_weights.insert(0, 1)
@@ -529,15 +528,35 @@ class WeightedFrozenCLIPEmbedder(FrozenCLIPEmbedder):
         batch_z = self.transformer(input_ids=batch_tokens, **kwargs)
         original_mean = batch_z.mean()
         batch_weights_expanded = batch_weights.reshape(batch_weights.shape + (1,)).expand(batch_z.shape)
-        # TODO try weighting the feature vectors' delta from "nothing" instead of the absolute feature vectors
-        # delta = z - empty_z
-        # weighted_z = empty_z + delta * weight
-        batch_z *= batch_weights_expanded
-        after_weighting_mean = batch_z.mean()
-        # correct the mean. not sure if this is right but it's what the automatic1111 fork of SD does
-        mean_correction_factor = original_mean/after_weighting_mean
-        batch_z *= mean_correction_factor
-        return batch_z
+
+        weight_delta_from_empty = False
+        if weight_delta_from_empty:
+            empty_tokens = self.tokenizer([''] * batch_z.shape[0],
+                                     truncation=True,
+                                     max_length=self.max_length,
+                                     padding='max_length',
+                                     return_tensors='pt'
+                                     )['input_ids'].to(self.device)
+            empty_z = self.transformer(input_ids=empty_tokens, **kwargs)
+            z_delta_from_empty = batch_z - empty_z
+            weighted_z = empty_z + (z_delta_from_empty * batch_weights_expanded)
+
+            weighted_z_delta_from_empty = (weighted_z-empty_z)
+            print("weighted z has delta from empty with sum", weighted_z_delta_from_empty.sum(), "mean", weighted_z_delta_from_empty.mean() )
+
+            #print("using empty-delta method, first 5 rows:")
+            #print(weighted_z[:5])
+
+            return weighted_z
+
+        else:
+
+            batch_z *= batch_weights_expanded
+            after_weighting_mean = batch_z.mean()
+            # correct the mean. not sure if this is right but it's what the automatic1111 fork of SD does
+            mean_correction_factor = original_mean/after_weighting_mean
+            batch_z *= mean_correction_factor
+            return batch_z
 
 class FrozenCLIPTextEmbedder(nn.Module):
     """

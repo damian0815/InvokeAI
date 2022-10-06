@@ -451,6 +451,10 @@ class Generate:
                 print('**Interrupted** Partial results will be returned.')
             else:
                 raise KeyboardInterrupt
+        # brute-force fallback
+        except Exception as e:
+            print(traceback.format_exc(), file=sys.stderr)
+            print('>> Could not generate image.')
 
         toc = time.time()
         print('>> Usage stats:')

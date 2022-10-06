@@ -13,6 +13,13 @@ import re
 import torch
 
 def get_uc_and_c(prompt, model, log_tokens=False, skip_normalize=False):
+
+    try:
+        prompt, _, flames_weight_str = prompt.rpartition('|')
+        flames_weight = float(flames_weight_str)
+    except ValueError:
+        flames_weight = None
+
     # Extract Unconditioned Words From Prompt
     unconditioned_words = ''
     unconditional_regex = r'\[(.*?)\]'
@@ -26,14 +33,15 @@ def get_uc_and_c(prompt, model, log_tokens=False, skip_normalize=False):
         clean_prompt = unconditional_regex_compile.sub(' ', prompt)
         prompt = re.sub(' +', ' ', clean_prompt)
 
-    uc = model.get_learned_conditioning([unconditioned_words], [1] * len(unconditioned_words))
+    # unconditioned_words is a str
+    uc = model.get_learned_conditioning([[unconditioned_words]], attention_weights=[[1]])
 
     # get weighted sub-prompts
-    weighted_subprompts = split_weighted_subprompts(
+    subprompts_to_blend = split_weighted_subprompts(
         prompt, skip_normalize
     )
 
-    if len(weighted_subprompts) > 1:
+    if len(subprompts_to_blend) > 1:
         # i dont know if this is correct.. but it works
         c = torch.zeros_like(uc)
         # normalize each "sub prompt" and add it
@@ -46,8 +54,25 @@ def get_uc_and_c(prompt, model, log_tokens=False, skip_normalize=False):
             )
     else:   # just standard 1 prompt
         log_tokenization(prompt, model, log_tokens, 1)
-        c = model.get_learned_conditioning([prompt])
-        uc = model.get_learned_conditioning([unconditioned_words])
+        positive_weights = [1]
+        positive_prompt = [prompt]
+        negative_weights = [1]
+        negative_prompt = ['']
+
+        if flames_weight is not None:
+            negative_prompt = []
+            negative_weights = []
+            positive_prompt.append("flames")
+            positive_weights.append(flames_weight)
+            negative_prompt.append("flames")
+            negative_weights.append(1-flames_weight)
+        #if flames_weight < 1:
+        #    negative_prompt.append("flames")
+        #    negative_weights.append(1-flames_weight)
+        print("positive conditioning:")
+        c = model.get_learned_conditioning([positive_prompt], attention_weights=[positive_weights])
+        print("negative conditioning:")
+        uc = model.get_learned_conditioning([negative_prompt], attention_weights=[negative_weights])
     return (uc, c)
 
 def split_weighted_subprompts(text, skip_normalize=False)->list:
