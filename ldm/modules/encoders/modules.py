@@ -456,23 +456,88 @@ class FrozenCLIPEmbedder(AbstractEncoder):
 
 class WeightedFrozenCLIPEmbedder(FrozenCLIPEmbedder):
 
-    def forward(self, text, **kwargs):
+    attention_weights_key = "attention_weights"
+
+    def build_token_list_fragment(self, fragment: str, weight: float) -> (torch.Tensor, torch.Tensor):
         batch_encoding = self.tokenizer(
-            text,
+            fragment,
             truncation=True,
             max_length=self.max_length,
             return_length=True,
             return_overflowing_tokens=False,
-            padding='max_length',
+            padding='none',
             return_tensors='pt',
         )
-        batch_weights = kwargs["weights"] if "weights" in kwargs else torch.ones((len(text), 77))
-        kwargs.pop("weights")
-        tokens = batch_encoding['input_ids'].to(self.device)
-        print("encoded",text,"to",tokens)
-        z = self.transformer(input_ids=tokens, **kwargs)
+        return batch_encoding, torch.ones_like(batch_encoding) * weight
 
-        return z
+    def forward(self, text, **kwargs):
+
+        if self.attention_weights_key not in kwargs:
+            # fallback to base class implementation
+            return super().forward(text, **kwargs)
+
+        attention_weights = kwargs[self.attention_weights_key]
+
+        batch_tokens = None
+        batch_weights = None
+        for item_fragments, item_weights in zip(text, attention_weights):
+            item_encodings = self.tokenizer(
+                item_fragments,
+                truncation=True,
+                max_length=self.max_length,
+                return_length=True,
+                return_overflowing_tokens=False,
+                padding='do_not_pad',
+                return_tensors=None,  # just give me a python list of ints
+            )['input_ids']
+            all_tokens = []
+            per_token_weights = []
+            print("all fragments:", item_fragments, item_weights)
+            for index, fragment in enumerate(item_encodings):
+                weight = item_weights[index]
+                print("processing fragment", fragment, weight)
+                fragment_tokens = item_encodings[index]
+                print("fragment", fragment, "processed to", fragment_tokens)
+                # trim bos and eos markers before appending
+                all_tokens.extend(fragment_tokens[1:-1])
+                per_token_weights.extend([weight] * (len(fragment_tokens) - 2))
+
+            if len(all_tokens) > self.tokenizer.model_max_length-2:
+                print("prompt is too long and has been truncated")
+                all_tokens = all_tokens[:self.tokenizer.model_max_length-2]
+
+            # build a 77-entry array: [eos_token, <prompt tokens>, eos_token, ..., eos_token]
+            # (77 = self.tokenizer.model_max_length)
+            pad_length = self.tokenizer.model_max_length - 1 - len(all_tokens)
+            all_tokens.insert(0, self.tokenizer.bos_token_id)
+            all_tokens.extend([self.tokenizer.eos_token_id] * pad_length)
+            per_token_weights.insert(0, 1)
+            per_token_weights.extend([1] * pad_length)
+
+            item_tokens = torch.tensor(all_tokens, dtype=torch.long).to(self.device)
+            item_weights = torch.tensor(per_token_weights, dtype=torch.float32).to(self.device)
+            print(f"assembled tokens for '{fragment}' into tensor of shape {item_tokens.shape}")
+
+            # append to batch
+            batch_weights = item_weights.unsqueeze(0) if batch_weights is None else torch.cat((batch_weights, item_weights), 1)
+            batch_tokens = item_tokens.unsqueeze(0) if batch_tokens is None else torch.cat((batch_tokens, item_tokens), 1)
+
+        # apply attention weighting to all items in batch
+
+        # self.transformer doesn't like receiving "attention_weights" as an argument
+        kwargs.pop(self.attention_weights_key)
+        batch_z = self.transformer(input_ids=batch_tokens, **kwargs)
+        original_mean = batch_z.mean()
+        batch_weights_expanded = batch_weights.reshape(batch_weights.shape + (1,)).expand(batch_z.shape)
+        # TODO try weighting the feature vectors' delta from "nothing" instead of the absolute feature vectors
+        # delta = z - empty_z
+        # weighted_z = empty_z + delta * weight
+        batch_z *= batch_weights_expanded
+        after_weighting_mean = batch_z.mean()
+        # correct the mean. not sure if this is right but it's what the automatic1111 fork of SD does
+        mean_correction_factor = original_mean/after_weighting_mean
+        batch_z *= mean_correction_factor
+        return batch_z
 
 class FrozenCLIPTextEmbedder(nn.Module):
     """
