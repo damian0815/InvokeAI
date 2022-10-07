@@ -13,8 +13,16 @@ class CFGDenoiser(nn.Module):
         x_in = torch.cat([x] * 2)
         sigma_in = torch.cat([sigma] * 2)
         cond_in = torch.cat([uncond, cond])
-        uncond, cond = self.inner_model(x_in, sigma_in, cond=cond_in).chunk(2)
-        return uncond + (cond - uncond) * cond_scale
+        unconditioned_x, conditioned_x = self.inner_model(x_in, sigma_in, cond=cond_in).chunk(2)
+
+        # damian0815 thinking out loud notes:
+        # b + (a - b)*scale
+        # starting at the output that emerges applying the negative prompt (by default ''),
+        # (-> this is why the unconditioning feels like hammer)
+        # move toward the positive prompt by an amount controlled by cond_scale.
+        return unconditioned_x + (conditioned_x - unconditioned_x) * cond_scale
+
+
 
 
 class KSampler(object):
