@@ -521,8 +521,8 @@ class WeightedFrozenCLIPEmbedder(FrozenCLIPEmbedder):
                     # fragment_weight = 0.5: this weight should be 0
                     # fragment_weight = 0: we're now entirely overriding base_z
                     epsilon = 0.0001
-                    fragment_weight = math.max(epsilon, fragment_weight)
-                    per_embedding_weights.append(tan(1.0-fragment_weight))
+                    fragment_weight = max(epsilon, fragment_weight)
+                    per_embedding_weights.append(1.0-fragment_weight)
 
             lerped_embeddings = self.apply_embedding_weights(embeddings, per_embedding_weights, normalize=True).squeeze(0)
 
