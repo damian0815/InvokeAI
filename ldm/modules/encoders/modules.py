@@ -1,3 +1,5 @@
+import math
+
 import torch
 import torch.nn as nn
 from functools import partial
@@ -491,35 +493,58 @@ class WeightedFrozenCLIPEmbedder(FrozenCLIPEmbedder):
         batch_z = None
         for fragments, weights in zip(text, attention_weights):
 
-            tokens, per_token_weights = self.get_tokens_and_weights(fragments, weights)
-            base_embedding = self.build_weighted_embedding_tensor(tokens, per_token_weights, **kwargs)
-            embeddings = base_embedding.unsqueeze(0)
-            weights = torch.tensor([1.0], dtype=torch.float, device=embeddings.device)
+            # first handle weights>1 by scaling the feature vectors upwards (effectively: applying a stronger or
+            # weaking CFG on a per-token basis)
 
+            # handle weights >=1
+            tokens, per_token_weights = self.get_tokens_and_weights(fragments, weights)
+            # for now bump all <1 weights up to 1
+            per_token_weights = torch.maximum(per_token_weights, torch.tensor([1]).to(self.device))
+            base_embedding = self.build_weighted_embedding_tensor(tokens, per_token_weights, **kwargs)
+
+            # this is our starting point
+            embeddings = base_embedding.unsqueeze(0)
+            per_embedding_weights = [1.0]
+
+            # now handle weights <1
             for index, fragment_weight in enumerate(weights):
                 if fragment_weight < 1:
                     fragments_without_this = fragments[:index] + fragments[index+1:]
                     weights_without_this = weights[:index] + weights[index+1:]
                     tokens, per_token_weights = self.get_tokens_and_weights(fragments_without_this, weights_without_this)
-                    z = self.build_weighted_embedding_tensor(tokens, per_token_weights, **kwargs)
+                    embedding_without_this = self.build_weighted_embedding_tensor(tokens, per_token_weights, **kwargs)
 
-                    embeddings = torch.cat((embeddings, z), dim=0)
-                    weights = torch.cat((weights, 1/fragment_weight))
+                    embeddings = torch.cat((embeddings, embedding_without_this.unsqueeze(0)), dim=1)
+                    # weight of without-this embedding gets stronger as weight approaches 0
+                    # if fragment_weight = 0, actually we want the weight of *this* embedding to be super strong
+                    # fragment_weight = 1: no change
+                    # fragment_weight = 0.5: this weight should be 0
+                    # fragment_weight = 0: we're now entirely overriding base_z
+                    epsilon = 0.0001
+                    fragment_weight = math.max(epsilon, fragment_weight)
+                    per_embedding_weights.append(tan(1.0-fragment_weight))
 
-            normalized_weights = weights / torch.sum(weights)
-            lerped_embeddings = torch.sum(embeddings * normalized_weights, dim=0)
-            # lerped embeddings has shape (77, 768)
+            lerped_embeddings = self.apply_embedding_weights(embeddings, per_embedding_weights, normalize=True).squeeze(0)
 
             print(f"assembled tokens for '{fragments}' into tensor of shape {lerped_embeddings.shape}")
 
             # append to batch
-            batch_z = lerped_embeddings.unsqueeze(0) if batch_z is None else torch.cat((batch_z, lerped_embeddings), 1)
+            batch_z = lerped_embeddings.unsqueeze(0) if batch_z is None else torch.cat((batch_z, lerped_embeddings.unsqueeze(0)), dim=1)
 
         # should have shape (B, 77, 768)
         print(f"assembled all tokens into tensor of shape {batch_z.shape}")
 
         return batch_z
 
+    @classmethod
+    def apply_embedding_weights(self, embeddings: torch.Tensor, per_embedding_weights: list[float], normalize:bool) -> torch.Tensor:
+        per_embedding_weights = torch.tensor(per_embedding_weights, dtype=embeddings.dtype, device=embeddings.device)
+        if normalize:
+            per_embedding_weights = per_embedding_weights / torch.sum(per_embedding_weights)
+        reshaped_weights = per_embedding_weights.reshape(per_embedding_weights.shape + (1, 1,))
+        #reshaped_weights = per_embedding_weights.reshape(per_embedding_weights.shape + (1,1,)).expand(embeddings.shape)
+        return torch.sum(embeddings * reshaped_weights, dim=1)
+        # lerped embeddings has shape (77, 768)
 
     def get_tokens_and_weights(self, fragments: list[str], weights: list[float]) -> (torch.Tensor, torch.Tensor):
         item_encodings = self.tokenizer(
@@ -589,7 +614,7 @@ class WeightedFrozenCLIPEmbedder(FrozenCLIPEmbedder):
             #print("using empty-delta method, first 5 rows:")
             #print(weighted_z[:5])
 
-            return weighted_z.squeeze(0)
+            return weighted_z
 
         else:
             original_mean = z.mean()
@@ -598,7 +623,7 @@ class WeightedFrozenCLIPEmbedder(FrozenCLIPEmbedder):
             # correct the mean. not sure if this is right but it's what the automatic1111 fork of SD does
             mean_correction_factor = original_mean/after_weighting_mean
             z *= mean_correction_factor
-            return z.squeeze(0)
+            return z
 
 
 class FrozenCLIPTextEmbedder(nn.Module):

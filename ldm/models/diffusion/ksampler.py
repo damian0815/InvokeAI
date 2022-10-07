@@ -83,6 +83,7 @@ class KSampler(object):
             )   # for GPU draw
         model_wrap_cfg = CFGDenoiser(self.model)
         extra_args = {
+            # damian: we could insert extra things in here
             'cond': conditioning,
             'uncond': unconditional_conditioning,
             'cond_scale': unconditional_guidance_scale,
