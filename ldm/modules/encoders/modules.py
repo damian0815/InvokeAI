@@ -470,93 +470,136 @@ class WeightedFrozenCLIPEmbedder(FrozenCLIPEmbedder):
         )
         return batch_encoding, torch.ones_like(batch_encoding) * weight
 
-    def forward(self, text, **kwargs):
 
+    def forward(self, text: list[str|list[str]], **kwargs):
+        '''
+
+        :param text: A batch of prompt strings, or, a batch of lists of fragments of prompt strings to which different
+        weights shall be applied.
+        :param kwargs: If the keyword arg "attention_weights" is passed, it shall contain a batch of lists of weights
+        for the prompt fragments. In this case text must contain batches of lists of prompt fragments.
+        :return: A tensor of shape (B, 77, 768) containing weighted embeddings
+        '''
         if self.attention_weights_key not in kwargs:
             # fallback to base class implementation
             return super().forward(text, **kwargs)
 
         attention_weights = kwargs[self.attention_weights_key]
-
-        batch_tokens = None
-        batch_weights = None
-        for item_fragments, item_weights in zip(text, attention_weights):
-            item_encodings = self.tokenizer(
-                item_fragments,
-                truncation=True,
-                max_length=self.max_length,
-                return_overflowing_tokens=False,
-                padding='do_not_pad',
-                return_tensors=None,  # just give me a list of ints
-            )['input_ids']
-            all_tokens = []
-            per_token_weights = []
-            print("all fragments:", item_fragments, item_weights)
-            for index, fragment in enumerate(item_encodings):
-                weight = item_weights[index]
-                print("processing fragment", fragment, weight)
-                fragment_tokens = item_encodings[index]
-                print("fragment", fragment, "processed to", fragment_tokens)
-                # trim bos and eos markers before appending
-                all_tokens.extend(fragment_tokens[1:-1])
-                per_token_weights.extend([weight] * (len(fragment_tokens) - 2))
-
-            if len(all_tokens) > self.max_length-2:
-                print("prompt is too long and has been truncated")
-                all_tokens = all_tokens[:self.max_length-2]
-
-            # build a 77-entry array: [eos_token, <prompt tokens>, eos_token, ..., eos_token]
-            # (77 = self.max_length)
-            pad_length = self.max_length - 1 - len(all_tokens)
-            all_tokens.insert(0, self.tokenizer.bos_token_id)
-            all_tokens.extend([self.tokenizer.eos_token_id] * pad_length)
-            per_token_weights.insert(0, 1)
-            per_token_weights.extend([1] * pad_length)
-
-            item_tokens = torch.tensor(all_tokens, dtype=torch.long).to(self.device)
-            item_weights = torch.tensor(per_token_weights, dtype=torch.float32).to(self.device)
-            print(f"assembled tokens for '{fragment}' into tensor of shape {item_tokens.shape}")
-
-            # append to batch
-            batch_weights = item_weights.unsqueeze(0) if batch_weights is None else torch.cat((batch_weights, item_weights), 1)
-            batch_tokens = item_tokens.unsqueeze(0) if batch_tokens is None else torch.cat((batch_tokens, item_tokens), 1)
-
-        # apply attention weighting to all items in batch
-
         # self.transformer doesn't like receiving "attention_weights" as an argument
         kwargs.pop(self.attention_weights_key)
-        batch_z = self.transformer(input_ids=batch_tokens, **kwargs)
-        original_mean = batch_z.mean()
-        batch_weights_expanded = batch_weights.reshape(batch_weights.shape + (1,)).expand(batch_z.shape)
 
-        weight_delta_from_empty = False
+        batch_z = None
+        for fragments, weights in zip(text, attention_weights):
+
+            tokens, per_token_weights = self.get_tokens_and_weights(fragments, weights)
+            base_embedding = self.build_weighted_embedding_tensor(tokens, per_token_weights, **kwargs)
+            embeddings = base_embedding.unsqueeze(0)
+            weights = torch.tensor([1.0], dtype=torch.float, device=embeddings.device)
+
+            for index, fragment_weight in enumerate(weights):
+                if fragment_weight < 1:
+                    fragments_without_this = fragments[:index] + fragments[index+1:]
+                    weights_without_this = weights[:index] + weights[index+1:]
+                    tokens, per_token_weights = self.get_tokens_and_weights(fragments_without_this, weights_without_this)
+                    z = self.build_weighted_embedding_tensor(tokens, per_token_weights, **kwargs)
+
+                    embeddings = torch.cat((embeddings, z), dim=0)
+                    weights = torch.cat((weights, 1/fragment_weight))
+
+            normalized_weights = weights / torch.sum(weights)
+            lerped_embeddings = torch.sum(embeddings * normalized_weights, dim=0)
+            # lerped embeddings has shape (77, 768)
+
+            print(f"assembled tokens for '{fragments}' into tensor of shape {lerped_embeddings.shape}")
+
+            # append to batch
+            batch_z = lerped_embeddings.unsqueeze(0) if batch_z is None else torch.cat((batch_z, lerped_embeddings), 1)
+
+        # should have shape (B, 77, 768)
+        print(f"assembled all tokens into tensor of shape {batch_z.shape}")
+
+        return batch_z
+
+
+    def get_tokens_and_weights(self, fragments: list[str], weights: list[float]) -> (torch.Tensor, torch.Tensor):
+        item_encodings = self.tokenizer(
+            fragments,
+            truncation=True,
+            max_length=self.max_length,
+            return_overflowing_tokens=False,
+            padding='do_not_pad',
+            return_tensors=None,  # just give me a list of ints
+        )['input_ids']
+        all_tokens = []
+        per_token_weights = []
+        print("all fragments:", fragments, weights)
+        for index, fragment in enumerate(item_encodings):
+            weight = weights[index]
+            print("processing fragment", fragment, weight)
+            fragment_tokens = item_encodings[index]
+            print("fragment", fragment, "processed to", fragment_tokens)
+            # trim bos and eos markers before appending
+            all_tokens.extend(fragment_tokens[1:-1])
+            per_token_weights.extend([weight] * (len(fragment_tokens) - 2))
+
+        if len(all_tokens) > self.max_length - 2:
+            print("prompt is too long and has been truncated")
+            all_tokens = all_tokens[:self.max_length - 2]
+
+        # build a 77-entry array: [eos_token, <prompt tokens>, eos_token, ..., eos_token]
+        # (77 = self.max_length)
+        pad_length = self.max_length - 1 - len(all_tokens)
+        all_tokens.insert(0, self.tokenizer.bos_token_id)
+        all_tokens.extend([self.tokenizer.eos_token_id] * pad_length)
+        per_token_weights.insert(0, 1)
+        per_token_weights.extend([1] * pad_length)
+
+        all_tokens_tensor = torch.tensor(all_tokens, dtype=torch.long).to(self.device)
+        per_token_weights_tensor = torch.tensor(per_token_weights, dtype=torch.float32).to(self.device)
+        print(f"assembled all_tokens_tensor {all_tokens_tensor}")
+        return all_tokens_tensor, per_token_weights_tensor
+
+    def build_weighted_embedding_tensor(self, tokens: torch.Tensor, per_token_weights: torch.Tensor, weight_delta_from_empty=True, **kwargs) -> torch.Tensor:
+        '''
+        Build a tensor representing the passed-in tokens, each of which has a weight.
+        :param tokens: A tensor of shape (77) containing token ids (integers)
+        :param per_token_weights: A tensor of shape (77) containing weights (floats)
+        :param method: Whether to multiply the whole feature vector for each token or just its distance from an "empty" feature vector
+        :param kwargs: passed on to self.transformer()
+        :return: A tensor of shape (1, 77, 768) representing the requested weighted embeddings.
+        '''
+        print(f"building weighted embedding tensor for {tokens} with weights {per_token_weights}")
+        z = self.transformer(input_ids=tokens.unsqueeze(0), **kwargs)
+        batch_weights_expanded = per_token_weights.reshape(per_token_weights.shape + (1,)).expand(z.shape)
+
         if weight_delta_from_empty:
-            empty_tokens = self.tokenizer([''] * batch_z.shape[0],
-                                     truncation=True,
-                                     max_length=self.max_length,
-                                     padding='max_length',
-                                     return_tensors='pt'
-                                     )['input_ids'].to(self.device)
+            empty_tokens = self.tokenizer([''] * z.shape[0],
+                                         truncation=True,
+                                         max_length=self.max_length,
+                                         padding='max_length',
+                                         return_tensors='pt'
+                                         )['input_ids'].to(self.device)
             empty_z = self.transformer(input_ids=empty_tokens, **kwargs)
-            z_delta_from_empty = batch_z - empty_z
+            z_delta_from_empty = z - empty_z
             weighted_z = empty_z + (z_delta_from_empty * batch_weights_expanded)
 
             weighted_z_delta_from_empty = (weighted_z-empty_z)
-            print("weighted z has delta from empty with sum", weighted_z_delta_from_empty.sum(), "mean", weighted_z_delta_from_empty.mean() )
+            print("weighted z has delta from empty with sum", weighted_z_delta_from_empty.sum().item(), "mean", weighted_z_delta_from_empty.mean().item() )
 
             #print("using empty-delta method, first 5 rows:")
             #print(weighted_z[:5])
 
-            return weighted_z
+            return weighted_z.squeeze(0)
 
         else:
-
-            batch_z *= batch_weights_expanded
-            after_weighting_mean = batch_z.mean()
+            original_mean = z.mean()
+            z *= batch_weights_expanded
+            after_weighting_mean = z.mean()
             # correct the mean. not sure if this is right but it's what the automatic1111 fork of SD does
             mean_correction_factor = original_mean/after_weighting_mean
-            batch_z *= mean_correction_factor
-            return batch_z
+            z *= mean_correction_factor
+            return z.squeeze(0)
+
 
 class FrozenCLIPTextEmbedder(nn.Module):
     """

@@ -45,6 +45,7 @@ def get_uc_and_c(prompt, model, log_tokens=False, skip_normalize=False):
         log_tokenization(prompt, model, log_tokens, 1)
         c = model.get_learned_conditioning([[prompt]], attention_weights=[[1]])
         uc = model.get_learned_conditioning([[unconditioned_words]], attention_weights=[[1]])
+    print("got uc with shape", uc.shape, "c with shape", c.shape)
     return (uc, c)
 
 def split_weighted_subprompts(text, skip_normalize=False)->list:
