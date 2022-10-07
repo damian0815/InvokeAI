@@ -515,14 +515,21 @@ class WeightedFrozenCLIPEmbedder(FrozenCLIPEmbedder):
                     embedding_without_this = self.build_weighted_embedding_tensor(tokens, per_token_weights, **kwargs)
 
                     embeddings = torch.cat((embeddings, embedding_without_this.unsqueeze(0)), dim=1)
-                    # weight of without-this embedding gets stronger as weight approaches 0
-                    # if fragment_weight = 0, actually we want the weight of *this* embedding to be super strong
-                    # fragment_weight = 1: no change
-                    # fragment_weight = 0.5: this weight should be 0
-                    # fragment_weight = 0: we're now entirely overriding base_z
+                    # weight of the embedding *without* this fragment gets *stronger* as its weight approaches 0
+                    # if fragment_weight = 0, basically we want embedding_without_this to completely overwhelm base_embedding
+                    # therefore:
+                    # fragment_weight = 1: we are at base_z => lerp weight 0
+                    # fragment_weight = 0.5: we are halfway between base_z and here => lerp weight 1
+                    # fragment_weight = 0: we're now entirely overriding base_z ==> lerp weight inf
+                    # so let's use tan(), because:
+                    # tan is 0.0 at 0,
+                    #        1.0 at PI/4, and
+                    #        inf at PI/2
+                    # -> tan((1-weight)*PI/2) should give us ideal lerp weights
                     epsilon = 0.0001
-                    fragment_weight = max(epsilon, fragment_weight)
-                    per_embedding_weights.append(1.0-fragment_weight)
+                    fragment_weight = max(epsilon, fragment_weight) # inf is bad
+                    embedding_lerp_weight = math.tan((1.0 - fragment_weight) * math.pi / 2)
+                    per_embedding_weights.append(embedding_lerp_weight)
 
             lerped_embeddings = self.apply_embedding_weights(embeddings, per_embedding_weights, normalize=True).squeeze(0)
 
