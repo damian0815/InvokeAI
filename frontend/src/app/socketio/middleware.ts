@@ -22,9 +22,9 @@ import * as InvokeAI from '../invokeai';
  * some new action to handle whatever data was sent from the server.
  */
 export const socketioMiddleware = () => {
-  const { hostname, port } = new URL(window.location.href);
+  const { hostname, port, protocol } = new URL(window.location.href);
 
-  const socketio = io(`http://${hostname}:${port}`, {
+  const socketio = io(`${protocol}//${hostname}:${port}`, {
     timeout: 60000,
   });
 
