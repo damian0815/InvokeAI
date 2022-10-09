@@ -415,7 +415,7 @@ class Generate:
                 sampler=self.sampler,
                 steps=steps,
                 cfg_scale=cfg_scale,
-                conditioning=(uc, c),
+                conditioning=(uc, c), # here change to arrays
                 ddim_eta=ddim_eta,
                 image_callback=image_callback,  # called after the final image is generated
                 step_callback=step_callback,   # called after each intermediate image is generated

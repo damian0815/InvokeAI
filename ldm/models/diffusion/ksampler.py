@@ -24,6 +24,28 @@ class CFGDenoiser(nn.Module):
 
 
 
+class ProgrammableCFGDenoiser(CFGDenoiser):
+    def forward(self, x, sigma, uncond, cond, cond_scale):
+        x_in = torch.cat([x] * 2)
+        sigma_in = torch.cat([sigma] * 2)
+        deltas = None
+        uncond_latents = None
+        weights = []
+        if cond is not list:
+            cond = [(cond, 1)]
+        for this_cond,this_weight in cond:
+            cond_in = torch.cat([uncond, this_cond])
+            # always overwrite uncond_latents? is this right?
+            uncond_latents, cond_latents = self.inner_model(x_in, sigma_in, cond=cond_in).chunk(2)
+            delta = cond_latents - uncond_latents
+            deltas = delta.unsqueeze(0) if deltas is None else torch.cat((deltas, delta))
+            weights.append(this_weight)
+        
+        weights = torch.tensor(weights, shape=(1, 1))
+        deltas_merged = deltas * weights
+        
+        return uncond_latents + deltas_merged * cond_scale
+
 
 class KSampler(object):
     def __init__(self, model, schedule='lms', device=None, **kwargs):
@@ -81,7 +103,7 @@ class KSampler(object):
                 torch.randn([batch_size, *shape], device=self.device)
                 * sigmas[0]
             )   # for GPU draw
-        model_wrap_cfg = CFGDenoiser(self.model)
+        model_wrap_cfg = ProgrammableCFGDenoiser(self.model)
         extra_args = {
             # damian: we could insert extra things in here
             'cond': conditioning,
