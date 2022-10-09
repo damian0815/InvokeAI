@@ -12,41 +12,51 @@ log_tokenization()              print out colour-coded tokens and warn if trunca
 import re
 import torch
 
-def get_uc_and_c(prompt, model, log_tokens=False, skip_normalize=False):
+def get_uc_and_c(prompt_string_uncleaned, model, log_tokens=False, skip_normalize=False):
 
     # Extract Unconditioned Words From Prompt
     unconditioned_words = ''
     unconditional_regex = r'\[(.*?)\]'
-    unconditionals = re.findall(unconditional_regex, prompt)
+    unconditionals = re.findall(unconditional_regex, prompt_string_uncleaned)
 
     if len(unconditionals) > 0:
         unconditioned_words = ' '.join(unconditionals)
 
         # Remove Unconditioned Words From Prompt
         unconditional_regex_compile = re.compile(unconditional_regex)
-        clean_prompt = unconditional_regex_compile.sub(' ', prompt)
-        prompt = re.sub(' +', ' ', clean_prompt)
-
-    # unconditioned_words is a str
-    empty_conditioning = model.get_learned_conditioning([[""]], attention_weights=[[1]])
-    negative_conditioning = model.get_learned_conditioning([[unconditioned_words]], attention_weights=[[1]])
+        clean_prompt = unconditional_regex_compile.sub(' ', prompt_string_uncleaned)
+        prompt_string_cleaned = re.sub(' +', ' ', clean_prompt)
+    else:
+        prompt_string_cleaned = prompt_string_uncleaned
 
     # get weighted sub-prompts
-    subprompts_to_blend = split_weighted_subprompts(
-        prompt, True #skip_normalize
-    )
-
-    if len(subprompts_to_blend) > 1:
+    def get_blend_prompts_and_weights(prompt):
+        subprompts_to_blend = split_weighted_subprompts(
+            prompt, True #skip_normalize
+        )
         for subprompt, weight in subprompts_to_blend:
             log_tokenization(subprompt, model, log_tokens, weight)
-        prompts = [subprompt for subprompt, _ in subprompts_to_blend]
-        weights = [weight for _, weight in subprompts_to_blend]
-        positive_conditioning = model.get_learned_conditioning([prompts], attention_weights=[weights])
-    else:   # just standard 1 prompt
-        log_tokenization(prompt, model, log_tokens, 1)
-        positive_conditioning = model.get_learned_conditioning([[prompt]], attention_weights=[[1]])
+        if len(subprompts_to_blend)==0:
+            subprompts = ['']
+            weights = [1]
+        else:
+            subprompts = [subprompt for subprompt, _ in subprompts_to_blend]
+            weights = [weight for _, weight in subprompts_to_blend]
+        return model.get_learned_conditioning([subprompts], attention_weights=[weights])
+
+    negative_conditioning = get_blend_prompts_and_weights(unconditioned_words)
+    positive_conditioning_list = []
+    # placeholder syntax
+    for prompt in prompt_string_cleaned.split('|'):
+        this_weight = 1
+        positive_conditioning_list.append((get_blend_prompts_and_weights(prompt), this_weight))
     #print("got empty_conditionining with shape", empty_conditioning.shape, "c[0][0] with shape", positive_conditioning[0][0].shape)
-    return (empty_conditioning, [(positive_conditioning, 1), (negative_conditioning, -1)])
+
+    # "unconditioned" means "the conditioning tensor is empty"
+    uc = negative_conditioning
+    c = positive_conditioning_list
+
+    return (uc, c)
 
 def split_weighted_subprompts(text, skip_normalize=False)->list:
     """

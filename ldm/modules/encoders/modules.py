@@ -493,13 +493,18 @@ class WeightedFrozenCLIPEmbedder(FrozenCLIPEmbedder):
         batch_z = None
         for fragments, weights in zip(text, attention_weights):
 
-            # first handle weights>1 by scaling the feature vectors upwards (effectively: applying a stronger or
-            # weaking CFG on a per-token basis)
+            # First, weight tokens in individual fragments by scaling the feature vectors as requested (effectively
+            # applying a multiplier to the CFG scale on a per-token basis).
+            # For tokens weighted<1, intuitively we want SD to become not merely *less* interested in the concept
+            # captured by the fragment but actually *dis*interested in it (a 0.01 interest in "red" is still an active
+            # interest, however small, in redness; what the user probably intends when they attach the number 0.01 to
+            # "red" is to tell SD that it should almost completely *ignore* redness).
+            # To do this, the embedding is lerped away from base_embedding in the direction of an embedding for a prompt
+            # string from which the low-weighted fragment has been simply removed. The closer the weight is to zero, the
+            # closer the resulting embedding is to an embedding for a prompt that simply lacks this fragment.
 
             # handle weights >=1
             tokens, per_token_weights = self.get_tokens_and_weights(fragments, weights)
-            # for now bump all <1 weights up to 1
-            per_token_weights = torch.maximum(per_token_weights, torch.tensor([1]).to(self.device))
             base_embedding = self.build_weighted_embedding_tensor(tokens, per_token_weights, **kwargs)
 
             # this is our starting point
@@ -507,6 +512,13 @@ class WeightedFrozenCLIPEmbedder(FrozenCLIPEmbedder):
             per_embedding_weights = [1.0]
 
             # now handle weights <1
+            # Do this by building extra embeddings tensors that lack the words being <1 weighted. These will be lerped
+            # with the embeddings tensors that have the words, such that if the weight of a word is 0.5, the resulting
+            # embedding will be exactly half-way between the unweighted prompt and the prompt with the <1 weighted words
+            # removed.
+            # eg for "mountain:1 man:0.5", intuitively the "man" should be "half-gone". therefore, append an embedding
+            # for "mountain" (i.e. without "man") to the already-produced embedding for "mountain man", and weight it
+            # such that the resulting lerped embedding is exactly half-way between "mountain man" and "mountain".
             for index, fragment_weight in enumerate(weights):
                 if fragment_weight < 1:
                     fragments_without_this = fragments[:index] + fragments[index+1:]
@@ -526,9 +538,11 @@ class WeightedFrozenCLIPEmbedder(FrozenCLIPEmbedder):
                     #        1.0 at PI/4, and
                     #        inf at PI/2
                     # -> tan((1-weight)*PI/2) should give us ideal lerp weights
-                    epsilon = 0.0001
+                    epsilon = 1e-9
                     fragment_weight = max(epsilon, fragment_weight) # inf is bad
                     embedding_lerp_weight = math.tan((1.0 - fragment_weight) * math.pi / 2)
+                    # todo handle negative weight?
+
                     per_embedding_weights.append(embedding_lerp_weight)
 
             lerped_embeddings = self.apply_embedding_weights(embeddings, per_embedding_weights, normalize=True).squeeze(0)
@@ -553,7 +567,18 @@ class WeightedFrozenCLIPEmbedder(FrozenCLIPEmbedder):
         return torch.sum(embeddings * reshaped_weights, dim=1)
         # lerped embeddings has shape (77, 768)
 
+
     def get_tokens_and_weights(self, fragments: list[str], weights: list[float]) -> (torch.Tensor, torch.Tensor):
+        '''
+
+        :param fragments:
+        :param weights: Per-fragment weights (CFG scaling). No need for these to be normalized. They will not be normalized here and that's fine.
+        :return:
+        '''
+        # empty is meaningful
+        if len(fragments) == 0 and len(weights) == 0:
+            fragments = ['']
+            weights = [1]
         item_encodings = self.tokenizer(
             fragments,
             truncation=True,
@@ -578,7 +603,7 @@ class WeightedFrozenCLIPEmbedder(FrozenCLIPEmbedder):
             print("prompt is too long and has been truncated")
             all_tokens = all_tokens[:self.max_length - 2]
 
-        # build a 77-entry array: [eos_token, <prompt tokens>, eos_token, ..., eos_token]
+        # pad out to a 77-entry array: [eos_token, <prompt tokens>, eos_token, ..., eos_token]
         # (77 = self.max_length)
         pad_length = self.max_length - 1 - len(all_tokens)
         all_tokens.insert(0, self.tokenizer.bos_token_id)
@@ -588,7 +613,7 @@ class WeightedFrozenCLIPEmbedder(FrozenCLIPEmbedder):
 
         all_tokens_tensor = torch.tensor(all_tokens, dtype=torch.long).to(self.device)
         per_token_weights_tensor = torch.tensor(per_token_weights, dtype=torch.float32).to(self.device)
-        print(f"assembled all_tokens_tensor {all_tokens_tensor}")
+        print(f"assembled all_tokens_tensor with shape {all_tokens_tensor.shape}")
         return all_tokens_tensor, per_token_weights_tensor
 
     def build_weighted_embedding_tensor(self, tokens: torch.Tensor, per_token_weights: torch.Tensor, weight_delta_from_empty=True, **kwargs) -> torch.Tensor:
@@ -600,7 +625,7 @@ class WeightedFrozenCLIPEmbedder(FrozenCLIPEmbedder):
         :param kwargs: passed on to self.transformer()
         :return: A tensor of shape (1, 77, 768) representing the requested weighted embeddings.
         '''
-        print(f"building weighted embedding tensor for {tokens} with weights {per_token_weights}")
+        #print(f"building weighted embedding tensor for {tokens} with weights {per_token_weights}")
         z = self.transformer(input_ids=tokens.unsqueeze(0), **kwargs)
         batch_weights_expanded = per_token_weights.reshape(per_token_weights.shape + (1,)).expand(z.shape)
 
