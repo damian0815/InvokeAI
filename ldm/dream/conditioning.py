@@ -28,7 +28,8 @@ def get_uc_and_c(prompt, model, log_tokens=False, skip_normalize=False):
         prompt = re.sub(' +', ' ', clean_prompt)
 
     # unconditioned_words is a str
-    uc = model.get_learned_conditioning([[unconditioned_words]], attention_weights=[[1]])
+    empty_conditioning = model.get_learned_conditioning([[""]], attention_weights=[[1]])
+    negative_conditioning = model.get_learned_conditioning([[unconditioned_words]], attention_weights=[[1]])
 
     # get weighted sub-prompts
     subprompts_to_blend = split_weighted_subprompts(
@@ -40,13 +41,12 @@ def get_uc_and_c(prompt, model, log_tokens=False, skip_normalize=False):
             log_tokenization(subprompt, model, log_tokens, weight)
         prompts = [subprompt for subprompt, _ in subprompts_to_blend]
         weights = [weight for _, weight in subprompts_to_blend]
-        c = model.get_learned_conditioning([prompts], attention_weights=[weights])
+        positive_conditioning = model.get_learned_conditioning([prompts], attention_weights=[weights])
     else:   # just standard 1 prompt
         log_tokenization(prompt, model, log_tokens, 1)
-        c = model.get_learned_conditioning([[prompt]], attention_weights=[[1]])
-        uc = model.get_learned_conditioning([[unconditioned_words]], attention_weights=[[1]])
-    print("got uc with shape", uc.shape, "c with shape", c.shape)
-    return (uc, c)
+        positive_conditioning = model.get_learned_conditioning([[prompt]], attention_weights=[[1]])
+    #print("got empty_conditionining with shape", empty_conditioning.shape, "c[0][0] with shape", positive_conditioning[0][0].shape)
+    return (empty_conditioning, [(positive_conditioning, 1), (negative_conditioning, -1)])
 
 def split_weighted_subprompts(text, skip_normalize=False)->list:
     """
