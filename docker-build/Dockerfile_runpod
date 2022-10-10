@@ -1,0 +1,48 @@
+FROM        debian 
+
+ARG         gsd
+ENV         GITHUB_STABLE_DIFFUSION $gsd
+
+ARG         branch
+ENV         BRANCH $branch
+
+ENV         PIP_EXISTS_ACTION="w"
+
+# TODO: Optimize image size
+
+SHELL       ["/bin/bash", "-c"]
+
+WORKDIR     /
+RUN         apt update && apt upgrade -y \
+            && apt install -y \
+            git \
+            libgl1-mesa-glx \
+            libglib2.0-0 \
+            pip \
+            python3 \
+            vim \
+            less \
+            && git clone $GITHUB_STABLE_DIFFUSION \
+            && cd InvokeAI \
+            && git checkout $BRANCH
+
+# Install miniconda
+ENV CONDA_DIR /opt/conda
+RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh && \
+     /bin/bash ~/miniconda.sh -b -p $CONDA_DIR
+
+# Put conda in path so we can use conda activate
+ENV PATH=$CONDA_DIR/bin:$PATH
+
+# SD 
+WORKDIR     /stable-diffusion 
+RUN         source ~/.bashrc \
+            && conda env create -f environment.yml \
+            && conda activate ldm \
+            && mkdir models/ldm/stable-diffusion-v1 \
+            && ln -s "/workspace/sd-v1-4.ckpt" models/ldm/stable-diffusion-v1/model.ckpt
+
+WORKDIR     /
+COPY        start-runpodio.sh .
+ENTRYPOINT ["/start-runpodio.sh"]
+
