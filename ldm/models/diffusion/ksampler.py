@@ -86,7 +86,7 @@ class ProgrammableCFGDenoiser(CFGDenoiser):
         
         return uncond_latents + deltas_merged * cond_scale
 
-class KSampler(object):
+class KSampler(Sampler):
     def __init__(self, model, schedule='lms', device=None, **kwargs):
         denoiser = K.external.CompVisDenoiser(model)
         super().__init__(
@@ -230,7 +230,7 @@ class KSampler(object):
         else:
             x = torch.randn([batch_size, *shape], device=self.device) * sigmas[0]
 
-        model_wrap_cfg = CFGDenoiser(self.model, threshold=threshold, warmup=max(0.8*S,S-10))
+        model_wrap_cfg = ProgrammableCFGDenoiser(self.model, threshold=threshold, warmup=max(0.8*S,S-10))
         extra_args = {
             # damian: we could insert extra things in here
             'cond': conditioning,
