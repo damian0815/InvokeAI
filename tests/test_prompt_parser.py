@@ -23,9 +23,16 @@ class PromptParserTestCase(unittest.TestCase):
         self.assertEqual(parse_prompt("-(flames)"), [Attention(0.9, "flames")])
         self.assertEqual(parse_prompt("++(flames)"), [Attention(pow(1.1,2), "flames")])
         self.assertEqual(parse_prompt("--(flames)"), [Attention(pow(0.9,2), "flames")])
+        self.assertEqual(parse_prompt("---(flowers) +++flames"), [Attention(pow(0.9,3), "flowers"), Attention(pow(1.1,3), "flames")])
+        self.assertEqual(parse_prompt("---flowers +++flames"), [Attention(pow(0.9,3), "flowers"), Attention(pow(1.1,3), "flames")])
+        self.assertEqual(parse_prompt("---flowers +++flames+"), [Attention(pow(0.9,3), "flowers"), Attention(pow(1.1,3), "flames+")])
 
         #self.assertEqual(pp.parse(prompt))
         #self.assertEqual(True, False)  # add assertion here
+
+    def test_attention_sml(self):
+        self.assertEqual(parse_prompt("---(flowers) +++flames"), [Attention(pow(0.9,3), "flowers"), Attention(pow(1.1,3), "flames")])
+
 
     def test_blend(self):
         self.assertEqual(parse_prompt("(\"fire\", \"fire flames\", \"hi\").blend(0.7, 0.3, 1.0)"),

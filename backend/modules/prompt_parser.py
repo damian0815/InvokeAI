@@ -37,7 +37,7 @@ class Word():
 
 class Blend():
     def __init__(self, prompts: list, weights: list[float]):
-        print("making Blend with prompts", prompts, "and weights", weights)
+        #print("making Blend with prompts", prompts, "and weights", weights)
         if len(prompts) != len(weights):
             raise PromptParser.ParsingException("().blend(): mismatched prompt/weight counts")
         self.prompts = prompts
@@ -62,8 +62,13 @@ class PromptParser():
         number = pyparsing.pyparsing_common.real | pp.Word(pp.nums).set_parse_action(pp.token_map(float))
 
         attention_explicit = pp.Group(number + lparen + pp.CharsNotIn(')') + rparen)
-        attention_plus = pp.Group(pp.Word('+') + lparen + pp.CharsNotIn(')') + rparen)
-        attention_minus = pp.Group(pp.Word('-') + lparen + pp.CharsNotIn(')') + rparen)
+        SPACE_CHARS = ' \t\n'
+        attention_word = pp.CharsNotIn(SPACE_CHARS+'()')
+        space = pp.Word(SPACE_CHARS)
+        attention_plus = pp.Group(pp.Word('+') + ((lparen + attention_word + pp.ZeroOrMore(space + attention_word) + rparen) |
+                                                  attention_word)).set_debug(False)
+        attention_minus = pp.Group(pp.Word('-') + ((lparen + attention_word + pp.ZeroOrMore(space + attention_word) + rparen) |
+                                                  attention_word)).set_debug(False)
         attention_explicit.set_parse_action(lambda x: Attention(weight=float(x[0][0]), fragment=x[0][1]))
         attention_plus.set_parse_action(lambda x: Attention(weight=pow(1.1, len(x[0][0])), fragment=x[0][1]))
         attention_minus.set_parse_action(lambda x: Attention(weight=pow(0.9, len(x[0][0])), fragment=x[0][1]))
