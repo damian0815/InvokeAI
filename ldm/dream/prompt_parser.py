@@ -26,21 +26,21 @@ class Attention():
     def __eq__(self, other):
         return type(other) is Attention and other.weight == self.weight and other.fragment == self.fragment
 
-class Word():
+class Fragment():
     def __init__(self, text: str):
         self.text = text
 
     def __repr__(self):
-        return "Word('"+self.text+"')"
+        return "Fragment('"+self.text+"')"
     def __eq__(self, other):
-        return type(other) is Word and other.text == self.text
+        return type(other) is Fragment and other.text == self.text
 
 class Blend():
     def __init__(self, prompts: list, weights: list[float]):
         #print("making Blend with prompts", prompts, "and weights", weights)
         if len(prompts) != len(weights):
             raise PromptParser.ParsingException("().blend(): mismatched prompt/weight counts")
-        self.prompts = prompts
+        self.prompts = [fuse_fragments(x) for x in prompts]
         self.weights = weights
 
     def __repr__(self):
@@ -76,7 +76,7 @@ class PromptParser():
         # attention: number(fragment)
         attention = attention_plus | attention_minus | attention_explicit
 
-        word = pp.Word(pp.printables).set_parse_action(lambda x: Word(' '.join([s for s in x])))
+        word = pp.Word(pp.printables).set_parse_action(lambda x: Fragment(' '.join([s for s in x])))
         prompt_part = attention | word
 
 
@@ -100,7 +100,21 @@ class PromptParser():
         #print("parsing", prompt)
 
         parts = self.prompt.parseString(prompt)
+
         return parts
+
+def fuse_fragments(items):
+    result = []
+    for x in items:
+        if type(x) is not Fragment:
+            result.append(x)
+            continue
+        if len(result)==0 or type(result[-1]) is not Fragment:
+            result.append(x)
+            continue
+        # append to existing
+        result[-1] = Fragment(result[-1].text + " " + x.text)
+    return result
 
 def parse_prompt(prompt_string):
     pp = PromptParser()

@@ -1,6 +1,6 @@
 import unittest
 
-from backend.modules.prompt_parser import parse_prompt, Word, Attention, Blend
+from ldm.dream.prompt_parser import parse_prompt, Word, Attention, Blend
 
 
 empty_conditioning = [('', 1)]

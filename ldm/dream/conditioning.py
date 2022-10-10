@@ -12,6 +12,9 @@ log_tokenization()              print out colour-coded tokens and warn if trunca
 import re
 import torch
 
+from .prompt_parser import PromptParser, Fragment, Attention, Blend
+
+
 def get_uc_and_c(prompt_string_uncleaned, model, log_tokens=False, skip_normalize=False):
 
     # Extract Unconditioned Words From Prompt
@@ -29,6 +32,50 @@ def get_uc_and_c(prompt_string_uncleaned, model, log_tokens=False, skip_normaliz
     else:
         prompt_string_cleaned = prompt_string_uncleaned
 
+
+    subprompts_to_blend = split_weighted_subprompts(
+        prompt_string_cleaned, True  # skip_normalize
+    )
+    if len(subprompts_to_blend)>1:
+        quoted_prompts = ['"'+x[0]+'"' for x in subprompts_to_blend]
+        weights = [str(x[1]) for x in subprompts_to_blend]
+        quoted_prompts_string = ", ".join(quoted_prompts)
+        weights_string = ", ".join(weights)
+        prompt_string_cleaned = f"({quoted_prompts_string}).blend({weights_string})"
+
+    #rebuilt_blends_prompt_string = prompt_string_cleaned if len(subprompts_to_blend)<2 else
+
+    pp = PromptParser()
+    parsed_prompt = pp.parse(prompt_string_cleaned)
+
+    print(parsed_prompt)
+    positive_conditioning_list = []
+
+    def parsed_prompt_object_list_to_embeddings(objects):
+        fragments = []
+        attention_weights = []
+        for o in objects:
+            if type(o) is Fragment:
+                fragments.append(o.text)
+                attention_weights.append(1.0)
+            elif type(o) is Attention:
+                fragments.append(o.fragment)
+                attention_weights.append(o.weight)
+        embeddings = model.get_learned_conditioning([fragments], attention_weights=[attention_weights])
+        return embeddings
+
+
+    if type(parsed_prompt[0]) is Blend:
+        blend: Blend = parsed_prompt[0]
+        for (prompt,weight) in zip(blend.prompts, blend.weights):
+            embeddings = parsed_prompt_object_list_to_embeddings(prompt)
+            positive_conditioning_list.append((embeddings, weight))
+        #return model.get_learned_conditioning([subprompts], attention_weights=[weights])
+    else:
+        embeddings = parsed_prompt_object_list_to_embeddings(parsed_prompt)
+        weight = 1.0
+        positive_conditioning_list.append((embeddings, weight))
+
     # get weighted sub-prompts
     def get_blend_prompts_and_weights(prompt):
         subprompts_to_blend = split_weighted_subprompts(
@@ -45,11 +92,7 @@ def get_uc_and_c(prompt_string_uncleaned, model, log_tokens=False, skip_normaliz
         return model.get_learned_conditioning([subprompts], attention_weights=[weights])
 
     negative_conditioning = get_blend_prompts_and_weights(unconditioned_words)
-    positive_conditioning_list = []
-    # placeholder syntax
-    for prompt in prompt_string_cleaned.split('|'):
-        this_weight = 1
-        positive_conditioning_list.append((get_blend_prompts_and_weights(prompt), this_weight))
+    #positive_conditioning_list.append((get_blend_prompts_and_weights(prompt), this_weight))
     #print("got empty_conditionining with shape", empty_conditioning.shape, "c[0][0] with shape", positive_conditioning[0][0].shape)
 
     # "unconditioned" means "the conditioning tensor is empty"
