@@ -58,33 +58,8 @@ class CFGDenoiser(nn.Module):
 
 class ProgrammableCFGDenoiser(CFGDenoiser):
     def forward(self, x, sigma, uncond, cond, cond_scale):
-        x_in = torch.cat([x] * 2)
-        sigma_in = torch.cat([sigma] * 2)
-        deltas = None
-        uncond_latents = None
-        weights = []
-        weighted_cond_list = cond if type(cond) is list else [(cond,1)]
-        for this_cond,this_weight in weighted_cond_list:
-            #this_cond,this_weight = weighted_cond
-            cond_in = torch.cat([uncond, this_cond])
-            # always overwrite uncond_latents? is this right?
-            uncond_latents, cond_latents = self.inner_model(x_in, sigma_in, cond=cond_in).chunk(2)
-            delta = cond_latents - uncond_latents
-            deltas = delta if deltas is None else torch.cat((deltas, delta))
-            weights.append(this_weight)
-        
-        # merge the weighted deltas together into a single merged delta
-        per_delta_weights = torch.tensor(weights, dtype=deltas.dtype, device=deltas.device)
-        normalize = False
-        if normalize:
-            per_delta_weights /= torch.sum(per_delta_weights)
-        reshaped_weights = per_delta_weights.reshape(per_delta_weights.shape + (1, 1, 1))
-        deltas_merged = torch.sum(deltas * reshaped_weights, dim=0, keepdim=True)
-        
-        #old_return_value = super().forward(x, sigma, uncond, cond, cond_scale)
-        #assert(0 == len(torch.nonzero(old_return_value - (uncond_latents + deltas_merged * cond_scale))))
-        
-        return uncond_latents + deltas_merged * cond_scale
+        return Sampler.apply_weighted_conditioning_list(x, sigma, self.inner_model, uncond, cond, cond_scale)
+
 
 class KSampler(Sampler):
     def __init__(self, model, schedule='lms', device=None, **kwargs):

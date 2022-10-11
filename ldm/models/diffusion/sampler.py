@@ -411,3 +411,35 @@ class Sampler(object):
         return self.model.inner_model.q_sample(x0,ts)
         '''
         return self.model.q_sample(x0,ts)
+
+
+    @classmethod
+    def apply_weighted_conditioning_list(cls, x, t, forward_func, uc, c_or_weighted_c_list, global_guidance_scale):
+        x_in = torch.cat([x] * 2)
+        t_in = torch.cat([t] * 2) # aka sigmas
+
+        deltas = None
+        uncond_latents = None
+        weights = []
+        weighted_cond_list = c_or_weighted_c_list if type(c_or_weighted_c_list) is list else [(c_or_weighted_c_list, 1)]
+        for this_cond, this_weight in weighted_cond_list:
+            # this_cond,this_weight = weighted_cond
+            c_in = torch.cat([uc, this_cond])
+            # always overwrite uncond_latents? is this right?
+            uncond_latents, cond_latents = forward_func(x_in, t_in, c_in).chunk(2)
+            delta = cond_latents - uncond_latents
+            deltas = delta if deltas is None else torch.cat((deltas, delta))
+            weights.append(this_weight)
+
+        # merge the weighted deltas together into a single merged delta
+        per_delta_weights = torch.tensor(weights, dtype=deltas.dtype, device=deltas.device)
+        normalize = False
+        if normalize:
+            per_delta_weights /= torch.sum(per_delta_weights)
+        reshaped_weights = per_delta_weights.reshape(per_delta_weights.shape + (1, 1, 1))
+        deltas_merged = torch.sum(deltas * reshaped_weights, dim=0, keepdim=True)
+
+        # old_return_value = super().forward(x, sigma, uncond, cond, cond_scale)
+        # assert(0 == len(torch.nonzero(old_return_value - (uncond_latents + deltas_merged * cond_scale))))
+
+        return uncond_latents + deltas_merged * global_guidance_scale
