@@ -473,7 +473,7 @@ class WeightedFrozenCLIPEmbedder(FrozenCLIPEmbedder):
         return batch_encoding, torch.ones_like(batch_encoding) * weight
 
 
-    def forward(self, text: list[str|list[str]], **kwargs):
+    def forward(self, text: list, **kwargs):
         '''
 
         :param text: A batch of prompt strings, or, a batch of lists of fragments of prompt strings to which different
