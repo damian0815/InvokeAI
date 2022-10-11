@@ -79,13 +79,22 @@ class PromptParserTestCase(unittest.TestCase):
         )
         # blend with empty
         self.assertEqual(Conjunction(
-                            [Blend([FlattenedPrompt([('fire', 1.0)]), FlattenedPrompt([(' ', 1.0)])], [0.7, 1.0])]),
+                            [Blend([FlattenedPrompt([('fire', 1.0)]), FlattenedPrompt([('', 1.0)])], [0.7, 1.0])]),
+                            parse_prompt("(\"fire\", \"\").blend(0.7, 1)")
+        )
+        self.assertEqual(Conjunction(
+                            [Blend([FlattenedPrompt([('fire', 1.0)]), FlattenedPrompt([('', 1.0)])], [0.7, 1.0])]),
                             parse_prompt("(\"fire\", \" \").blend(0.7, 1)")
         )
         self.assertEqual(Conjunction(
                             [Blend([FlattenedPrompt([('fire', 1.0)]), FlattenedPrompt([('', 1.0)])], [0.7, 1.0])]),
-                            parse_prompt("(\"fire\", \"\").blend(0.7, 1)")
+                            parse_prompt("(\"fire\", \"     \").blend(0.7, 1)")
         )
+        self.assertEqual(Conjunction(
+                            [Blend([FlattenedPrompt([('fire', 1.0)]), FlattenedPrompt([(',', 1.0)])], [0.7, 1.0])]),
+                            parse_prompt("(\"fire\", \"  ,  \").blend(0.7, 1)")
+        )
+
 
     def test_nested(self):
         self.assertEqual(Conjunction(

@@ -90,7 +90,7 @@ class Conjunction():
 
 class Blend():
     def __init__(self, children: list, weights: list[float]):
-        print("making Blend with prompts", children, "and weights", weights)
+        #print("making Blend with prompts", children, "and weights", weights)
         if len(children) != len(weights):
             raise PromptParser.ParsingException("().blend(): mismatched child/weight counts")
         for c in children:
@@ -177,22 +177,32 @@ class PromptParser():
             .set_parse_action(lambda x: Prompt(x[0]))
 
         # cfg scale: (fragment).scale(number)
-        blend_terms = pp.delimited_list(pp.dbl_quoted_string)
-        blend_weights = number + pp.ZeroOrMore(pp.Suppress(",") + number)
-        blend = pp.Group(lparen + pp.Group(blend_terms) + rparen + pp.Literal(".blend").suppress() + lparen + pp.Group(blend_weights) + rparen)
+        blend_terms = pp.delimited_list(pp.dbl_quoted_string).set_name('blend_terms')
+        blend_weights = pp.delimited_list(number).set_name('blend_weights')
+        blend = pp.Group(lparen + pp.Group(blend_terms) + rparen
+                         + pp.Literal(".blend").suppress()
+                         + lparen + pp.Group(blend_weights) + rparen).set_name('blend')
+        blend.set_debug(False)
 
         self.root = pp.OneOrMore(blend | prompt)
 
         def make_blend_subprompt(x):
+            #print('preparing blend subprompts from', x)
             weights = x[0][1]
+            #print(' b got weights', weights)
             children = []
             for c in x[0][0]:
                 c_unquoted = c[1:-1]
+                #print(' b got unquoted child', c_unquoted)
                 if len(c_unquoted.strip()) == 0:
-                    return [Prompt([Fragment('')])]
+                    #print(' b : just an empty string')
+                    children.append(Prompt([Fragment('')]))
+                    continue
+                #print(' b parsing ', c_unquoted)
                 c_parsed = prompt.parse_string(c_unquoted)
-                print("blend part was parsed to", type(c_parsed),":", c_parsed)
+                #print(" b part was parsed to", type(c_parsed),":", c_parsed)
                 children.append(c_parsed[0])
+            #print('prepared blend subprompts', children)
             return Blend(children=children, weights=weights)
 
         blend.set_parse_action(make_blend_subprompt)
@@ -204,18 +214,19 @@ class PromptParser():
         :param prompt: The prompt string to parse
         :return: a tuple
         '''
-        #print("parsing", prompt)
+        #print(f"!!parsing '{prompt}'")
 
         if len(prompt.strip()) == 0:
             return Conjunction(parts=[FlattenedPrompt([('', 1.0)])])
 
         roots = self.root.parse_string(prompt)
+        #print(f"'{prompt}' parsed to roots", roots)
         #fused = fuse_fragments(parts)
         #print("fused to", fused)
 
         result = []
         for x in roots:
-            print("- Root:", x)
+            #print("- Root:", x)
             if type(x) is Blend:
                 blend_targets = []
                 for child in x.children:
@@ -229,7 +240,7 @@ class PromptParser():
     def flatten(self, root: Prompt):
 
         def flatten_internal(node, weight_scale, results, prefix):
-            print(prefix + "flattening", node, "...")
+            #print(prefix + "flattening", node, "...")
             if type(node) is pp.ParseResults:
                 for x in node:
                     results = flatten_internal(x, weight_scale, results, prefix+'pr')
@@ -237,8 +248,8 @@ class PromptParser():
             elif type(node) is Fragment:
                 results.append((node.text, float(weight_scale)))
             elif type(node) is Attention:
-                if node.weight < 1:
-                    print(prefix + "todo: add a blend when flattening attention with weight <1")
+                #if node.weight < 1:
+                    # todo: inject a blend when flattening attention with weight <1"
                 for c in node.children:
                     results = flatten_internal(c, weight_scale*node.weight, results, prefix+'  ')
             elif type(node) is Blend:
@@ -251,18 +262,18 @@ class PromptParser():
                     flattened_subprompts.append(flattened_subprompt)
                 results += [Blend(prompts=fuse_fragments(flattened_subprompts), weights=node.weights)]
             elif type(node) is Prompt:
-                print(prefix + "about to flatten Prompt with children", node.children)
+                #print(prefix + "about to flatten Prompt with children", node.children)
                 flattened_prompt = []
                 for child in node.children:
                     flattened_prompt = flatten_internal(child, weight_scale, flattened_prompt, prefix+'P ')
                 results += [FlattenedPrompt(parts=fuse_fragments(flattened_prompt))]
-                print(prefix + "after flattening Prompt, results is", results)
+                #print(prefix + "after flattening Prompt, results is", results)
             else:
                 raise PromptParser.ParsingException(f"unhandled node type {type(node)} when flattening {node}")
-            print(prefix + "-> after flattening", type(node), "results is", results)
+            #print(prefix + "-> after flattening", type(node), "results is", results)
             return results
 
-        print("flattening", root)
+        #print("flattening", root)
         return flatten_internal(root, 1.0, [], '| ')
         #all_results = []
         #for c in root.children:
