@@ -35,7 +35,25 @@ class PromptParserTestCase(unittest.TestCase):
         #self.assertEqual(pp.parse(prompt))
         #self.assertEqual(True, False)  # add assertion here
 
+    def test_badly_formed(self):
+        def make_untouched_prompt(prompt):
+            return Conjunction([[(prompt, 1.0)]])
 
+        def assert_if_prompt_string_not_untouched(prompt):
+            self.assertEqual(make_untouched_prompt(prompt), parse_prompt(prompt))
+
+        assert_if_prompt_string_not_untouched('a test prompt')
+        assert_if_prompt_string_not_untouched('a badly (formed test prompt')
+        assert_if_prompt_string_not_untouched('a badly formed test+ prompt')
+        assert_if_prompt_string_not_untouched('a badly (formed test+ prompt')
+        assert_if_prompt_string_not_untouched('a badly (formed test+ )prompt')
+        assert_if_prompt_string_not_untouched('a badly (formed test+ )prompt')
+        assert_if_prompt_string_not_untouched('(((a badly (formed test+ )prompt')
+        assert_if_prompt_string_not_untouched('(a (ba)dly (f)ormed test+ prompt')
+        self.assertEqual(Conjunction([Prompt([('(a (ba)dly (f)ormed test+', 1.0), ('prompt', 1.1)])]),
+                         parse_prompt('(a (ba)dly (f)ormed test+ +prompt'))
+        self.assertEqual(Conjunction([Blend([([('((a badly (formed test+', 1.0)])], weights=[1.0])]),
+                         parse_prompt('("((a badly (formed test+ ").blend(1.0)'))
 
     def test_blend(self):
         self.assertEqual(Conjunction(
