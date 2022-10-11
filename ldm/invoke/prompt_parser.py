@@ -5,11 +5,27 @@ from pyparsing import original_text_for
 class Prompt():
 
     def __init__(self, parts: list):
+        for c in parts:
+            allowed_types = [Fragment, Attention, CFGScale]
+            if type(c) not in allowed_types:
+                raise PromptParser.ParsingException(f"Prompt cannot contain {type(c)}, only {allowed_types} are allowed")
         self.children = parts
     def __repr__(self):
-        return f"Prompt({self.children})"
+        return f"Prompt:{self.children}"
     def __eq__(self, other):
         return type(other) is Prompt and other.children == self.children
+
+class FlattenedPrompt():
+    def __init__(self, parts: list):
+        for c in parts:
+            if type(c) is not tuple or type(c[0]) is not str or (type(c[1]) is not float and type(c[1]) is not int):
+                raise PromptParser.ParsingException(f"FlattenedPrompt cannot contain {type(c)}, only (str, float) tuples are allowed")
+        self.children = parts
+
+    def __repr__(self):
+        return f"FlattenedPrompt:{self.children}"
+    def __eq__(self, other):
+        return type(other) is FlattenedPrompt and other.children == self.children
 
 
 class Attention():
@@ -32,7 +48,7 @@ class Attention():
         #print(f"A: requested attention '{children}' to {weight}")
 
     def __repr__(self):
-        return f"Attention('{self.children}' @ {self.weight})"
+        return f"Attention:'{self.children}' @ {self.weight}"
     def __eq__(self, other):
         return type(other) is Attention and other.weight == self.weight and other.fragment == self.fragment
 
@@ -44,7 +60,7 @@ class CFGScale():
         #print(f"S: requested CFGScale '{fragment}' x {scale_factor}")
 
     def __repr__(self):
-        return f"CFGScale('{self.fragment}' x {self.scale_factor})"
+        return f"CFGScale:'{self.fragment}' x {self.scale_factor}"
     def __eq__(self, other):
         return type(other) is CFGScale and other.scale_factor == self.scale_factor and other.fragment == self.fragment
 
@@ -56,32 +72,38 @@ class Fragment():
         self.text = text
 
     def __repr__(self):
-        return "Fragment('"+self.text+"')"
+        return "Fragment:'"+self.text+"'"
     def __eq__(self, other):
         return type(other) is Fragment and other.text == self.text
 
 class Conjunction():
     def __init__(self, parts: list):
         # force everything to be a Prompt
-        self.parts = [x if (type(x) is Prompt or type(x) is Blend) else Prompt(x) for x in parts]
+        self.parts = [x if (type(x) is Prompt or type(x) is Blend or type(x) is FlattenedPrompt)
+                      else Prompt(x) for x in parts]
 
     def __repr__(self):
-        return f"Conjunction({self.parts})"
+        return f"Conjunction:{self.parts}"
     def __eq__(self, other):
         return type(other) is Conjunction and other.parts == self.parts
 
 
 class Blend():
     def __init__(self, children: list, weights: list[float]):
-        #print("making Blend with prompts", children, "and weights", weights)
+        print("making Blend with prompts", children, "and weights", weights)
         if len(children) != len(weights):
             raise PromptParser.ParsingException("().blend(): mismatched child/weight counts")
-        #self.children = [x if type(x) is Prompt else Prompt(x) for x in children]
+        for c in children:
+            if type(c) is not Prompt and type(c) is not FlattenedPrompt:
+                raise(PromptParser.ParsingException(f"{type(c)} cannot be added to a Blend, only Prompts or FlattenedPrompts"))
+        # upcast all lists to Prompt objects
+        self.children = [x if (type(x) is Prompt or type(x) is FlattenedPrompt)
+                         else Prompt(x) for x in children]
         self.children = children
         self.weights = weights
 
     def __repr__(self):
-        return f"Blend({self.children} | weights {self.weights})"
+        return f"Blend:{self.children} | weights {self.weights}"
     def __eq__(self, other):
         return other.__repr__() == self.__repr__()
 
@@ -151,7 +173,8 @@ class PromptParser():
         prompt_part.set_debug(False)
         prompt_part.set_name("prompt_part")
 
-        prompt = pp.Group(pp.OneOrMore(prompt_part)).set_parse_action(lambda x: Prompt(x))
+        prompt = pp.Group(pp.OneOrMore(prompt_part))\
+            .set_parse_action(lambda x: Prompt(x[0]))
 
         # cfg scale: (fragment).scale(number)
         blend_terms = pp.delimited_list(pp.dbl_quoted_string)
@@ -160,14 +183,19 @@ class PromptParser():
 
         self.root = pp.OneOrMore(blend | prompt)
 
-        def unquote_and_parse(x):
-            #print(f"unquoting x:'{x}' to '{x[1:-1]}'")
-            x_unquoted = x[1:-1]
-            if len(x_unquoted.strip()) == 0:
-                return [Prompt([Fragment('')])]
-            return prompt.parse_string(x_unquoted)
+        def make_blend_subprompt(x):
+            weights = x[0][1]
+            children = []
+            for c in x[0][0]:
+                c_unquoted = c[1:-1]
+                if len(c_unquoted.strip()) == 0:
+                    return [Prompt([Fragment('')])]
+                c_parsed = prompt.parse_string(c_unquoted)
+                print("blend part was parsed to", type(c_parsed),":", c_parsed)
+                children.append(c_parsed[0])
+            return Blend(children=children, weights=weights)
 
-        blend.set_parse_action(lambda x: Blend(children=[unquote_and_parse(p) for p in x[0][0]], weights=x[0][1]))
+        blend.set_parse_action(make_blend_subprompt)
 
 
 
@@ -179,7 +207,7 @@ class PromptParser():
         #print("parsing", prompt)
 
         if len(prompt.strip()) == 0:
-            return Conjunction(parts=[('', 1.0)])
+            return Conjunction(parts=[FlattenedPrompt([('', 1.0)])])
 
         roots = self.root.parse_string(prompt)
         #fused = fuse_fragments(parts)
@@ -187,20 +215,21 @@ class PromptParser():
 
         result = []
         for x in roots:
-            #print("- Root:", x)
+            print("- Root:", x)
             if type(x) is Blend:
                 blend_targets = []
-                for c in x.children:
-                    blend_targets += [self.flatten(c[0])]
+                for child in x.children:
+                    child_flattened = self.flatten(child)
+                    blend_targets.extend(child_flattened)
                 result.append(Blend(blend_targets, x.weights))
             else:
-                result.append(self.flatten(x))
+                result.extend(self.flatten(x))
         return Conjunction(parts=result)
 
     def flatten(self, root: Prompt):
 
         def flatten_internal(node, weight_scale, results, prefix):
-            #print(prefix, "flattening", node, "...")
+            print(prefix + "flattening", node, "...")
             if type(node) is pp.ParseResults:
                 for x in node:
                     results = flatten_internal(x, weight_scale, results, prefix+'pr')
@@ -209,7 +238,7 @@ class PromptParser():
                 results.append((node.text, float(weight_scale)))
             elif type(node) is Attention:
                 if node.weight < 1:
-                    print("todo: add a blend when flattening attention with weight <1")
+                    print(prefix + "todo: add a blend when flattening attention with weight <1")
                 for c in node.children:
                     results = flatten_internal(c, weight_scale*node.weight, results, prefix+'  ')
             elif type(node) is Blend:
@@ -217,24 +246,32 @@ class PromptParser():
                 #print(" flattening blend with prompts", node.prompts)
                 for prompt in node.prompts:
                     # prompt is a list
-                    flattened_subprompt = [flatten_internal(p, weight_scale, [], prefix+'  ') for p in prompt]
+                    flattened_subprompt = [flatten_internal(p, weight_scale, [], prefix+'B ') for p in prompt]
                     #print(" blend flattened", prompt, "to", flattened_subprompt)
                     flattened_subprompts.append(flattened_subprompt)
                 results += [Blend(prompts=fuse_fragments(flattened_subprompts), weights=node.weights)]
+            elif type(node) is Prompt:
+                print(prefix + "about to flatten Prompt with children", node.children)
+                flattened_prompt = []
+                for child in node.children:
+                    flattened_prompt = flatten_internal(child, weight_scale, flattened_prompt, prefix+'P ')
+                results += [FlattenedPrompt(parts=fuse_fragments(flattened_prompt))]
+                print(prefix + "after flattening Prompt, results is", results)
             else:
                 raise PromptParser.ParsingException(f"unhandled node type {type(node)} when flattening {node}")
-            #print(prefix, "-> node", node, "appended, results now", results)
+            print(prefix + "-> after flattening", type(node), "results is", results)
             return results
 
-        #print("flattening", root)
-        all_results = []
-        for c in root.children:
-            flattened = flatten_internal(c, 1, [], '|')
-            #print("| child", c, "flattened to", flattened)
-            fused = fuse_fragments([x for x in flattened])
-            #print("| child", c, "flattened and fused to", flattened)
-            all_results += fused
-        return all_results
+        print("flattening", root)
+        return flatten_internal(root, 1.0, [], '| ')
+        #all_results = []
+        #for c in root.children:
+        #    flattened = flatten_internal(c, 1, [], '|')
+        #    #print("| child", c, "flattened to", flattened)
+        #    fused = fuse_fragments([x for x in flattened])
+        #    #print("| child", c, "flattened and fused to", flattened)
+        #    all_results += fused
+        #return all_results
 
 
 
