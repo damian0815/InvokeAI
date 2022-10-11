@@ -16,14 +16,14 @@ class Attention():
 
     @classmethod
     def from_parsing(cls, x0, x1):
-        print("attention from parsing: ", x0, x1)
+        print("making Attention from parsing with args", x0, x1)
         weight = 1
         if type(x0) is float or type(x0) is int:
             weight = float(x0)
         elif type(x0) is str:
             base = 1.1 if x0[0] == '+' else 0.9
             weight = pow(base, len(x0))
-        return Attention(weight=weight, children=[Fragment(x1)])
+        return Attention(weight=weight, children=x1)
 
     def __init__(self, weight: float, children: list):
         self.weight = weight
@@ -51,6 +51,7 @@ class CFGScale():
 
 class Fragment():
     def __init__(self, text: str):
+        assert(type(text) is str)
         self.text = text
 
     def __repr__(self):
@@ -93,20 +94,57 @@ class PromptParser():
         number = pyparsing.pyparsing_common.real | pp.Word(pp.nums).set_parse_action(pp.token_map(float))
         SPACE_CHARS = ' \t\n'
 
-        attention_head = (number | pp.Word('+') | pp.Word('-')).set_debug(False)
-        attention_with_parens_guts = pp.CharsNotIn(')')
-        attention_with_parens = (attention_head + lparen + attention_with_parens_guts + rparen).set_debug(False)
-        attention_without_parens = (pp.Word('+') | pp.Word('-')) + pp.CharsNotIn(SPACE_CHARS+'()')
         prompt_part = pp.Forward()
-        attention = attention_with_parens | attention_without_parens
-        attention.set_parse_action(lambda x: Attention.from_parsing(x[0], x[1]))
+        word = pp.Forward()
 
-        cfg_scale_tail = (pp.Literal(".scale(") + number + ")")
-        cfg_guts = pp.CharsNotIn(')')
-        cfg_scale = (lparen + cfg_guts + rparen + cfg_scale_tail)
+        def make_fragment(x):
+            if type(x) is str:
+                return Fragment(x)
+            elif type(x) is pp.ParseResults or type(x) is list:
+                return Fragment(' '.join([s for s in x]))
+            else:
+                raise PromptParser.ParsingException("Cannot make fragment from " + str(x))
 
-        word = pp.Word(pp.printables).set_parse_action(lambda x: Fragment(' '.join([s for s in x])))
-        prompt_part << (attention | cfg_scale | word)
+        fragment_inside_attention = pp.OneOrMore(pp.CharsNotIn('()'))\
+            .set_parse_action(make_fragment)\
+            .set_name("fragment_inside_attention")\
+            .set_debug(False)
+        # .set_parse_action(lambda x: Fragment(' '.join([s for s in x])))\
+        # .set_parse_action\
+
+        attention = pp.Forward()
+        attention_head = (number | pp.Word('+') | pp.Word('-'))\
+            .set_debug(False)\
+            .set_name("attention_head")
+        attention_with_parens = (attention_head + pp.nested_expr(content=(attention | pp.OneOrMore(fragment_inside_attention))))\
+            .set_name("attention_with_parens")\
+            .set_debug(False)
+
+        attention_without_parens = ((pp.Word('+') | pp.Word('-')) + pp.CharsNotIn('()').set_parse_action(lambda x: [[make_fragment(x)]]))\
+            .set_name("attention_without_parens")
+
+        attention << (attention_with_parens | attention_without_parens)\
+            .set_name("attention")
+        attention.set_debug(False)
+
+        def parse_attention_internal(x):
+            print("attention guts is", x[1])
+            #if type(x[1]) is str:
+            #    return Attention.from_parsing(prompt_part.parse_string(x[0]), x[1])
+            #else:
+            return Attention.from_parsing(x[0], x[1])
+        attention.set_parse_action(parse_attention_internal)
+
+        #cfg_scale_tail = (pp.Literal(".scale(") + number + ")")
+        #cfg_guts = pp.CharsNotIn(')')
+        #cfg_scale = (lparen + cfg_guts + rparen + cfg_scale_tail)
+
+        word << pp.Word(pp.printables).set_parse_action(lambda x: Fragment(' '.join([s for s in x])))
+        word.set_name("word")
+        word.set_debug(False)
+        prompt_part << (attention | word)
+        prompt_part.set_debug(False)
+        prompt_part.set_name("prompt_part")
 
         prompt = pp.Group(pp.OneOrMore(prompt_part)).set_parse_action(lambda x: Prompt(x))
 
@@ -118,9 +156,9 @@ class PromptParser():
         self.root = pp.OneOrMore(blend | prompt)
 
         def unquote_and_parse(x):
-            print('unprompting x:', x, "to", x[1:-1])
+            print(f"unquoting x:'{x}' to '{x[1:-1]}'")
             x_unquoted = x[1:-1]
-            if len(x_unquoted) == 0:
+            if len(x_unquoted.strip()) == 0:
                 return [Prompt([Fragment('')])]
             return prompt.parse_string(x_unquoted)
 
@@ -136,9 +174,9 @@ class PromptParser():
         #print("parsing", prompt)
 
         if len(prompt.strip()) == 0:
-            return Prompt(parts=[])
+            return Conjunction(parts=[('', 1.0)])
 
-        roots = self.root.parseString(prompt)
+        roots = self.root.parse_string(prompt)
         #fused = fuse_fragments(parts)
         #print("fused to", fused)
 

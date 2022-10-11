@@ -16,10 +16,11 @@ class PromptParserTestCase(unittest.TestCase):
         self.assertEqual(Conjunction([[("fire, flames , fire", 1)]]), parse_prompt("fire, flames , fire"))
 
     def test_attention(self):
-        self.assertEqual(Conjunction([[('fire', 1), ('flames', 0.5)]]), parse_prompt("fire 0.5(flames)"))
         self.assertEqual(Conjunction([[('flames', 0.5)]]), parse_prompt("0.5(flames)"))
+        self.assertEqual(Conjunction([[('fire flames', 0.5)]]), parse_prompt("0.5(fire flames)"))
         self.assertEqual(Conjunction([[('flames', 1.1)]]), parse_prompt("+(flames)"))
         self.assertEqual(Conjunction([[('flames', 0.9)]]), parse_prompt("-(flames)"))
+        self.assertEqual(Conjunction([[('fire', 1), ('flames', 0.5)]]), parse_prompt("fire 0.5(flames)"))
         self.assertEqual(Conjunction([[('flames', pow(1.1, 2))]]), parse_prompt("++(flames)"))
         self.assertEqual(Conjunction([[('flames', pow(0.9, 2))]]), parse_prompt("--(flames)"))
         self.assertEqual(Conjunction([[('flowers', pow(0.9, 3)), ('flames', pow(1.1, 3))]]), parse_prompt("---(flowers) +++flames"))
@@ -35,42 +36,41 @@ class PromptParserTestCase(unittest.TestCase):
         #self.assertEqual(True, False)  # add assertion here
 
 
-    def test_blend_with_empty(self):
-        # blend with empty
-        self.assertEqual(Conjunction(
-                            [Blend([[('fire', 1.0)], [('', 1.0)]], [0.7, 1.0])]),
-                            parse_prompt("(\"fire\",\"\").blend(0.7, 1.0)")
-        )
-
 
     def test_blend(self):
         self.assertEqual(Conjunction(
-                            [Blend([[('fire', 1)], [('fire flames', 1)]], [0.7, 0.3])]),
+                            [Blend([[('fire', 1.0)], [('fire flames', 1.0)]], [0.7, 0.3])]),
                             parse_prompt("(\"fire\", \"fire flames\").blend(0.7, 0.3)")
         )
         self.assertEqual(Conjunction(
-                            [Blend([[('fire', 1)], [('fire flames', 1)], [('hi', 1)]], [0.7, 0.3, 1.0])]),
+                            [Blend([[('fire', 1.0)], [('fire flames', 1.0)], [('hi', 1.0)]], [0.7, 0.3, 1.0])]),
                             parse_prompt("(\"fire\", \"fire flames\", \"hi\").blend(0.7, 0.3, 1.0)")
         )
         self.assertEqual(Conjunction(
-                            [Blend([[('fire', 1)], [('fire flames', 1), ('hot', pow(1.1, 2))], [('hi', 1)]], [0.7, 0.3, 1.0])]),
+                            [Blend([[('fire', 1.0)], [('fire flames', 1.0), ('hot', pow(1.1, 2))], [('hi', 1.0)]], [0.7, 0.3, 1.0])]),
                             parse_prompt("(\"fire\", \"fire flames ++(hot)\", \"hi\").blend(0.7, 0.3, 1.0)")
         )
         # blend a single entry is not a failure
         self.assertEqual(Conjunction(
-                            [Blend([[('fire', 1)]], [0.7])]),
+                            [Blend([[('fire', 1.0)]], [0.7])]),
                             parse_prompt("(\"fire\").blend(0.7)")
         )
         # blend with empty
         self.assertEqual(Conjunction(
-                            [Blend([[('fire', 1)]], [0.7])]),
-                            parse_prompt("(\"fire\", \" \").blend(0.7)")
+                            [Blend([[('fire', 1.0)], [('', 1.0)]], [0.7, 1.0])]),
+                            parse_prompt("(\"fire\", \" \").blend(0.7, 1)")
         )
-
+        self.assertEqual(Conjunction(
+                            [Blend([[('fire', 1.0)], [('', 1.0)]], [0.7, 1.0])]),
+                            parse_prompt("(\"fire\", \"\").blend(0.7, 1)")
+        )
 
     def test_nested(self):
         self.assertEqual(Conjunction(
-            [Blend(children=[[('fire', 1), ('flames', 1.2100000000000002)], [('mountain', 1), ('man', 2.0)]], weights=[1.0, 1.0])]),
+            [[('fire', 1.0), ('flames', 2.0), ('trees', 3.0)]]),
+            parse_prompt('fire 2.0(flames 1.5(trees))'))
+        self.assertEqual(Conjunction(
+            [Blend(children=[[('fire', 1.0), ('flames', 1.2100000000000002)], [('mountain', 1.0), ('man', 2.0)]], weights=[1.0, 1.0])]),
             parse_prompt('("fire ++(flames)", "mountain 2(man)").blend(1,1)'))
 
 if __name__ == '__main__':
