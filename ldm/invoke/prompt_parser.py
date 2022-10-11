@@ -17,9 +17,19 @@ class Prompt():
 
 class FlattenedPrompt():
     def __init__(self, parts: list):
+        # verify type correctness
         for c in parts:
-            if type(c) is not tuple or type(c[0]) is not str or (type(c[1]) is not float and type(c[1]) is not int):
-                raise PromptParser.ParsingException(f"FlattenedPrompt cannot contain {type(c)}, only (str, float) tuples are allowed")
+            if type(c) is not tuple:
+                raise PromptParser.ParsingException(
+                    f"FlattenedPrompt cannot contain {type(c)}, only ('text', weight)  tuples are allowed")
+            text = c[0]
+            weight = c[1]
+            if type(text) is not str:
+                raise PromptParser.ParsingException(f"FlattenedPrompt cannot contain {type(c)}, only ('text', weight) tuples are allowed")
+            if type(weight) is not float and type(weight) is not int:
+                raise PromptParser.ParsingException(
+                    f"FlattenedPrompt cannot contain {type(c)}, only ('text', weight) tuples are allowed")
+        # all looks good
         self.children = parts
 
     def __repr__(self):
