@@ -1,46 +1,77 @@
 import unittest
 
-from ldm.dream.prompt_parser import parse_prompt, Word, Attention, Blend
-
+from ldm.invoke.prompt_parser import parse_prompt, Fragment, Attention, Blend, CFGScale, Conjunction, Prompt
 
 empty_conditioning = [('', 1)]
 
 class PromptParserTestCase(unittest.TestCase):
 
     def test_empty(self):
-        self.assertEqual(parse_prompt(''), [])
+        self.assertEqual(Conjunction([('', 1)]), parse_prompt(''))
 
     def test_basic(self):
-        self.assertEqual(parse_prompt("fire (flames)"), [Word("fire"), Word("(flames)")])
-        self.assertEqual(parse_prompt("fire flames"), [Word("fire"), Word("flames")])
-        self.assertEqual(parse_prompt("fire, flames"), [Word("fire,"), Word("flames")])
-        self.assertEqual(parse_prompt("fire, flames , fire"), [Word("fire,"), Word("flames"), Word(","), Word("fire")])
+        self.assertEqual(Conjunction([[('fire (flames)', 1)]]), parse_prompt("fire (flames)"))
+        self.assertEqual(Conjunction([[("fire flames", 1)]]), parse_prompt("fire flames"))
+        self.assertEqual(Conjunction([[("fire, flames", 1)]]), parse_prompt("fire, flames"))
+        self.assertEqual(Conjunction([[("fire, flames , fire", 1)]]), parse_prompt("fire, flames , fire"))
 
     def test_attention(self):
-        self.assertEqual(parse_prompt("fire 0.5(flames)"), [Word("fire"), Attention(0.5, "flames")])
-        self.assertEqual(parse_prompt("0.5(flames)"), [Attention(0.5, "flames")])
-        self.assertEqual(parse_prompt("+(flames)"), [Attention(1.1, "flames")])
-        self.assertEqual(parse_prompt("-(flames)"), [Attention(0.9, "flames")])
-        self.assertEqual(parse_prompt("++(flames)"), [Attention(pow(1.1,2), "flames")])
-        self.assertEqual(parse_prompt("--(flames)"), [Attention(pow(0.9,2), "flames")])
-        self.assertEqual(parse_prompt("---(flowers) +++flames"), [Attention(pow(0.9,3), "flowers"), Attention(pow(1.1,3), "flames")])
-        self.assertEqual(parse_prompt("---flowers +++flames"), [Attention(pow(0.9,3), "flowers"), Attention(pow(1.1,3), "flames")])
-        self.assertEqual(parse_prompt("---flowers +++flames+"), [Attention(pow(0.9,3), "flowers"), Attention(pow(1.1,3), "flames+")])
+        self.assertEqual(Conjunction([[('fire', 1), ('flames', 0.5)]]), parse_prompt("fire 0.5(flames)"))
+        self.assertEqual(Conjunction([[('flames', 0.5)]]), parse_prompt("0.5(flames)"))
+        self.assertEqual(Conjunction([[('flames', 1.1)]]), parse_prompt("+(flames)"))
+        self.assertEqual(Conjunction([[('flames', 0.9)]]), parse_prompt("-(flames)"))
+        self.assertEqual(Conjunction([[('flames', pow(1.1, 2))]]), parse_prompt("++(flames)"))
+        self.assertEqual(Conjunction([[('flames', pow(0.9, 2))]]), parse_prompt("--(flames)"))
+        self.assertEqual(Conjunction([[('flowers', pow(0.9, 3)), ('flames', pow(1.1, 3))]]), parse_prompt("---(flowers) +++flames"))
+        self.assertEqual(Conjunction([[('flowers', pow(0.9, 3)), ('flames', pow(1.1, 3))]]), parse_prompt("---(flowers) +++flames"))
+        self.assertEqual(Conjunction([[('flowers', pow(0.9, 3)), ('flames+', pow(1.1, 3))]]),
+                         parse_prompt("---(flowers) +++flames+"))
+        self.assertEqual(Conjunction([[('pretty flowers', 1.1)]]),
+                         parse_prompt("+(pretty flowers)"))
+        self.assertEqual(Conjunction([[('pretty flowers', 1.1), (', the flames are too hot', 1)]]),
+                         parse_prompt("+(pretty flowers), the flames are too hot"))
 
         #self.assertEqual(pp.parse(prompt))
         #self.assertEqual(True, False)  # add assertion here
 
-    def test_attention_sml(self):
-        self.assertEqual(parse_prompt("---(flowers) +++flames"), [Attention(pow(0.9,3), "flowers"), Attention(pow(1.1,3), "flames")])
+
+    def test_blend_with_empty(self):
+        # blend with empty
+        self.assertEqual(Conjunction(
+                            [Blend([[('fire', 1.0)], [('', 1.0)]], [0.7, 1.0])]),
+                            parse_prompt("(\"fire\",\"\").blend(0.7, 1.0)")
+        )
 
 
     def test_blend(self):
-        self.assertEqual(parse_prompt("(\"fire\", \"fire flames\", \"hi\").blend(0.7, 0.3, 1.0)"),
-                         [Blend([[Word("fire")], [Word("fire"), Word("flames")], [Word("hi")]], [0.7, 0.3, 1.0])])
+        self.assertEqual(Conjunction(
+                            [Blend([[('fire', 1)], [('fire flames', 1)]], [0.7, 0.3])]),
+                            parse_prompt("(\"fire\", \"fire flames\").blend(0.7, 0.3)")
+        )
+        self.assertEqual(Conjunction(
+                            [Blend([[('fire', 1)], [('fire flames', 1)], [('hi', 1)]], [0.7, 0.3, 1.0])]),
+                            parse_prompt("(\"fire\", \"fire flames\", \"hi\").blend(0.7, 0.3, 1.0)")
+        )
+        self.assertEqual(Conjunction(
+                            [Blend([[('fire', 1)], [('fire flames', 1), ('hot', pow(1.1, 2))], [('hi', 1)]], [0.7, 0.3, 1.0])]),
+                            parse_prompt("(\"fire\", \"fire flames ++(hot)\", \"hi\").blend(0.7, 0.3, 1.0)")
+        )
+        # blend a single entry is not a failure
+        self.assertEqual(Conjunction(
+                            [Blend([[('fire', 1)]], [0.7])]),
+                            parse_prompt("(\"fire\").blend(0.7)")
+        )
+        # blend with empty
+        self.assertEqual(Conjunction(
+                            [Blend([[('fire', 1)]], [0.7])]),
+                            parse_prompt("(\"fire\", \" \").blend(0.7)")
+        )
+
 
     def test_nested(self):
-        self.assertEqual(parse_prompt('("fire ++(flames)", "mountain 2(man)").blend(1,1)'),
-                        [Blend([[Word("fire"), Attention(pow(1.1,2), "flames")], [Word("mountain"), Attention(2.0, "man")]], [1.0,1.0])])
+        self.assertEqual(Conjunction(
+            [Blend(children=[[('fire', 1), ('flames', 1.2100000000000002)], [('mountain', 1), ('man', 2.0)]], weights=[1.0, 1.0])]),
+            parse_prompt('("fire ++(flames)", "mountain 2(man)").blend(1,1)'))
 
 if __name__ == '__main__':
     unittest.main()
