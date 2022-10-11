@@ -142,16 +142,16 @@ class PromptParser():
             else:
                 raise PromptParser.ParsingException("Cannot make fragment from " + str(x))
 
-        fragment_inside_attention = pp.CharsNotIn(SPACE_CHARS+'()')\
-            .set_parse_action(make_fragment)\
-            .set_name("fragment_inside_attention")\
-            .set_debug(False)
-
+        # attention control of the form +(phrase) / -(phrase) / <weight>(phrase)
+        # phrase can be multiple words, can have multiple +/- signs to increase the effect or type a floating point or integer weight
         attention = pp.Forward()
         attention_head = (number | pp.Word('+') | pp.Word('-'))\
             .set_name("attention_head")\
             .set_debug(False)
-
+        fragment_inside_attention = pp.CharsNotIn(SPACE_CHARS+'()')\
+            .set_parse_action(make_fragment)\
+            .set_name("fragment_inside_attention")\
+            .set_debug(False)
         attention_with_parens = pp.Forward()
         attention_with_parens_body = pp.nested_expr(content=pp.delimited_list((attention_with_parens | fragment_inside_attention), delim=SPACE_CHARS))
         attention_with_parens << (attention_head + attention_with_parens_body)
@@ -159,23 +159,18 @@ class PromptParser():
             .set_name("attention_with_parens")\
             .set_debug(False)
 
-        attention_without_parens = ((pp.Word('+') | pp.Word('-')) + pp.CharsNotIn('()')
+        # attention control of the form ++word --word (no parens)
+        attention_without_parens = ((pp.Word('+') | pp.Word('-')) + pp.CharsNotIn(SPACE_CHARS+'()')
             .set_parse_action(lambda x: [[make_fragment(x)]]))\
-            .set_name("attention_without_parens")
+            .set_name("attention_without_parens")\
+            .set_debug(False)
         attention_without_parens.set_parse_action(lambda x: Attention.from_parsing(x[0], x[1]))
 
         attention << (attention_with_parens | attention_without_parens)\
             .set_name("attention")
         attention.set_debug(False)
 
-
-
-        #print("&&& parsing", attention.parse_string("1.5(trees)"))
-
-        #cfg_scale_tail = (pp.Literal(".scale(") + number + ")")
-        #cfg_guts = pp.CharsNotIn(')')
-        #cfg_scale = (lparen + cfg_guts + rparen + cfg_scale_tail)
-
+        # fragments of text with no attention control
         word << pp.Word(pp.printables).set_parse_action(lambda x: Fragment(' '.join([s for s in x])))
         word.set_name("word")
         word.set_debug(False)
@@ -183,18 +178,20 @@ class PromptParser():
         prompt_part.set_debug(False)
         prompt_part.set_name("prompt_part")
 
+        # root prompt definition
         prompt = pp.Group(pp.OneOrMore(prompt_part))\
             .set_parse_action(lambda x: Prompt(x[0]))
 
-        # cfg scale: (fragment).scale(number)
+        # weighted blend of prompts
+        # ("promptA", "promptB").blend(a, b) where "promptA" and "promptB" are valid prompts and a and b are float or
+        # int weights.
+        # can specify more terms eg ("promptA", "promptB", "promptC").blend(a,b,c)
         blend_terms = pp.delimited_list(pp.dbl_quoted_string).set_name('blend_terms')
         blend_weights = pp.delimited_list(number).set_name('blend_weights')
         blend = pp.Group(lparen + pp.Group(blend_terms) + rparen
                          + pp.Literal(".blend").suppress()
                          + lparen + pp.Group(blend_weights) + rparen).set_name('blend')
         blend.set_debug(False)
-
-        self.root = pp.OneOrMore(blend | prompt)
 
         def make_blend_subprompt(x):
             #print('preparing blend subprompts from', x)
@@ -216,6 +213,9 @@ class PromptParser():
             return Blend(children=children, weights=weights)
 
         blend.set_parse_action(make_blend_subprompt)
+
+        # top-level is a conjunction of one or more blends or prompts
+        self.root = pp.OneOrMore(blend | prompt)
 
 
 
