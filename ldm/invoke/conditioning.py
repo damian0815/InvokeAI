@@ -13,6 +13,7 @@ import re
 import torch
 
 from .prompt_parser import PromptParser, Fragment, Attention, Blend, Conjunction, FlattenedPrompt
+from ..modules.encoders.modules import WeightedFrozenCLIPEmbedder
 
 
 def get_uc_and_c(prompt_string_uncleaned, model, log_tokens=False, skip_normalize=False):
@@ -32,66 +33,47 @@ def get_uc_and_c(prompt_string_uncleaned, model, log_tokens=False, skip_normaliz
     else:
         prompt_string_cleaned = prompt_string_uncleaned
 
-
-    subprompts_to_blend = split_weighted_subprompts(
-        prompt_string_cleaned, True  # skip_normalize
-    )
-    if len(subprompts_to_blend)>1:
-        quoted_prompts = ['"'+x[0]+'"' for x in subprompts_to_blend]
-        weights = [str(x[1]) for x in subprompts_to_blend]
-        quoted_prompts_string = ", ".join(quoted_prompts)
-        weights_string = ", ".join(weights)
-        prompt_string_cleaned = f"({quoted_prompts_string}).blend({weights_string})"
-
-    #rebuilt_blends_prompt_string = prompt_string_cleaned if len(subprompts_to_blend)<2 else
-
     pp = PromptParser()
-    parsed_positive_conjunction: Conjunction = pp.parse(prompt_string_cleaned)
-    assert(type(parsed_positive_conjunction) is Conjunction)
-    print(parsed_positive_conjunction)
 
-    if len(parsed_positive_conjunction.parts)>1:
-        print("only handling 1 conjunction part for now")
+    def build_conditioning_list(prompt_string:str):
+        parsed_conjunction: Conjunction = pp.parse(prompt_string)
+        assert (type(parsed_conjunction) is Conjunction)
 
-    positive_conditioning_list = []
+        conditioning_list = []
+        def make_embeddings_for_flattened_prompt(flattened_prompt: FlattenedPrompt):
+            if type(flattened_prompt) is not FlattenedPrompt:
+                raise f"embeddings can only be made from FlattenedPrompts, got {type(flattened_prompt)} instead"
+            fragments = [x[0] for x in flattened_prompt.children]
+            attention_weights = [x[1] for x in flattened_prompt.children]
+            print(fragments, attention_weights)
+            return model.get_learned_conditioning([fragments], attention_weights=[attention_weights])
 
-    def make_embeddings_for_flattened_prompt(flattened_prompt: FlattenedPrompt):
-        if type(flattened_prompt) is not FlattenedPrompt:
-            raise f"embeddings can only be made from FlattenedPrompts, got {type(flattened_prompt)} instead"
-        fragments = [x[0] for x in flattened_prompt.children]
-        attention_weights = [x[1] for x in flattened_prompt.children]
-        print(fragments, attention_weights)
-        return model.get_learned_conditioning([fragments], attention_weights=[attention_weights])
+        for part in parsed_conjunction.parts:
+            if type(part) is Blend:
+                blend:Blend = part
+                embeddings_to_blend = None
+                for flattened_prompt in blend.children:
+                    this_embedding = make_embeddings_for_flattened_prompt(flattened_prompt)
+                    embeddings_to_blend = this_embedding if embeddings_to_blend is None else torch.cat((embeddings_to_blend, this_embedding))
+                blended_embeddings = WeightedFrozenCLIPEmbedder.apply_embedding_weights(embeddings_to_blend.unsqueeze(0), blend.weights, normalize=blend.normalize_weights)
+                conditioning_list.append((blended_embeddings, 1.0))
+            else:
+                flattened_prompt: FlattenedPrompt = part
+                embeddings = make_embeddings_for_flattened_prompt(flattened_prompt)
+                conditioning_list.append((embeddings, 1.0))
 
-    for part in parsed_positive_conjunction.parts:
-        if type(part) is Blend:
-            blend:Blend = part
-            embeddings_to_blend = []
-            for flattened_prompt in blend.children:
-                embeddings_to_blend.append(make_embeddings_for_flattened_prompt(flattened_prompt))
-            blended_embeddings = model.blend_embeddings(embeddings_to_blend, blend.weights)
-            positive_conditioning_list.append((blended_embeddings, 1.0))
-        else:
-            flattened_prompt: FlattenedPrompt = part
-            embeddings = make_embeddings_for_flattened_prompt(flattened_prompt)
-            positive_conditioning_list.append((embeddings, 1.0))
+        return conditioning_list
 
-    # get weighted sub-prompts
-    def get_blend_prompts_and_weights(prompt):
-        subprompts_to_blend = split_weighted_subprompts(
-            prompt, True #skip_normalize
-        )
-        for subprompt, weight in subprompts_to_blend:
-            log_tokenization(subprompt, model, log_tokens, weight)
-        if len(subprompts_to_blend)==0:
-            subprompts = ['']
-            weights = [1]
-        else:
-            subprompts = [subprompt for subprompt, _ in subprompts_to_blend]
-            weights = [weight for _, weight in subprompts_to_blend]
-        return model.get_learned_conditioning([subprompts], attention_weights=[weights])
+    positive_conditioning_list = build_conditioning_list(prompt_string_cleaned)
+    negative_conditioning_list = build_conditioning_list(unconditioned_words)
 
-    negative_conditioning = get_blend_prompts_and_weights(unconditioned_words)
+    if len(negative_conditioning_list) == 0:
+        negative_conditioning = model.get_learned_conditioning([['']], attention_weights=[[1]])
+    else:
+        if len(negative_conditioning_list)>1:
+            print("cannot do conjunctions on unconditioning for now")
+        negative_conditioning = negative_conditioning_list[0][0]
+
     #positive_conditioning_list.append((get_blend_prompts_and_weights(prompt), this_weight))
     #print("got empty_conditionining with shape", empty_conditioning.shape, "c[0][0] with shape", positive_conditioning[0][0].shape)
 

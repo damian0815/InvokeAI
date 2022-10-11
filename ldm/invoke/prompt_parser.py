@@ -99,7 +99,7 @@ class Conjunction():
 
 
 class Blend():
-    def __init__(self, children: list, weights: list[float]):
+    def __init__(self, children: list, weights: list[float], normalize_weights: bool=True):
         #print("making Blend with prompts", children, "and weights", weights)
         if len(children) != len(weights):
             raise PromptParser.ParsingException("().blend(): mismatched child/weight counts")
@@ -111,6 +111,7 @@ class Blend():
                          else Prompt(x) for x in children]
         self.children = children
         self.weights = weights
+        self.normalize_weights = normalize_weights
 
     def __repr__(self):
         return f"Blend:{self.children} | weights {self.weights}"
@@ -230,7 +231,7 @@ class PromptParser():
             return Conjunction(parts=[FlattenedPrompt([('', 1.0)])])
 
         roots = self.root.parse_string(prompt)
-        #print(f"'{prompt}' parsed to roots", roots)
+        print(f"'{prompt}' parsed to roots", roots)
         #fused = fuse_fragments(parts)
         #print("fused to", fused)
 
