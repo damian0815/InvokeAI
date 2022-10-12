@@ -59,7 +59,16 @@ class CFGDenoiser(nn.Module):
 class ProgrammableCFGDenoiser(CFGDenoiser):
     def forward(self, x, sigma, uncond, cond, cond_scale):
         forward_lambda = lambda x, t, c: self.inner_model(x, t, cond=c)
-        return Sampler.apply_weighted_conditioning_list(x, sigma, forward_lambda, uncond, cond, cond_scale)
+        x_new = Sampler.apply_weighted_conditioning_list(x, sigma, forward_lambda, uncond, cond, cond_scale)
+
+        if self.warmup < self.warmup_max:
+            thresh = max(1, 1 + (self.threshold - 1) * (self.warmup / self.warmup_max))
+            self.warmup += 1
+        else:
+            thresh = self.threshold
+        if thresh > self.threshold:
+            thresh = self.threshold
+        return cfg_apply_threshold(x_new, threshold=thresh)
 
 
 class KSampler(Sampler):
