@@ -425,7 +425,7 @@ class Sampler(object):
         for this_cond, this_weight in weighted_cond_list:
             # currently uncond_latents is overwritten every time through this loop
             # - this is wasteful as it always returns the same result
-            # @todo optimize: don't waste cycles recomputing uc every time, instead be smarter about assembling c_in from either uc or values taken from weighted_cond_list
+            # @todo optimize: don't waste cycles recomputing uncond_latents from uc every time, instead be smarter about assembling c_in from either uc or values taken from weighted_cond_list
             c_in = torch.cat([uc, this_cond])
             # forward_func only supports 2 values in c_in
             # @todo find out why forward func can only handle exactly 2 values for c_in
