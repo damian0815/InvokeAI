@@ -37,6 +37,7 @@ def get_uc_and_c(prompt_string_uncleaned, model, log_tokens=False, skip_normaliz
 
     def build_conditioning_list(prompt_string:str):
         parsed_conjunction: Conjunction = pp.parse(prompt_string)
+        print(f"parsed '{prompt_string}' to {parsed_conjunction}")
         assert (type(parsed_conjunction) is Conjunction)
 
         conditioning_list = []
@@ -52,7 +53,7 @@ def get_uc_and_c(prompt_string_uncleaned, model, log_tokens=False, skip_normaliz
             if type(part) is Blend:
                 blend:Blend = part
                 embeddings_to_blend = None
-                for flattened_prompt in blend.children:
+                for flattened_prompt in blend.prompts:
                     this_embedding = make_embeddings_for_flattened_prompt(flattened_prompt)
                     embeddings_to_blend = this_embedding if embeddings_to_blend is None else torch.cat((embeddings_to_blend, this_embedding))
                 blended_embeddings = WeightedFrozenCLIPEmbedder.apply_embedding_weights(embeddings_to_blend.unsqueeze(0), blend.weights, normalize=blend.normalize_weights)
