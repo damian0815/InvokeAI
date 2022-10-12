@@ -58,7 +58,8 @@ class CFGDenoiser(nn.Module):
 
 class ProgrammableCFGDenoiser(CFGDenoiser):
     def forward(self, x, sigma, uncond, cond, cond_scale):
-        return Sampler.apply_weighted_conditioning_list(x, sigma, self.inner_model, uncond, cond, cond_scale)
+        forward_lambda = lambda x, t, c: self.inner_model(x, t, cond=c)
+        return Sampler.apply_weighted_conditioning_list(x, sigma, forward_lambda, uncond, cond, cond_scale)
 
 
 class KSampler(Sampler):
