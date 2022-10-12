@@ -76,24 +76,29 @@ class Fragment():
         return type(other) is Fragment and other.text == self.text
 
 class Conjunction():
-    def __init__(self, parts: list):
+    def __init__(self, prompts: list, weights: list = None):
         # force everything to be a Prompt
         #print("making conjunction with", parts)
-        self.parts = [x if (type(x) is Prompt or type(x) is Blend or type(x) is FlattenedPrompt)
-                      else Prompt(x) for x in parts]
+        self.prompts = [x if (type(x) is Prompt or type(x) is Blend or type(x) is FlattenedPrompt)
+                      else Prompt(x) for x in prompts]
+        self.weights = [1.0]*len(self.prompts) if weights is None else list(weights)
+        if len(self.weights) != len(self.prompts):
+            raise PromptParser.ParsingException(f"while parsing Conjunction: mismatched parts/weights counts {prompts}, {weights}")
         self.type = 'AND'
 
     def __repr__(self):
-        return f"Conjunction:{self.parts}"
+        return f"Conjunction:{self.prompts} | weights {self.weights}"
     def __eq__(self, other):
-        return type(other) is Conjunction and other.parts == self.parts
+        return type(other) is Conjunction \
+               and other.prompts == self.prompts \
+               and other.weights == self.weights
 
 
 class Blend():
     def __init__(self, prompts: list, weights: list[float], normalize_weights: bool=True):
         #print("making Blend with prompts", prompts, "and weights", weights)
         if len(prompts) != len(weights):
-            raise PromptParser.ParsingException(f"while parsing blend: mismatched child/weight counts {children}, {weights}")
+            raise PromptParser.ParsingException(f"while parsing Blend: mismatched prompts/weights counts {prompts}, {weights}")
         for c in prompts:
             if type(c) is not Prompt and type(c) is not FlattenedPrompt:
                 raise(PromptParser.ParsingException(f"{type(c)} cannot be added to a Blend, only Prompts or FlattenedPrompts"))
@@ -131,7 +136,7 @@ class PromptParser():
         #print(f"!!parsing '{prompt}'")
 
         if len(prompt.strip()) == 0:
-            return Conjunction(parts=[FlattenedPrompt([('', 1.0)])])
+            return Conjunction(prompts=[FlattenedPrompt([('', 1.0)])], weights=[1.0])
 
         root = self.root.parse_string(prompt)
         #print(f"'{prompt}' parsed to root", root)
@@ -191,9 +196,10 @@ class PromptParser():
         #print("flattening", root)
 
         flattened_parts = []
-        for part in root.parts:
+        for part in root.prompts:
             flattened_parts += flatten_internal(part, 1.0, [], ' C| ')
-        return Conjunction(flattened_parts)
+        weights = root.weights
+        return Conjunction(flattened_parts, weights)
 
 
 
@@ -201,6 +207,7 @@ class PromptParser():
 
         lparen = pp.Literal("(").suppress()
         rparen = pp.Literal(")").suppress()
+        # accepts int or float notation, always maps to float
         number = pyparsing.pyparsing_common.real | pp.Word(pp.nums).set_parse_action(pp.token_map(float))
         SPACE_CHARS = ' \t\n'
 
@@ -306,8 +313,13 @@ class PromptParser():
         conjunction_weights = blend_weights.copy().set_name('conjunction_weights')
         conjunction_with_parens_and_quotes = pp.Group(lparen + pp.Group(conjunction_terms) + rparen
                          + pp.Literal(".and").suppress()
-                         + lparen + pp.Optional(conjunction_weights) + rparen).set_name('conjunction')
-        conjunction_with_parens_and_quotes.set_parse_action(lambda x: Conjunction([part[0] for part in x][0]))
+                         + lparen + pp.Optional(pp.Group(conjunction_weights)) + rparen).set_name('conjunction')
+        def make_conjunction(x):
+            parts_raw = x[0][0]
+            weights = x[0][1] if len(x[0])>1 else [1.0]*len(parts_raw)
+            parts = [part for part in parts_raw]
+            return Conjunction(parts, weights)
+        conjunction_with_parens_and_quotes.set_parse_action(make_conjunction)
 
         implicit_conjunction = pp.OneOrMore(blend | prompt)
         implicit_conjunction.set_parse_action(lambda x: Conjunction(x))

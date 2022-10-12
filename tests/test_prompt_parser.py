@@ -47,9 +47,19 @@ class PromptParserTestCase(unittest.TestCase):
     def test_explicit_conjunction(self):
         self.assertEqual(Conjunction([FlattenedPrompt([('fire', 1.0)]), FlattenedPrompt([('flames', 1.0)])]), parse_prompt('("fire", "flames").and(1,1)'))
         self.assertEqual(Conjunction([FlattenedPrompt([('fire', 1.0)]), FlattenedPrompt([('flames', 1.0)])]), parse_prompt('("fire", "flames").and()'))
-        self.assertEqual(Conjunction([FlattenedPrompt([('fire flames', 1.0)]), FlattenedPrompt([('mountain man', 1.0)])]), parse_prompt('("fire flames", "mountain man").and()'))
+        self.assertEqual(
+            Conjunction([FlattenedPrompt([('fire flames', 1.0)]), FlattenedPrompt([('mountain man', 1.0)])]), parse_prompt('("fire flames", "mountain man").and()'))
         self.assertEqual(Conjunction([FlattenedPrompt([('fire', 2.0)]), FlattenedPrompt([('flames', 0.9)])]), parse_prompt('("2.0(fire)", "-flames").and()'))
-        self.assertEqual(Conjunction([FlattenedPrompt([('fire', 1.0)]), FlattenedPrompt([('flames', 1.0)]), FlattenedPrompt([('mountain man', 1.0)])]), parse_prompt('("fire", "flames", "mountain man").and()'))
+        self.assertEqual(Conjunction([FlattenedPrompt([('fire', 1.0)]), FlattenedPrompt([('flames', 1.0)]),
+                                      FlattenedPrompt([('mountain man', 1.0)])]), parse_prompt('("fire", "flames", "mountain man").and()'))
+
+    def test_conjunction_weights(self):
+        self.assertEqual(Conjunction([FlattenedPrompt([('fire', 1.0)]), FlattenedPrompt([('flames', 1.0)])], weights=[2.0,1.0]), parse_prompt('("fire", "flames").and(2,1)'))
+        self.assertEqual(Conjunction([FlattenedPrompt([('fire', 1.0)]), FlattenedPrompt([('flames', 1.0)])], weights=[1.0,2.0]), parse_prompt('("fire", "flames").and(1,2)'))
+
+        with self.assertRaises(PromptParser.ParsingException):
+            parse_prompt('("fire", "flames").and(2)')
+            parse_prompt('("fire", "flames").and(2,1,2)')
 
 
     def test_badly_formed(self):
@@ -74,51 +84,50 @@ class PromptParserTestCase(unittest.TestCase):
 
     def test_blend(self):
         self.assertEqual(Conjunction(
-                            [Blend([FlattenedPrompt([('fire', 1.0)]), FlattenedPrompt([('fire flames', 1.0)])], [0.7, 0.3])]),
-                            parse_prompt("(\"fire\", \"fire flames\").blend(0.7, 0.3)")
-        )
-        self.assertEqual(Conjunction(
-                            [Blend([FlattenedPrompt([('fire', 1.0)]), FlattenedPrompt([('fire flames', 1.0)]), FlattenedPrompt([('hi', 1.0)])], [0.7, 0.3, 1.0])]),
-                            parse_prompt("(\"fire\", \"fire flames\", \"hi\").blend(0.7, 0.3, 1.0)")
-        )
-        self.assertEqual(Conjunction(
-                            [Blend([FlattenedPrompt([('fire', 1.0)]),
-                                    FlattenedPrompt([('fire flames', 1.0), ('hot', pow(1.1, 2))]),
-                                    FlattenedPrompt([('hi', 1.0)])],
-                                   weights=[0.7, 0.3, 1.0])]),
-                            parse_prompt("(\"fire\", \"fire flames ++(hot)\", \"hi\").blend(0.7, 0.3, 1.0)")
-        )
+            [Blend([FlattenedPrompt([('fire', 1.0)]), FlattenedPrompt([('fire flames', 1.0)])], [0.7, 0.3])]),
+                         parse_prompt("(\"fire\", \"fire flames\").blend(0.7, 0.3)")
+                         )
+        self.assertEqual(Conjunction([Blend(
+            [FlattenedPrompt([('fire', 1.0)]), FlattenedPrompt([('fire flames', 1.0)]), FlattenedPrompt([('hi', 1.0)])],
+            [0.7, 0.3, 1.0])]),
+                         parse_prompt("(\"fire\", \"fire flames\", \"hi\").blend(0.7, 0.3, 1.0)")
+                         )
+        self.assertEqual(Conjunction([Blend([FlattenedPrompt([('fire', 1.0)]),
+                                             FlattenedPrompt([('fire flames', 1.0), ('hot', pow(1.1, 2))]),
+                                             FlattenedPrompt([('hi', 1.0)])],
+                                            weights=[0.7, 0.3, 1.0])]),
+                         parse_prompt("(\"fire\", \"fire flames ++(hot)\", \"hi\").blend(0.7, 0.3, 1.0)")
+                         )
         # blend a single entry is not a failure
-        self.assertEqual(Conjunction(
-                            [Blend([FlattenedPrompt([('fire', 1.0)])], [0.7])]),
-                            parse_prompt("(\"fire\").blend(0.7)")
-        )
+        self.assertEqual(Conjunction([Blend([FlattenedPrompt([('fire', 1.0)])], [0.7])]),
+                         parse_prompt("(\"fire\").blend(0.7)")
+                         )
         # blend with empty
-        self.assertEqual(Conjunction(
-                            [Blend([FlattenedPrompt([('fire', 1.0)]), FlattenedPrompt([('', 1.0)])], [0.7, 1.0])]),
-                            parse_prompt("(\"fire\", \"\").blend(0.7, 1)")
-        )
-        self.assertEqual(Conjunction(
-                            [Blend([FlattenedPrompt([('fire', 1.0)]), FlattenedPrompt([('', 1.0)])], [0.7, 1.0])]),
-                            parse_prompt("(\"fire\", \" \").blend(0.7, 1)")
-        )
-        self.assertEqual(Conjunction(
-                            [Blend([FlattenedPrompt([('fire', 1.0)]), FlattenedPrompt([('', 1.0)])], [0.7, 1.0])]),
-                            parse_prompt("(\"fire\", \"     \").blend(0.7, 1)")
-        )
-        self.assertEqual(Conjunction(
-                            [Blend([FlattenedPrompt([('fire', 1.0)]), FlattenedPrompt([(',', 1.0)])], [0.7, 1.0])]),
-                            parse_prompt("(\"fire\", \"  ,  \").blend(0.7, 1)")
-        )
+        self.assertEqual(
+            Conjunction([Blend([FlattenedPrompt([('fire', 1.0)]), FlattenedPrompt([('', 1.0)])], [0.7, 1.0])]),
+            parse_prompt("(\"fire\", \"\").blend(0.7, 1)")
+            )
+        self.assertEqual(
+            Conjunction([Blend([FlattenedPrompt([('fire', 1.0)]), FlattenedPrompt([('', 1.0)])], [0.7, 1.0])]),
+            parse_prompt("(\"fire\", \" \").blend(0.7, 1)")
+            )
+        self.assertEqual(
+            Conjunction([Blend([FlattenedPrompt([('fire', 1.0)]), FlattenedPrompt([('', 1.0)])], [0.7, 1.0])]),
+            parse_prompt("(\"fire\", \"     \").blend(0.7, 1)")
+            )
+        self.assertEqual(
+            Conjunction([Blend([FlattenedPrompt([('fire', 1.0)]), FlattenedPrompt([(',', 1.0)])], [0.7, 1.0])]),
+            parse_prompt("(\"fire\", \"  ,  \").blend(0.7, 1)")
+            )
 
 
     def test_nested(self):
-        self.assertEqual(Conjunction(
-            [FlattenedPrompt([('fire', 1.0), ('flames', 2.0), ('trees', 3.0)])]),
-            parse_prompt('fire 2.0(flames 1.5(trees))'))
-        self.assertEqual(Conjunction(
-            [Blend(prompts=[FlattenedPrompt([('fire', 1.0), ('flames', 1.2100000000000002)]), FlattenedPrompt([('mountain', 1.0), ('man', 2.0)])], weights=[1.0, 1.0])]),
-            parse_prompt('("fire ++(flames)", "mountain 2(man)").blend(1,1)'))
+        self.assertEqual(Conjunction([FlattenedPrompt([('fire', 1.0), ('flames', 2.0), ('trees', 3.0)])]),
+                         parse_prompt('fire 2.0(flames 1.5(trees))'))
+        self.assertEqual(Conjunction([Blend(prompts=[FlattenedPrompt([('fire', 1.0), ('flames', 1.2100000000000002)]),
+                                                     FlattenedPrompt([('mountain', 1.0), ('man', 2.0)])],
+                                            weights=[1.0, 1.0])]),
+                         parse_prompt('("fire ++(flames)", "mountain 2(man)").blend(1,1)'))
 
 if __name__ == '__main__':
     unittest.main()

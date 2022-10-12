@@ -49,7 +49,7 @@ def get_uc_and_c(prompt_string_uncleaned, model, log_tokens=False, skip_normaliz
             print(fragments, attention_weights)
             return model.get_learned_conditioning([fragments], attention_weights=[attention_weights])
 
-        for part in parsed_conjunction.parts:
+        for part,weight in zip(parsed_conjunction.prompts, parsed_conjunction.weights):
             if type(part) is Blend:
                 blend:Blend = part
                 embeddings_to_blend = None
@@ -57,11 +57,11 @@ def get_uc_and_c(prompt_string_uncleaned, model, log_tokens=False, skip_normaliz
                     this_embedding = make_embeddings_for_flattened_prompt(flattened_prompt)
                     embeddings_to_blend = this_embedding if embeddings_to_blend is None else torch.cat((embeddings_to_blend, this_embedding))
                 blended_embeddings = WeightedFrozenCLIPEmbedder.apply_embedding_weights(embeddings_to_blend.unsqueeze(0), blend.weights, normalize=blend.normalize_weights)
-                conditioning_list.append((blended_embeddings, 1.0))
+                conditioning_list.append((blended_embeddings, weight))
             else:
                 flattened_prompt: FlattenedPrompt = part
                 embeddings = make_embeddings_for_flattened_prompt(flattened_prompt)
-                conditioning_list.append((embeddings, 1.0))
+                conditioning_list.append((embeddings, weight))
 
         return conditioning_list
 
