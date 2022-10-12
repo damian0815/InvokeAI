@@ -40,9 +40,13 @@ class PromptParserTestCase(unittest.TestCase):
         self.assertEqual(Conjunction([FlattenedPrompt([('flowers', 1.0), ('fire', pow(0.9, 2)), ('flames', 1.0)])]), parse_prompt("flowers --fire flames"))
 
 
+    def test_explicit_conjunction(self):
+        self.assertEqual(Conjunction([FlattenedPrompt([('fire', 1.0)]), FlattenedPrompt([('flames', 1.0)])]), parse_prompt('("fire", "flames").and(1,1)'))
+        self.assertEqual(Conjunction([FlattenedPrompt([('fire', 1.0)]), FlattenedPrompt([('flames', 1.0)])]), parse_prompt('("fire", "flames").and()'))
+        self.assertEqual(Conjunction([FlattenedPrompt([('fire flames', 1.0)]), FlattenedPrompt([('mountain man', 1.0)])]), parse_prompt('("fire flames", "mountain man").and()'))
+        self.assertEqual(Conjunction([FlattenedPrompt([('fire', 2.0)]), FlattenedPrompt([('flames', 0.9)])]), parse_prompt('("2.0(fire)", "-flames").and()'))
+        self.assertEqual(Conjunction([FlattenedPrompt([('fire', 1.0)]), FlattenedPrompt([('flames', 1.0)]), FlattenedPrompt([('mountain man', 1.0)])]), parse_prompt('("fire", "flames", "mountain man").and()'))
 
-        #self.assertEqual(pp.parse(prompt))
-        #self.assertEqual(True, False)  # add assertion here
 
     def test_badly_formed(self):
         def make_untouched_prompt(prompt):
@@ -109,7 +113,7 @@ class PromptParserTestCase(unittest.TestCase):
             [FlattenedPrompt([('fire', 1.0), ('flames', 2.0), ('trees', 3.0)])]),
             parse_prompt('fire 2.0(flames 1.5(trees))'))
         self.assertEqual(Conjunction(
-            [Blend(children=[FlattenedPrompt([('fire', 1.0), ('flames', 1.2100000000000002)]), FlattenedPrompt([('mountain', 1.0), ('man', 2.0)])], weights=[1.0, 1.0])]),
+            [Blend(prompts=[FlattenedPrompt([('fire', 1.0), ('flames', 1.2100000000000002)]), FlattenedPrompt([('mountain', 1.0), ('man', 2.0)])], weights=[1.0, 1.0])]),
             parse_prompt('("fire ++(flames)", "mountain 2(man)").blend(1,1)'))
 
 if __name__ == '__main__':
