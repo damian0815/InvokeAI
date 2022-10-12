@@ -423,10 +423,14 @@ class Sampler(object):
         weights = []
         weighted_cond_list = c_or_weighted_c_list if type(c_or_weighted_c_list) is list else [(c_or_weighted_c_list, 1)]
         for this_cond, this_weight in weighted_cond_list:
-            # this_cond,this_weight = weighted_cond
+            # currently uncond_latents is overwritten every time through this loop
+            # - this is wasteful as it always returns the same result
+            # @todo optimize: don't waste cycles recomputing uc every time, instead be smarter about assembling c_in from either uc or values taken from weighted_cond_list
             c_in = torch.cat([uc, this_cond])
-            # always overwrite uncond_latents? is this right?
+            # forward_func only supports 2 values in c_in
+            # @todo find out why forward func can only handle exactly 2 values for c_in
             uncond_latents, cond_latents = forward_func(x_in, t_in, c_in).chunk(2)
+
             delta = cond_latents - uncond_latents
             deltas = delta if deltas is None else torch.cat((deltas, delta))
             weights.append(this_weight)
