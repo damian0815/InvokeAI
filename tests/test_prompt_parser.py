@@ -1,9 +1,13 @@
 import unittest
 
-from ldm.invoke.prompt_parser import parse_prompt, Fragment, Attention, Blend, CFGScale, Conjunction, Prompt, \
-    FlattenedPrompt
+from ldm.invoke.prompt_parser import PromptParser, Blend, Conjunction, FlattenedPrompt
 
-empty_conditioning = [('', 1)]
+def parse_prompt(prompt_string):
+    pp = PromptParser()
+    #print(f"parsing '{prompt_string}'")
+    parse_result = pp.parse(prompt_string)
+    #print(f"-> parsed '{prompt_string}' to {parse_result}")
+    return parse_result
 
 class PromptParserTestCase(unittest.TestCase):
 

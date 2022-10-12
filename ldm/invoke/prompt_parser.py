@@ -41,18 +41,6 @@ class FlattenedPrompt():
 
 class Attention():
 
-    @classmethod
-    def from_parsing(cls, x0, x1):
-        #print("making Attention from parsing with args", x0, x1)
-        weight = 1
-        if type(x0) is float or type(x0) is int:
-            weight = float(x0)
-        elif type(x0) is str:
-            base = 1.1 if x0[0] == '+' else 0.9
-            weight = pow(base, len(x0))
-        #print("Making attention with children of type", [str(type(x)) for x in x1])
-        return Attention(weight=weight, children=x1)
-
     def __init__(self, weight: float, children: list):
         self.weight = weight
         self.children = children
@@ -127,7 +115,89 @@ class PromptParser():
     class ParsingException(Exception):
         pass
 
-    def __init__(self):
+    def __init__(self, attention_plus_base=1.1, attention_minus_base=0.9):
+
+        self.attention_plus_base = attention_plus_base
+        self.attention_minus_base = attention_minus_base
+
+        self.root = self.build_parser_logic()
+
+
+    def parse(self, prompt: str) -> [list]:
+        '''
+        :param prompt: The prompt string to parse
+        :return: a tuple
+        '''
+        #print(f"!!parsing '{prompt}'")
+
+        if len(prompt.strip()) == 0:
+            return Conjunction(parts=[FlattenedPrompt([('', 1.0)])])
+
+        root = self.root.parse_string(prompt)
+        #print(f"'{prompt}' parsed to root", root)
+        #fused = fuse_fragments(parts)
+        #print("fused to", fused)
+
+        return self.flatten(root[0])
+
+    def flatten(self, root: Conjunction):
+
+        def fuse_fragments(items):
+            # print("fusing fragments in ", items)
+            result = []
+            for x in items:
+                last_weight = result[-1][1] if len(result) > 0 else None
+                this_text = x[0]
+                this_weight = x[1]
+                if last_weight is not None and last_weight == this_weight:
+                    last_text = result[-1][0]
+                    result[-1] = (last_text + ' ' + this_text, last_weight)
+                else:
+                    result.append(x)
+            return result
+
+        def flatten_internal(node, weight_scale, results, prefix):
+            #print(prefix + "flattening", node, "...")
+            if type(node) is pp.ParseResults:
+                for x in node:
+                    results = flatten_internal(x, weight_scale, results, prefix+'pr')
+                #print(prefix, " ParseResults expanded, results is now", results)
+            elif type(node) is Fragment:
+                results.append((node.text, float(weight_scale)))
+            elif type(node) is Attention:
+                #if node.weight < 1:
+                    # todo: inject a blend when flattening attention with weight <1"
+                for c in node.children:
+                    results = flatten_internal(c, weight_scale*node.weight, results, prefix+'  ')
+            elif type(node) is Blend:
+                flattened_subprompts = []
+                #print(" flattening blend with prompts", node.prompts, "weights", node.weights)
+                for prompt in node.prompts:
+                    # prompt is a list
+                    flattened_subprompts = flatten_internal(prompt, weight_scale, flattened_subprompts, prefix+'B ')
+                results += [Blend(prompts=flattened_subprompts, weights=node.weights)]
+            elif type(node) is Prompt:
+                #print(prefix + "about to flatten Prompt with children", node.children)
+                flattened_prompt = []
+                for child in node.children:
+                    flattened_prompt = flatten_internal(child, weight_scale, flattened_prompt, prefix+'P ')
+                results += [FlattenedPrompt(parts=fuse_fragments(flattened_prompt))]
+                #print(prefix + "after flattening Prompt, results is", results)
+            else:
+                raise PromptParser.ParsingException(f"unhandled node type {type(node)} when flattening {node}")
+            #print(prefix + "-> after flattening", type(node), "results is", results)
+            return results
+
+        #print("flattening", root)
+
+        flattened_parts = []
+        for part in root.parts:
+            flattened_parts += flatten_internal(part, 1.0, [], ' C| ')
+        return Conjunction(flattened_parts)
+
+
+
+    def build_parser_logic(self):
 
         lparen = pp.Literal("(").suppress()
         rparen = pp.Literal(")").suppress()
@@ -159,20 +229,36 @@ class PromptParser():
         attention_with_parens = pp.Forward()
         attention_with_parens_body = pp.nested_expr(content=pp.delimited_list((attention_with_parens | fragment_inside_attention), delim=SPACE_CHARS))
         attention_with_parens << (attention_head + attention_with_parens_body)
-        attention_with_parens.set_parse_action(lambda x: Attention.from_parsing(x[0], x[1]))\
+
+        def make_attention(x):
+            # print("making Attention from parsing with args", x0, x1)
+            weight = 1
+            # number(str)
+            if type(x[0]) is float or type(x[0]) is int:
+                weight = float(x[0])
+            # +(str) or -(str) or +str or -str
+            elif type(x[0]) is str:
+                base = self.attention_plus_base if x[0][0] == '+' else self.attention_minus_base
+                weight = pow(base, len(x[0]))
+            # print("Making attention with children of type", [str(type(x)) for x in x1])
+            return Attention(weight=weight, children=x[1])
+
+        attention_with_parens.set_parse_action(make_attention)\
             .set_name("attention_with_parens")\
             .set_debug(False)
 
         # attention control of the form ++word --word (no parens)
-        attention_without_parens = ((pp.Word('+') | pp.Word('-')) + pp.CharsNotIn(SPACE_CHARS+'()')
-            .set_parse_action(lambda x: [[make_fragment(x)]]))\
+        attention_without_parens = (
+                (pp.Word('+') | pp.Word('-')) +
+                pp.CharsNotIn(SPACE_CHARS+'()').set_parse_action(lambda x: [[make_fragment(x)]])
+            )\
             .set_name("attention_without_parens")\
             .set_debug(False)
-        attention_without_parens.set_parse_action(lambda x: Attention.from_parsing(x[0], x[1]))
+        attention_without_parens.set_parse_action(make_attention)
 
         attention << (attention_with_parens | attention_without_parens)\
-            .set_name("attention")
-        attention.set_debug(False)
+            .set_name("attention")\
+            .set_debug(False)
 
         # fragments of text with no attention control
         word << pp.Word(pp.printables).set_parse_action(lambda x: Fragment(' '.join([s for s in x])))
@@ -230,87 +316,4 @@ class PromptParser():
         conjunction.set_debug(False)
 
         # top-level is a conjunction of one or more blends or prompts
-        self.root = conjunction
-
-
-    def parse(self, prompt: str) -> [list]:
-        '''
-        :param prompt: The prompt string to parse
-        :return: a tuple
-        '''
-        #print(f"!!parsing '{prompt}'")
-
-        if len(prompt.strip()) == 0:
-            return Conjunction(parts=[FlattenedPrompt([('', 1.0)])])
-
-        root = self.root.parse_string(prompt)
-        #print(f"'{prompt}' parsed to root", root)
-        #fused = fuse_fragments(parts)
-        #print("fused to", fused)
-
-        return self.flatten(root[0])
-
-    def flatten(self, root: Conjunction):
-
-        def flatten_internal(node, weight_scale, results, prefix):
-            #print(prefix + "flattening", node, "...")
-            if type(node) is pp.ParseResults:
-                for x in node:
-                    results = flatten_internal(x, weight_scale, results, prefix+'pr')
-                #print(prefix, " ParseResults expanded, results is now", results)
-            elif type(node) is Fragment:
-                results.append((node.text, float(weight_scale)))
-            elif type(node) is Attention:
-                #if node.weight < 1:
-                    # todo: inject a blend when flattening attention with weight <1"
-                for c in node.children:
-                    results = flatten_internal(c, weight_scale*node.weight, results, prefix+'  ')
-            elif type(node) is Blend:
-                flattened_subprompts = []
-                #print(" flattening blend with prompts", node.prompts, "weights", node.weights)
-                for prompt in node.prompts:
-                    # prompt is a list
-                    flattened_subprompts = flatten_internal(prompt, weight_scale, flattened_subprompts, prefix+'B ')
-                results += [Blend(prompts=flattened_subprompts, weights=node.weights)]
-            elif type(node) is Prompt:
-                #print(prefix + "about to flatten Prompt with children", node.children)
-                flattened_prompt = []
-                for child in node.children:
-                    flattened_prompt = flatten_internal(child, weight_scale, flattened_prompt, prefix+'P ')
-                results += [FlattenedPrompt(parts=fuse_fragments(flattened_prompt))]
-                #print(prefix + "after flattening Prompt, results is", results)
-            else:
-                raise PromptParser.ParsingException(f"unhandled node type {type(node)} when flattening {node}")
-            #print(prefix + "-> after flattening", type(node), "results is", results)
-            return results
-
-        #print("flattening", root)
-
-        flattened_parts = []
-        for part in root.parts:
-            flattened_parts += flatten_internal(part, 1.0, [], ' C| ')
-        return Conjunction(flattened_parts)
-
-
-
-
-def fuse_fragments(items):
-    #print("fusing fragments in ", items)
-    result = []
-    for x in items:
-        last_weight = result[-1][1] if len(result)>0 else None
-        this_text = x[0]
-        this_weight = x[1]
-        if last_weight is not None and last_weight == this_weight:
-            last_text = result[-1][0]
-            result[-1] = (last_text + ' ' + this_text, last_weight)
-        else:
-            result.append(x)
-    return result
-
-def parse_prompt(prompt_string):
-    pp = PromptParser()
-    #print(f"parsing '{prompt_string}'")
-    parse_result = pp.parse(prompt_string)
-    #print(f"-> parsed '{prompt_string}' to {parse_result}")
-    return parse_result
+        return conjunction
