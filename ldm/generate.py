@@ -34,6 +34,24 @@ from ldm.invoke.image_util import InitImageResizer
 from ldm.invoke.devices import choose_torch_device, choose_precision
 from ldm.invoke.conditioning import get_uc_and_c
 
+def fix_func(orig):
+    if hasattr(torch.backends, 'mps') and torch.backends.mps.is_available():
+        def new_func(*args, **kw):
+            device = kw.get("device", "mps")
+            kw["device"]="cpu"
+            return orig(*args, **kw).to(device)
+        return new_func
+    return orig
+
+torch.rand = fix_func(torch.rand)
+torch.rand_like = fix_func(torch.rand_like)
+torch.randn = fix_func(torch.randn)
+torch.randn_like = fix_func(torch.randn_like)
+torch.randint = fix_func(torch.randint)
+torch.randint_like = fix_func(torch.randint_like)
+torch.bernoulli = fix_func(torch.bernoulli)
+torch.multinomial = fix_func(torch.multinomial)
+
 """Simplified text to image API for stable diffusion/latent diffusion
 
 Example Usage:
@@ -154,6 +172,7 @@ class Generate:
         # device to Generate(). However the device was then ignored, so
         # it wasn't actually doing anything. This logic could be reinstated.
         device_type = choose_torch_device()
+        print(f'>> Using device_type {device_type}')
         self.device = torch.device(device_type)
         if full_precision:
             if self.precision != 'auto':
@@ -327,6 +346,11 @@ class Generate:
 
         width, height, _ = self._resolution_check(width, height, log=True)
 
+        use_model_sigmas = False
+        if "*use_model_sigmas*" in prompt:
+            use_model_sigmas = True
+            prompt = prompt.replace("*use_model_sigmas*", "")
+
         if sampler_name and (sampler_name != self.sampler_name):
             self.sampler_name = sampler_name
             self._set_sampler()
@@ -388,6 +412,7 @@ class Generate:
                 perlin=perlin,
                 embiggen=embiggen,
                 embiggen_tiles=embiggen_tiles,
+                use_model_sigmas=use_model_sigmas
             )
 
             if init_color:

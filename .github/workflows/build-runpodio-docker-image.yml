@@ -1,0 +1,17 @@
+name: build-damian0815-dev-docker-image
+on: workflow_dispatch
+jobs:
+  publish-runpodio-docker-image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build the InvokeAI damian0815/development Docker image
+        run: |
+              docker build --build-arg gsd=https://github.com/damian0815/InvokeAI.git --build-arg branch=development --tag ghcr.io/damian0815/invoke-ai-runpod-development:latest -f docker-build/Dockerfile_runpod docker-build
+              docker push ghcr.io/damian0815/invoke-ai-runpod-development:latest

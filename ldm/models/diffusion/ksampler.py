@@ -99,6 +99,7 @@ class KSampler(Sampler):
             ddim_discretize='uniform',
             ddim_eta=0.0,
             verbose=False,
+            use_model_sigmas=False
     ):
         outer_model = self.model
         self.model  = outer_model.inner_model
@@ -120,8 +121,13 @@ class KSampler(Sampler):
             rho=7.,
             device=self.device,
         )
-        self.sigmas = self.karras_sigmas
-        
+        if use_model_sigmas:
+            print("using model sigmas instead of default karras sigmas")
+            self.sigmas = self.model_sigmas
+        else:
+            print("using default karras sigmas")
+            self.sigmas = self.karras_sigmas
+
     # ALERT: We are completely overriding the sample() method in the base class, which
     # means that inpainting will not work. To get this to work we need to be able to
     # modify the inner loop of k_heun, k_lms, etc, as is done in an ugly way
@@ -202,7 +208,6 @@ class KSampler(Sampler):
             )
 
         # sigmas are set up in make_schedule - we take the last steps items
-        total_steps = len(self.sigmas)
         sigmas = self.sigmas[-S-1:]
 
         # x_T is variation noise. When an init image is provided (in x0) we need to add
