@@ -98,8 +98,12 @@ class KSampler(Sampler):
             rho=7.,
             device=self.device,
         )
-        self.sigmas = self.karras_sigmas
-        
+        use_karras_sigmas = True
+        if use_karras_sigmas:
+            self.sigmas = self.karras_sigmas
+        else:
+            self.sigmas = self.model_sigmas
+
     # ALERT: We are completely overriding the sample() method in the base class, which
     # means that inpainting will not work. To get this to work we need to be able to
     # modify the inner loop of k_heun, k_lms, etc, as is done in an ugly way
