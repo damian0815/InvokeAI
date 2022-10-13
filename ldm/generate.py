@@ -346,6 +346,11 @@ class Generate:
 
         width, height, _ = self._resolution_check(width, height, log=True)
 
+        use_model_sigmas = False
+        if "*use_model_sigmas*" in prompt:
+            use_model_sigmas = True
+            prompt = prompt.replace("*use_model_sigmas*", "")
+
         if sampler_name and (sampler_name != self.sampler_name):
             self.sampler_name = sampler_name
             self._set_sampler()
@@ -407,6 +412,7 @@ class Generate:
                 perlin=perlin,
                 embiggen=embiggen,
                 embiggen_tiles=embiggen_tiles,
+                use_model_sigmas=use_model_sigmas
             )
 
             if init_color:

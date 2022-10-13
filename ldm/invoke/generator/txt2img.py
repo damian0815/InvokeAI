@@ -20,6 +20,7 @@ class Txt2Img(Generator):
         """
         self.perlin = perlin
         uc, c   = conditioning
+        use_model_sigmas = kwargs.get('use_model_sigmas', False)
 
         @torch.no_grad()
         def make_image(x_T):
@@ -32,7 +33,7 @@ class Txt2Img(Generator):
             if self.free_gpu_mem and self.model.model.device != self.model.device:
                 self.model.model.to(self.model.device)
                                 
-            sampler.make_schedule(ddim_num_steps=steps, ddim_eta=ddim_eta, verbose=False)
+            sampler.make_schedule(ddim_num_steps=steps, ddim_eta=ddim_eta, verbose=False, use_model_sigmas=use_model_sigmas)
 
             samples, _ = sampler.sample(
                 batch_size                   = 1,
