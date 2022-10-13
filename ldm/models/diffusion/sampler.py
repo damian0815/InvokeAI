@@ -4,6 +4,8 @@ ldm.models.diffusion.sampler
 Base class for ldm.models.diffusion.ddim, ldm.models.diffusion.ksampler, etc
 
 '''
+from math import ceil
+
 import torch
 import numpy as np
 from tqdm import tqdm
@@ -420,23 +422,38 @@ class Sampler(object):
 
         deltas = None
         uncond_latents = None
-        weights = []
         weighted_cond_list = c_or_weighted_c_list if type(c_or_weighted_c_list) is list else [(c_or_weighted_c_list, 1)]
-        for this_cond, this_weight in weighted_cond_list:
-            # currently uncond_latents is overwritten every time through this loop
-            # - this is wasteful as it always returns the same result
-            # @todo optimize: don't waste cycles recomputing uncond_latents from uc every time, instead be smarter about assembling c_in from either uc or values taken from weighted_cond_list
-            c_in = torch.cat([uc, this_cond])
-            # forward_func only supports 2 values in c_in
-            # @todo find out why forward func can only handle exactly 2 values for c_in
-            uncond_latents, cond_latents = forward_func(x_in, t_in, c_in).chunk(2)
 
-            delta = cond_latents - uncond_latents
-            deltas = delta if deltas is None else torch.cat((deltas, delta))
-            weights.append(this_weight)
+        # below is fugly omg
+        num_actual_conditionings = len(c_or_weighted_c_list)
+        conditionings = [uc] + [c for c,weight in weighted_cond_list]
+        weights = [1] + [weight for c,weight in weighted_cond_list]
+        chunk_count = ceil(len(conditionings)/2)
+        assert(len(conditionings)>=2, "need at least one uncond and one cond")
+        deltas = None
+        for chunk_index in range(chunk_count):
+            offset = chunk_index*2
+            chunk_size = min(2, len(conditionings)-offset)
+
+            if chunk_size == 1:
+                c_in = conditionings[offset]
+                latents_a = forward_func(x_in[:-1], t_in[:-1], c_in)
+                latents_b = None
+            else:
+                c_in = torch.cat(conditionings[offset:offset+2])
+                latents_a, latents_b = forward_func(x_in, t_in, c_in).chunk(2)
+
+            # first chunk is guaranteed to be 2 entries: uncond_latents + first conditioining
+            if chunk_index == 0:
+                uncond_latents = latents_a
+                deltas = latents_b - uncond_latents
+            else:
+                deltas = torch.cat((deltas, latents_a - uncond_latents))
+                if latents_b is not None:
+                    deltas = torch.cat((deltas, latents_b - uncond_latents))
 
         # merge the weighted deltas together into a single merged delta
-        per_delta_weights = torch.tensor(weights, dtype=deltas.dtype, device=deltas.device)
+        per_delta_weights = torch.tensor(weights[1:], dtype=deltas.dtype, device=deltas.device)
         normalize = False
         if normalize:
             per_delta_weights /= torch.sum(per_delta_weights)
