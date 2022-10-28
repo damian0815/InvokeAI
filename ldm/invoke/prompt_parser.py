@@ -102,7 +102,13 @@ class Attention():
     Do not traverse directly; instead obtain a FlattenedPrompt by calling Flatten() on a top-level Conjunction object.
     """
     def __init__(self, weight: float, children: list):
+        if type(weight) is not float:
+            raise PromptParser.ParsingException(
+                f"Attention weight must be float (got {type(weight).__name__} {weight})")
         self.weight = weight
+        if type(children) is not list:
+            raise PromptParser.ParsingException(f"cannot make Attention with non-list of children (got {type(children)})")
+        assert(type(children) is list)
         self.children = children
         #print(f"A: requested attention '{children}' to {weight}")
 
@@ -376,6 +382,21 @@ def build_parser_syntax(attention_plus_base: float, attention_minus_base: float)
 
         raise PromptParser.UnrecognizedOperatorException(operator)
 
+    def make_attention(x):
+        print('making attention for', x, "types are", [type(p).__name__ for p in x])
+        weight_raw = x[1]
+        weight = 1.0
+        if type(weight_raw) is float or type(weight_raw) is int:
+            weight = weight_raw
+        elif type(weight_raw) is str:
+            base = attention_plus_base if weight_raw[0] == '+' else attention_minus_base
+            weight = pow(base, len(weight_raw))
+
+        assert(type(x[0]) is list or type(x[0]) is pp.ParseResults)
+        children = [x for x in x[0]]
+        return Attention(weight=weight, children=children)
+
+
     def parse_fragment_str(x, expression: pp.ParseExpression, in_quotes: bool = False, in_parens: bool = False):
         # print(f"parsing fragment string for {x}")
         fragment_string = x[0]
@@ -430,27 +451,6 @@ def build_parser_syntax(attention_plus_base: float, attention_minus_base: float)
             pp.CharsNotIn(string.whitespace + excluded_chars, exact=1)
         ])))
 
-    restricted_word = build_fragment_word("".join(syntactic_symbols.keys())).set_parse_action(lambda x: [Fragment(t) for t in x])
-    restricted_fragment = pp.OneOrMore(restricted_word)
-    restricted_fragment.set_name('restricted_fragment')
-    restricted_fragment.set_debug(True)
-
-    quoted_fragment = pp.QuotedString(quote_char='"', esc_char=None, esc_quote='\\"')
-    quoted_fragment.set_parse_action(lambda x: parse_fragment_str(x, restricted_fragment, in_quotes=True))
-
-    parenthesized_fragment = pp.Forward()
-    parenthesized_fragment << (lparen +
-       pp.Or([
-        parenthesized_fragment,
-        quoted_fragment,
-        restricted_fragment,
-        pp.Empty()
-       ]) + rparen)
-    #quoted_fragment.set_parse_action(lambda x: parse_fragment_str(x, in_quotes=True)).set_name('quoted_fragment')
-    #quoted_fragment = pp.NoMatch()
-    #quoted_fragment.set_name('quoted_fragment')
-    #quoted_fragment.set_debug(True)
-
     def build_operation(target_expr, keywords: list[str], has_fragment_argument=True, has_options=False):
         argument_group_parts = []
 
@@ -474,10 +474,32 @@ def build_parser_syntax(attention_plus_base: float, attention_minus_base: float)
         ]
         return pp.And(parts)
 
+    restricted_word = build_fragment_word("".join(syntactic_symbols.keys())).set_parse_action(lambda x: [Fragment(t) for t in x])
+    restricted_fragment = pp.OneOrMore(restricted_word)
+    restricted_fragment.set_name('restricted_fragment')
+    restricted_fragment.set_debug(True)
+
+    quoted_fragment = pp.QuotedString(quote_char='"', esc_char=None, esc_quote='\\"')
+    quoted_fragment.set_parse_action(lambda x: parse_fragment_str(x, restricted_fragment, in_quotes=True))
+
+    parenthesized_fragment = pp.Forward()
+    parenthesized_fragment << (lparen +
+       pp.Or([
+        parenthesized_fragment,
+        quoted_fragment,
+        restricted_fragment,
+        pp.Empty()
+       ]) + rparen)
+
     word_operator_keywords = ['.swap']
     word_operator = build_operation(quoted_fragment | parenthesized_fragment | restricted_word, word_operator_keywords, True, True)
     word_operator.set_parse_action(make_word_operator)
-    word_operator.set_name('word_operator').set_debug(True)
+    word_operator.set_name('word_operator').set_debug(False)
+
+    restricted_attention_word =
+    attention = pp.Group(quoted_fragment | parenthesized_fragment | restricted_attention_word) + (pp.Word('+') | pp.Word('-') | number)
+    attention.set_parse_action(make_attention)
+    attention.set_name('attention').set_debug(True)
 
     """
     word_level_keywords = ['.swap']
@@ -498,6 +520,7 @@ def build_parser_syntax(attention_plus_base: float, attention_minus_base: float)
 
     prompt = pp.ZeroOrMore(pp.MatchFirst([
         word_operator,
+        attention,
         restricted_word,
         pp.Literal(',').set_parse_action(lambda x: Fragment(x[0])),
     ]) ) + pp.StringEnd()
