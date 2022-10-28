@@ -136,9 +136,9 @@ class CrossAttentionControlSubstitute(CrossAttentionControlledFragment):
             Fragment('sitting on a car')
         ])
     """
-    def __init__(self, original: Union[Fragment, list], edited: Union[Fragment, list], options: dict=None):
+    def __init__(self, original: list, edited: list, options: dict=None):
         self.original = original
-        self.edited = edited
+        self.edited = edited if len(edited)>0 else [Fragment('')]
 
         default_options = {
             's_start': 0.0,
@@ -293,7 +293,6 @@ class PromptParser():
         :return: A Conjunction containing the result of flattening each of the prompts in the passed-in root.
         """
 
-        #print("flattening", root)
 
         def fuse_fragments(items):
             # print("fusing fragments in ", items)
@@ -317,8 +316,8 @@ class PromptParser():
             return result
 
         def flatten_internal(node, weight_scale, results, prefix):
-            #print(prefix + "flattening", node, "...")
-            if type(node) is pp.ParseResults:
+            print(prefix + "flattening", node, "...")
+            if type(node) is pp.ParseResults or type(node) is list:
                 for x in node:
                     results = flatten_internal(x, weight_scale, results, prefix+' pr ')
                 #print(prefix, " ParseResults expanded, results is now", results)
@@ -349,38 +348,55 @@ class PromptParser():
                 #print(prefix + "after flattening Prompt, results is", results)
             else:
                 raise PromptParser.ParsingException(f"unhandled node type {type(node)} when flattening {node}")
-            #print(prefix + "-> after flattening", type(node).__name__, "results is", results)
+            print(prefix + "-> after flattening", type(node).__name__, "results is", results)
             return results
 
+        print("flattening", root)
 
         flattened_parts = []
         for part in root.prompts:
             flattened_parts += flatten_internal(part, 1.0, [], ' C| ')
 
-        #print("flattened to", flattened_parts)
+        print("flattened to", flattened_parts)
 
         weights = root.weights
         return Conjunction(flattened_parts, weights)
 
 
-def make_word_operator(x):
-    print('making word operator for', x)
-    target = x[0]
-    operator = x[1]
-    arguments = x[2]
-    if operator == '.swap':
-        return CrossAttentionControlSubstitute(target, arguments, x.as_dict())
 
-    raise PromptParser.UnrecognizedOperatorException(operator)
-
-def make_cross_attention_substitute(x):
-    #print("making cacs for", x[0], "->", x[1], "with options", x.as_dict())
-    #if len(x>2):
-    cacs = CrossAttentionControlSubstitute(x[0], x[1], options=x.as_dict())
-    #print("made", cacs)
-    return cacs
 
 def build_parser_syntax(attention_plus_base: float, attention_minus_base: float):
+    def make_word_operator(x):
+        print('making word operator for', x)
+        target = x[0]
+        operator = x[1]
+        arguments = x[2]
+        if operator == '.swap':
+            return CrossAttentionControlSubstitute(target, arguments, x.as_dict())
+
+        raise PromptParser.UnrecognizedOperatorException(operator)
+
+    def parse_fragment_str(x, expression: pp.ParseExpression, in_quotes: bool = False, in_parens: bool = False):
+        # print(f"parsing fragment string for {x}")
+        fragment_string = x[0]
+        # print(f"ppparsing fragment string \"{fragment_string}\"")
+
+        if len(fragment_string.strip()) == 0:
+            return Fragment('')
+
+        if in_quotes:
+            # escape unescaped quotes
+            fragment_string = fragment_string.replace('"', '\\"')
+
+        # fragment_parser = pp.Group(pp.OneOrMore(attention | cross_attention_substitute | (greedy_word.set_parse_action(make_text_fragment))))
+        try:
+            result = expression.parse_string(fragment_string)
+            # print("parsed to", result)
+            return result
+        except pp.ParseException as e:
+            # print("parse_fragment_str couldn't parse prompt string:", e)
+            raise
+
     # meaningful symbols
     lparen = pp.Literal("(").suppress()
     rparen = pp.Literal(")").suppress()
@@ -414,29 +430,39 @@ def build_parser_syntax(attention_plus_base: float, attention_minus_base: float)
             pp.CharsNotIn(string.whitespace + excluded_chars, exact=1)
         ])))
 
-    restricted_fragment = pp.OneOrMore(build_fragment_word("".join(syntactic_symbols.keys()))).set_parse_action(lambda x: [Fragment(t) for t in x])
+    restricted_word = build_fragment_word("".join(syntactic_symbols.keys())).set_parse_action(lambda x: [Fragment(t) for t in x])
+    restricted_fragment = pp.OneOrMore(restricted_word)
     restricted_fragment.set_name('restricted_fragment')
     restricted_fragment.set_debug(True)
 
-    #quoted_fragment << pp.QuotedString(quote_char='"', esc_char=None, esc_quote='\\"')
+    quoted_fragment = pp.QuotedString(quote_char='"', esc_char=None, esc_quote='\\"')
+    quoted_fragment.set_parse_action(lambda x: parse_fragment_str(x, restricted_fragment, in_quotes=True))
+
+    parenthesized_fragment = pp.Forward()
+    parenthesized_fragment << (lparen +
+       pp.Or([
+        parenthesized_fragment,
+        quoted_fragment,
+        restricted_fragment,
+        pp.Empty()
+       ]) + rparen)
     #quoted_fragment.set_parse_action(lambda x: parse_fragment_str(x, in_quotes=True)).set_name('quoted_fragment')
-    quoted_fragment = pp.NoMatch()
-    quoted_fragment.set_name('quoted_fragment')
-    quoted_fragment.set_debug(True)
+    #quoted_fragment = pp.NoMatch()
+    #quoted_fragment.set_name('quoted_fragment')
+    #quoted_fragment.set_debug(True)
 
     def build_operation(target_expr, keywords: list[str], has_fragment_argument=True, has_options=False):
-        fragment_argument = (quoted_fragment | restricted_fragment) + (pp.FollowedBy(',') | pp.FollowedBy(')'))
-        option = pp.Or([
-            pp.Word(pp.alphanums) + pp.Literal("=") + (number | pp.Word(pp.alphanums)),  # option=value
-            pp.Word(pp.alphanums)  # flag
-        ])
-        options = pp.Dict(pp.Optional(option + pp.ZeroOrMore(comma, option)))
-
-
         argument_group_parts = []
+
         if has_fragment_argument:
+            fragment_argument = (quoted_fragment | restricted_fragment | pp.Empty()) + (pp.FollowedBy(',') | pp.FollowedBy(')'))
             argument_group_parts.append(fragment_argument)
         if has_options:
+            option = pp.Or([
+                pp.Word(pp.alphanums) + pp.Literal("=") + (number | pp.Word(pp.alphanums)),  # option=value
+                pp.Word(pp.alphanums)  # flag
+            ])
+            options = pp.Dict(pp.Optional(option + pp.ZeroOrMore(comma, option)))
             argument_group_parts.append(options)
 
         parts = [
@@ -449,7 +475,7 @@ def build_parser_syntax(attention_plus_base: float, attention_minus_base: float)
         return pp.And(parts)
 
     word_operator_keywords = ['.swap']
-    word_operator = build_operation(restricted_fragment, word_operator_keywords, True, True)
+    word_operator = build_operation(quoted_fragment | parenthesized_fragment | restricted_word, word_operator_keywords, True, True)
     word_operator.set_parse_action(make_word_operator)
     word_operator.set_name('word_operator').set_debug(True)
 
@@ -470,7 +496,11 @@ def build_parser_syntax(attention_plus_base: float, attention_minus_base: float)
     pp.Dict(pp.ZeroOrMore(comma + cross_attention_option)) +
     """
 
-    prompt = pp.ZeroOrMore(word_operator) + pp.StringEnd()
+    prompt = pp.ZeroOrMore(pp.MatchFirst([
+        word_operator,
+        restricted_word,
+        pp.Literal(',').set_parse_action(lambda x: Fragment(x[0])),
+    ]) ) + pp.StringEnd()
 
     def make_conjunction(x):
         return Conjunction([x])
@@ -673,7 +703,12 @@ def build_parser_syntax_old(attention_plus_base: float, attention_minus_base: fl
     edited_fragment.set_name('edited_fragment').set_debug(debug_cross_attention_control)
     cross_attention_substitute.set_name('cross_attention_substitute').set_debug(debug_cross_attention_control)
 
-
+    def make_cross_attention_substitute(x):
+        # print("making cacs for", x[0], "->", x[1], "with options", x.as_dict())
+        # if len(x>2):
+        cacs = CrossAttentionControlSubstitute(x[0], x[1], options=x.as_dict())
+        # print("made", cacs)
+        return cacs
     cross_attention_substitute.set_parse_action(make_cross_attention_substitute)
 
 
