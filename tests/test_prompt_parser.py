@@ -182,6 +182,9 @@ class PromptParserTestCase(unittest.TestCase):
 
     def test_cross_attention_control(self):
 
+        self.assertEqual(Conjunction([FlattenedPrompt([CrossAttentionControlSubstitute([Fragment('sun')], [Fragment('moon')])])]),
+                         parse_prompt("sun.swap(moon)"))
+
         self.assertEqual(Conjunction([
             FlattenedPrompt([Fragment('a', 1),
                              CrossAttentionControlSubstitute([Fragment('cat', 1)], [Fragment('dog', 1)]),

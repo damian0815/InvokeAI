@@ -244,6 +244,10 @@ class PromptParser():
     class ParsingException(Exception):
         pass
 
+    class UnrecognizedOperatorException(Exception):
+        def __init__(self, operator:str):
+            super().__init__("Unrecognized operator: " + operator)
+
     def __init__(self, attention_plus_base=1.1, attention_minus_base=0.9):
 
         self.conjunction, self.prompt = build_parser_syntax(attention_plus_base, attention_minus_base)
@@ -359,8 +363,123 @@ class PromptParser():
         return Conjunction(flattened_parts, weights)
 
 
+def make_word_operator(x):
+    print('making word operator for', x)
+    target = x[0]
+    operator = x[1]
+    arguments = x[2]
+    if operator == '.swap':
+        return CrossAttentionControlSubstitute(target, arguments, x.as_dict())
+
+    raise PromptParser.UnrecognizedOperatorException(operator)
+
+def make_cross_attention_substitute(x):
+    #print("making cacs for", x[0], "->", x[1], "with options", x.as_dict())
+    #if len(x>2):
+    cacs = CrossAttentionControlSubstitute(x[0], x[1], options=x.as_dict())
+    #print("made", cacs)
+    return cacs
 
 def build_parser_syntax(attention_plus_base: float, attention_minus_base: float):
+    # meaningful symbols
+    lparen = pp.Literal("(").suppress()
+    rparen = pp.Literal(")").suppress()
+    quote = pp.Literal('"').suppress()
+    comma = pp.Literal(",").suppress()
+    dot = pp.Literal(".").suppress()
+
+    escaped_lparen = pp.Literal('\\(')#.set_parse_action(lambda x: '(')
+    escaped_rparen = pp.Literal('\\)')#.set_parse_action(lambda x: ')')
+    escaped_quote = pp.Literal('\\"')#.set_parse_action(lambda x: '"')
+    escaped_comma = pp.Literal('\\,')#.set_parse_action(lambda x: '"')
+    escaped_dot = pp.Literal('\\.')#.set_parse_action(lambda x: '"')
+
+    syntactic_symbols = {
+        '(': escaped_lparen,
+        ')': escaped_rparen,
+        '"': escaped_quote,
+        ',': escaped_comma,
+        '.': escaped_dot
+    }
+
+    #escaped_syntactic_symbol = escaped_lparen | escaped_rparen | escaped_quote | escaped_comma | escaped_dot
+
+    # accepts int or float notation, always maps to float
+    number = pp.pyparsing_common.real | \
+             pp.Combine(pp.Optional("-")+pp.Word(pp.nums)).set_parse_action(pp.token_map(float))
+
+    def build_fragment_word(excluded_chars):
+        return pp.Combine(pp.OneOrMore(pp.MatchFirst([
+            pp.Or([syntactic_symbols[x] for x in excluded_chars]),
+            pp.CharsNotIn(string.whitespace + excluded_chars, exact=1)
+        ])))
+
+    restricted_fragment = pp.OneOrMore(build_fragment_word("".join(syntactic_symbols.keys()))).set_parse_action(lambda x: [Fragment(t) for t in x])
+    restricted_fragment.set_name('restricted_fragment')
+    restricted_fragment.set_debug(True)
+
+    #quoted_fragment << pp.QuotedString(quote_char='"', esc_char=None, esc_quote='\\"')
+    #quoted_fragment.set_parse_action(lambda x: parse_fragment_str(x, in_quotes=True)).set_name('quoted_fragment')
+    quoted_fragment = pp.NoMatch()
+    quoted_fragment.set_name('quoted_fragment')
+    quoted_fragment.set_debug(True)
+
+    def build_operation(target_expr, keywords: list[str], has_fragment_argument=True, has_options=False):
+        fragment_argument = (quoted_fragment | restricted_fragment) + (pp.FollowedBy(',') | pp.FollowedBy(')'))
+        option = pp.Or([
+            pp.Word(pp.alphanums) + pp.Literal("=") + (number | pp.Word(pp.alphanums)),  # option=value
+            pp.Word(pp.alphanums)  # flag
+        ])
+        options = pp.Dict(pp.Optional(option + pp.ZeroOrMore(comma, option)))
+
+
+        argument_group_parts = []
+        if has_fragment_argument:
+            argument_group_parts.append(fragment_argument)
+        if has_options:
+            argument_group_parts.append(options)
+
+        parts = [
+            pp.Group(target_expr),
+            pp.one_of(keywords),
+            lparen,
+            pp.Group(pp.And(argument_group_parts)),
+            rparen
+        ]
+        return pp.And(parts)
+
+    word_operator_keywords = ['.swap']
+    word_operator = build_operation(restricted_fragment, word_operator_keywords, True, True)
+    word_operator.set_parse_action(make_word_operator)
+    word_operator.set_name('word_operator').set_debug(True)
+
+    """
+    word_level_keywords = ['.swap']
+    word_level_op = build_fragment_word(excluded_chars="".join(syntactic_symbols.keys())) + pp.one_of(word_level_keywords) + lparen + fragment_argument + pp.Optional(comma + options) + rparen
+    word_level_op.set_name('word_level_op').set_parse_action(make_word_level_op)
+
+
+    def build_fragment_word(excluded_chars):
+        return pp.Combine(pp.OneOrMore(pp.MatchFirst([
+            pp.Or([syntactic_symbols[x] for x in excluded_chars]), 
+            pp.CharsNotIn(string.whitespace + excluded_chars, exact=1)
+        ])))
+
+    cross_attention_option_keyword = pp.Or([pp.Keyword("s_start"), pp.Keyword("s_end"), pp.Keyword("t_start"), pp.Keyword("t_end"), pp.Keyword("shape_freedom")])
+    cross_attention_option = pp.Group(cross_attention_option_keyword + pp.Literal("=").suppress() + number)
+    pp.Dict(pp.ZeroOrMore(comma + cross_attention_option)) +
+    """
+
+    prompt = pp.ZeroOrMore(word_operator) + pp.StringEnd()
+
+    def make_conjunction(x):
+        return Conjunction([x])
+
+    conjunction = prompt.copy().set_parse_action(make_conjunction)
+
+    return conjunction, prompt
+
+def build_parser_syntax_old(attention_plus_base: float, attention_minus_base: float):
 
     lparen = pp.Literal("(").suppress()
     rparen = pp.Literal(")").suppress()
@@ -554,12 +673,7 @@ def build_parser_syntax(attention_plus_base: float, attention_minus_base: float)
     edited_fragment.set_name('edited_fragment').set_debug(debug_cross_attention_control)
     cross_attention_substitute.set_name('cross_attention_substitute').set_debug(debug_cross_attention_control)
 
-    def make_cross_attention_substitute(x):
-        #print("making cacs for", x[0], "->", x[1], "with options", x.as_dict())
-        #if len(x>2):
-        cacs = CrossAttentionControlSubstitute(x[0], x[1], options=x.as_dict())
-        #print("made", cacs)
-        return cacs
+
     cross_attention_substitute.set_parse_action(make_cross_attention_substitute)
 
 
