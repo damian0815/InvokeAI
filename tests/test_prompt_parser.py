@@ -37,14 +37,25 @@ class PromptParserTestCase(unittest.TestCase):
 
     def test_attention(self):
         self.assertEqual(make_weighted_conjunction([('flames', 0.5)]), parse_prompt("(flames)0.5"))
+        self.assertEqual(make_weighted_conjunction([('flames', 0.5)]), parse_prompt("(flames).attend(0.5)"))
+        self.assertEqual(make_weighted_conjunction([('flames', 0.5)]), parse_prompt("flames.attend(0.5)"))
+        self.assertEqual(make_weighted_conjunction([('flames', 0.5)]), parse_prompt("\"flames\".attend(0.5)"))
         self.assertEqual(make_weighted_conjunction([('fire flames', 0.5)]), parse_prompt("(fire flames)0.5"))
+        self.assertEqual(make_weighted_conjunction([('fire flames', 0.5)]), parse_prompt("(fire flames).attend(0.5)"))
+
         self.assertEqual(make_weighted_conjunction([('flames', 1.1)]), parse_prompt("(flames)+"))
         self.assertEqual(make_weighted_conjunction([('flames', 1.1)]), parse_prompt("flames+"))
         self.assertEqual(make_weighted_conjunction([('flames', 1.1)]), parse_prompt("\"flames\"+"))
+        self.assertEqual(make_weighted_conjunction([('flames', 1.1)]), parse_prompt("flames.attend(+)"))
+        self.assertEqual(make_weighted_conjunction([('flames', 1.1)]), parse_prompt("(flames).attend(+)"))
+        self.assertEqual(make_weighted_conjunction([('flames', 1.1)]), parse_prompt("\"flames\".attend(+)"))
         self.assertEqual(make_weighted_conjunction([('flames', 0.9)]), parse_prompt("(flames)-"))
         self.assertEqual(make_weighted_conjunction([('flames', 0.9)]), parse_prompt("flames-"))
         self.assertEqual(make_weighted_conjunction([('flames', 0.9)]), parse_prompt("\"flames\"-"))
         self.assertEqual(make_weighted_conjunction([('fire', 1), ('flames', 0.5)]), parse_prompt("fire (flames)0.5"))
+        self.assertEqual(make_weighted_conjunction([('fire', 1), ('flames', 0.5)]), parse_prompt("fire flames.attend(0.5)"))
+        self.assertEqual(make_weighted_conjunction([('fire', 1), ('flames', 0.5)]), parse_prompt("fire (flames).attend(0.5)"))
+        self.assertEqual(make_weighted_conjunction([('fire', 1), ('flames', 0.5)]), parse_prompt("fire \"flames\".attend(0.5)"))
         self.assertEqual(make_weighted_conjunction([('flames', pow(1.1, 2))]), parse_prompt("(flames)++"))
         self.assertEqual(make_weighted_conjunction([('flames', pow(0.9, 2))]), parse_prompt("(flames)--"))
         self.assertEqual(make_weighted_conjunction([('flowers', pow(0.9, 3)), ('flames', pow(1.1, 3))]), parse_prompt("(flowers)--- flames+++"))
@@ -126,6 +137,26 @@ class PromptParserTestCase(unittest.TestCase):
 
     def test_blend(self):
         self.assertEqual(Conjunction(
+            [Blend([FlattenedPrompt([('mountain', 1.0)]), FlattenedPrompt([('man', 1.0)])], [1.0, 1.0])]),
+                         parse_prompt("(\"mountain\", \"man\").blend()")
+                         )
+        self.assertEqual(Conjunction(
+            [Blend([FlattenedPrompt([('mountain', 1.0)]), FlattenedPrompt([('man', 1.0)])], [1.0, 1.0])]),
+                         parse_prompt("(mountain, man).blend()")
+                         )
+        self.assertEqual(Conjunction(
+            [Blend([FlattenedPrompt([('mountain', 1.0)]), FlattenedPrompt([('man', 1.0)])], [1.0, 1.0])]),
+                         parse_prompt("((mountain), (man)).blend()")
+                         )
+        self.assertEqual(Conjunction(
+            [Blend([FlattenedPrompt([('mountain', 1.0)]), FlattenedPrompt([('tall man', 1.0)])], [1.0, 1.0])]),
+                         parse_prompt("((mountain), (tall man)).blend()")
+                         )
+
+        with self.assertRaises(PromptParser.ParsingException):
+             print(parse_prompt("((mountain), \"cat.swap(dog)\").blend()"))
+
+        self.assertEqual(Conjunction(
             [Blend([FlattenedPrompt([('fire', 1.0)]), FlattenedPrompt([('fire flames', 1.0)])], [0.7, 0.3])]),
                          parse_prompt("(\"fire\", \"fire flames\").blend(0.7, 0.3)")
                          )
@@ -164,9 +195,19 @@ class PromptParserTestCase(unittest.TestCase):
 
         self.assertEqual(
             Conjunction([Blend([FlattenedPrompt([('mountain , man , hairy', 1)]),
-                                FlattenedPrompt([('face , teeth ,', 1), ('eyes', 0.9*0.9)])], weights=[1.0,-1.0])]),
+                                FlattenedPrompt([('face , teeth ,', 1), ('eyes', 0.9*0.9)])], weights=[1.0,-1.0], normalize_weights=True)]),
             parse_prompt('("mountain, man, hairy", "face, teeth, eyes--").blend(1,-1)')
         )
+        self.assertEqual(
+            Conjunction([Blend([FlattenedPrompt([('mountain , man , hairy', 1)]),
+                                FlattenedPrompt([('face , teeth ,', 1), ('eyes', 0.9 * 0.9)])], weights=[1.0, -1.0], normalize_weights=False)]),
+            parse_prompt('("mountain, man, hairy", "face, teeth, eyes--").blend(1,-1,no_normalize)')
+        )
+
+        with self.assertRaises(PromptParser.ParsingException):
+             parse_prompt("(\"fire\", \"fire flames\").blend(0.7, 0.3, 0.1)")
+        with self.assertRaises(PromptParser.ParsingException):
+             parse_prompt("(\"fire\", \"fire flames\").blend(0.7)")
 
 
     def test_nested(self):
