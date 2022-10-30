@@ -196,12 +196,12 @@ class Conjunction():
     """
     def __init__(self, prompts: list, weights: list = None):
         # force everything to be a Prompt
-        print("making conjunction with", prompts, "types", [type(p).__name__ for p in prompts])
+        #print("making conjunction with", prompts, "types", [type(p).__name__ for p in prompts])
         self.prompts = [x if (type(x) is Prompt
                           or type(x) is Blend
                           or type(x) is FlattenedPrompt)
                       else Prompt(x) for x in prompts]
-        self.weights = [1.0]*len(self.prompts) if weights is None else list(weights)
+        self.weights = [1.0]*len(self.prompts) if (weights is None or len(weights)==0) else list(weights)
         if len(self.weights) != len(self.prompts):
             raise PromptParser.ParsingException(f"while parsing Conjunction: mismatched parts/weights counts {prompts}, {weights}")
         self.type = 'AND'
@@ -289,7 +289,7 @@ class PromptParser():
         return Blend(prompts=flattened_prompts, weights=weights, normalize_weights=True)
 
 
-    def flatten(self, root: Conjunction) -> Conjunction:
+    def flatten(self, root: Conjunction, verbose = False) -> Conjunction:
         """
         Flattening a Conjunction traverses all of the nested tree-like structures in each of its Prompts or Blends,
         producing from each of these walks a linear sequence of Fragment or CrossAttentionControlSubstitute objects
@@ -298,7 +298,6 @@ class PromptParser():
         :param root: The Conjunction to flatten.
         :return: A Conjunction containing the result of flattening each of the prompts in the passed-in root.
         """
-
 
         def fuse_fragments(items):
             # print("fusing fragments in ", items)
@@ -322,7 +321,7 @@ class PromptParser():
             return result
 
         def flatten_internal(node, weight_scale, results, prefix):
-            print(prefix + "flattening", node, "...")
+            verbose and print(prefix + "flattening", node, "...")
             if type(node) is pp.ParseResults or type(node) is list:
                 for x in node:
                     results = flatten_internal(x, weight_scale, results, prefix+' pr ')
@@ -354,16 +353,16 @@ class PromptParser():
                 #print(prefix + "after flattening Prompt, results is", results)
             else:
                 raise PromptParser.ParsingException(f"unhandled node type {type(node)} when flattening {node}")
-            print(prefix + "-> after flattening", type(node).__name__, "results is", results)
+            verbose and print(prefix + "-> after flattening", type(node).__name__, "results is", results)
             return results
 
-        print("flattening", root)
+        verbose and print("flattening", root)
 
         flattened_parts = []
         for part in root.prompts:
             flattened_parts += flatten_internal(part, 1.0, [], ' C| ')
 
-        print("flattened to", flattened_parts)
+        verbose and print("flattened to", flattened_parts)
 
         weights = root.weights
         return Conjunction(flattened_parts, weights)
@@ -372,8 +371,8 @@ class PromptParser():
 
 
 def build_parser_syntax(attention_plus_base: float, attention_minus_base: float):
-    def make_operator(x):
-        print('making operator for', x)
+    def make_operator_object(x):
+        #print('making operator for', x)
         target = x[0]
         operator = x[1]
         arguments = x[2]
@@ -383,11 +382,16 @@ def build_parser_syntax(attention_plus_base: float, attention_minus_base: float)
             prompts = [Prompt(p) for p in x[0]]
             weights = [float(w[0]) for w in x[2]]
             return Blend(prompts=prompts, weights=weights)
+        elif operator == '.and' or operator == '.add':
+            prompts = [Prompt(p) for p in x[0]]
+            weights = [float(w[0]) for w in x[2]]
+            return Conjunction(prompts=prompts, weights=weights)
+
 
         raise PromptParser.UnrecognizedOperatorException(operator)
 
     def make_attention(x):
-        print('making attention for', x, "types are", [type(p).__name__ for p in x])
+        #print('making attention for', x, "types are", [type(p).__name__ for p in x])
         weight_raw = x[1]
         weight = 1.0
         if type(weight_raw) is float or type(weight_raw) is int:
@@ -402,7 +406,7 @@ def build_parser_syntax(attention_plus_base: float, attention_minus_base: float)
 
 
     def parse_fragment_str(x, expression: pp.ParseExpression, in_quotes: bool = False, in_parens: bool = False):
-        print(f"parsing fragment string for {x}")
+        #print(f"parsing fragment string for {x}")
         fragment_string = x[0]
         # print(f"ppparsing fragment string \"{fragment_string}\"")
 
@@ -416,7 +420,7 @@ def build_parser_syntax(attention_plus_base: float, attention_minus_base: float)
         # fragment_parser = pp.Group(pp.OneOrMore(attention | cross_attention_substitute | (greedy_word.set_parse_action(make_text_fragment))))
         try:
             result = (expression + pp.StringEnd()).parse_string(fragment_string)
-            print("parsed to", result)
+            #print("parsed to", result)
             return result
         except pp.ParseException as e:
             #print("parse_fragment_str couldn't parse prompt string:", e)
@@ -430,13 +434,13 @@ def build_parser_syntax(attention_plus_base: float, attention_minus_base: float)
     dot = pp.Literal(".").suppress()
     equals = pp.Literal("=").suppress()
 
-    escaped_lparen = pp.Literal('\\(')#.set_parse_action(lambda x: '(')
-    escaped_rparen = pp.Literal('\\)')#.set_parse_action(lambda x: ')')
-    escaped_quote = pp.Literal('\\"')#.set_parse_action(lambda x: '"')
-    escaped_comma = pp.Literal('\\,')#.set_parse_action(lambda x: '"')
-    escaped_dot = pp.Literal('\\.')#.set_parse_action(lambda x: '"')
-    escaped_plus = pp.Literal('\\+')#.set_parse_action(lambda x: '"')
-    escaped_minus = pp.Literal('\\-')#.set_parse_action(lambda x: '"')
+    escaped_lparen = pp.Literal('\\(')
+    escaped_rparen = pp.Literal('\\)')
+    escaped_quote = pp.Literal('\\"')
+    escaped_comma = pp.Literal('\\,')
+    escaped_dot = pp.Literal('\\.')
+    escaped_plus = pp.Literal('\\+')
+    escaped_minus = pp.Literal('\\-')
     escaped_equals = pp.Literal('\\=')
 
     syntactic_symbols = {
@@ -451,15 +455,11 @@ def build_parser_syntax(attention_plus_base: float, attention_minus_base: float)
     }
     syntactic_chars = "".join(syntactic_symbols.keys())
 
-    #escaped_syntactic_symbol = escaped_lparen | escaped_rparen | escaped_quote | escaped_comma | escaped_dot
-
     # accepts int or float notation, always maps to float
     number = pp.pyparsing_common.real | \
              pp.Combine(pp.Optional("-")+pp.Word(pp.nums)).set_parse_action(pp.token_map(float))
 
-
-
-
+    # a word that absolutely does not contain any meaningful syntax
     restricted_word = pp.Combine(pp.OneOrMore(pp.MatchFirst([
             pp.Or(syntactic_symbols.values()),
             pp.one_of(['-', '+']) + pp.NotAny(pp.White() | pp.Char(syntactic_chars) | pp.StringEnd()),
@@ -475,8 +475,10 @@ def build_parser_syntax(attention_plus_base: float, attention_minus_base: float)
     quoted_fragment = pp.Forward()
     parenthesized_fragment = pp.Forward()
     unrestricted_word = pp.Forward()
+    cross_attention_substitute = pp.Forward()
     fragment = pp.ZeroOrMore(pp.MatchFirst([
         attention,
+        cross_attention_substitute,
         parenthesized_fragment,
         quoted_fragment,
         restricted_word,
@@ -490,7 +492,7 @@ def build_parser_syntax(attention_plus_base: float, attention_minus_base: float)
 
     parenthesized_fragment << (lparen + fragment + rparen)
     parenthesized_fragment.set_name('parenthesized_fragment')
-    parenthesized_fragment.set_debug(True)
+    parenthesized_fragment.set_debug(False)
 
 
     option = pp.Group(pp.MatchFirst([
@@ -500,60 +502,44 @@ def build_parser_syntax(attention_plus_base: float, attention_minus_base: float)
     ]))
     options = pp.Dict(pp.Optional(option + pp.ZeroOrMore(comma + option)))
     options.set_name('options')
-    options.set_debug(True)
+    options.set_debug(False)
 
     potential_target_fragment = (quoted_fragment | parenthesized_fragment | restricted_word)
 
-    cross_attention_substitute = (
-        pp.Group(potential_target_fragment).set_name('ca-target').set_debug(True)
-        + pp.Literal(".swap").set_name('ca-operator').set_debug(True)
+    cross_attention_substitute << (
+        pp.Group(potential_target_fragment).set_name('ca-target').set_debug(False)
+        + pp.Literal(".swap").set_name('ca-operator').set_debug(False)
         + lparen
-        + pp.Group(quoted_fragment | parenthesized_fragment | attention | restricted_fragment | pp.Empty()).set_name('ca-replacement').set_debug(True)
-        + pp.Optional(comma + options).set_name('ca-options').set_debug(True)
+        + pp.Group(quoted_fragment | parenthesized_fragment | attention | restricted_fragment | pp.Empty()).set_name('ca-replacement').set_debug(False)
+        + pp.Optional(comma + options).set_name('ca-options').set_debug(False)
         + rparen
     )
     cross_attention_substitute.set_name('cross_attention_substitute')
-    cross_attention_substitute.set_debug(True)
-    cross_attention_substitute.set_parse_action(make_operator)
+    cross_attention_substitute.set_debug(False)
+    cross_attention_substitute.set_parse_action(make_operator_object)
 
     blend = (
         lparen
-        + pp.Group(pp.Group(potential_target_fragment | quoted_prompt) + pp.ZeroOrMore(comma + pp.Group(potential_target_fragment | quoted_prompt))).set_name('bl-target').set_debug(True)
+        + pp.Group(pp.Group(potential_target_fragment | quoted_prompt) + pp.ZeroOrMore(comma + pp.Group(potential_target_fragment | quoted_prompt))).set_name('bl-target').set_debug(False)
         + rparen
-        + pp.Literal(".blend").set_name('bl-operator').set_debug(True)
+        + pp.Literal(".blend").set_name('bl-operator').set_debug(False)
         + lparen
-        + pp.Group(options).set_name('bl-options').set_debug(True)
+        + pp.Group(options).set_name('bl-options').set_debug(False)
         + rparen
     )
     blend.set_name('blend')
-    blend.set_debug(True)
-    blend.set_parse_action(make_operator)
+    blend.set_debug(False)
+    blend.set_parse_action(make_operator_object)
+
 
 
     attention << pp.Group(quoted_fragment | parenthesized_fragment | restricted_word) + pp.NotAny(pp.White()) + (pp.Word('+') | pp.Word('-') | number)
     attention.set_parse_action(make_attention)
-    attention.set_name('attention').set_debug(True)
+    attention.set_name('attention').set_debug(False)
 
     unrestricted_word << pp.CharsNotIn(string.whitespace).set_parse_action(lambda x: Fragment(x[0]))
     unrestricted_word.set_name('unrestricted_word')
     unrestricted_word.set_debug(False)
-
-    """
-    word_level_keywords = ['.swap']
-    word_level_op = build_fragment_word(excluded_chars="".join(syntactic_symbols.keys())) + pp.one_of(word_level_keywords) + lparen + fragment_argument + pp.Optional(comma + options) + rparen
-    word_level_op.set_name('word_level_op').set_parse_action(make_word_level_op)
-
-
-    def build_fragment_word(excluded_chars):
-        return pp.Combine(pp.OneOrMore(pp.MatchFirst([
-            pp.Or([syntactic_symbols[x] for x in excluded_chars]), 
-            pp.CharsNotIn(string.whitespace + excluded_chars, exact=1)
-        ])))
-
-    cross_attention_option_keyword = pp.Or([pp.Keyword("s_start"), pp.Keyword("s_end"), pp.Keyword("t_start"), pp.Keyword("t_end"), pp.Keyword("shape_freedom")])
-    cross_attention_option = pp.Group(cross_attention_option_keyword + pp.Literal("=").suppress() + number)
-    pp.Dict(pp.ZeroOrMore(comma + cross_attention_option)) +
-    """
 
     prompt << pp.ZeroOrMore(pp.MatchFirst([
         cross_attention_substitute,
@@ -565,11 +551,23 @@ def build_parser_syntax(attention_plus_base: float, attention_minus_base: float)
         #pp.Literal(',').set_parse_action(lambda x: Fragment(x[0])),
     ]))
 
-    #def make_conjunction(x):
-    #    return Conjunction([x])
+    explicit_conjunction = (
+        lparen
+        + pp.Group(pp.Group(potential_target_fragment | quoted_prompt) + pp.ZeroOrMore(comma + pp.Group(potential_target_fragment | quoted_prompt))).set_name('cj-target').set_debug(False)
+        + rparen
+        + pp.one_of([".and", ".add"]).set_name('cj-operator').set_debug(False)
+        + lparen
+        + pp.Group(options).set_name('cj-options').set_debug(False)
+        + rparen
+    )
+    explicit_conjunction.set_name('explicit_conjunction')
+    explicit_conjunction.set_debug(False)
+    explicit_conjunction.set_parse_action(make_operator_object)
 
-    conjunction = (blend | pp.Group(prompt)) + pp.StringEnd()
-    conjunction.set_parse_action(lambda x: Conjunction(x))
+    implicit_conjunction = (blend | pp.Group(prompt)) + pp.StringEnd()
+    implicit_conjunction.set_parse_action(lambda x: Conjunction(x))
+
+    conjunction = (explicit_conjunction | implicit_conjunction)
 
     return conjunction, prompt
 

@@ -439,8 +439,15 @@ class PromptParserTestCase(unittest.TestCase):
 
 
     def test_single(self):
-        self.assertEqual(make_weighted_conjunction([('fire', 1.0), ('flames', 2.0), ('trees', 3.0)]),
-                         parse_prompt('fire (flames (trees)1.5)2.0'))
+        self.assertEqual(Conjunction([FlattenedPrompt([("mountain man", 1.0)]),
+                                      FlattenedPrompt([("a person with a hat", 1.0),
+                                                       ("riding a", 1.1*1.1),
+                                                       CrossAttentionControlSubstitute(
+                                                           [Fragment("bicycle", pow(1.1,2))],
+                                                           [Fragment("skateboard", pow(1.1,2))])
+                                                       ])
+                                      ], weights=[0.5, 0.5]),
+                         parse_prompt("(\"mountain man\", \"a person with a hat (riding a bicycle.swap(skateboard))++\").and(0.5, 0.5)"))
         pass
 
 
