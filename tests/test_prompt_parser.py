@@ -28,8 +28,8 @@ class PromptParserTestCase(unittest.TestCase):
         self.assertEqual(make_weighted_conjunction([('', 1)]), parse_prompt(''))
 
     def test_basic(self):
-        self.assertEqual(make_weighted_conjunction([('fire flames', 1)]), parse_prompt("fire (flames)"))
         self.assertEqual(make_weighted_conjunction([("fire flames", 1)]), parse_prompt("fire flames"))
+        self.assertEqual(make_weighted_conjunction([('fire flames', 1)]), parse_prompt("fire (flames)"))
         self.assertEqual(make_weighted_conjunction([("fire, flames", 1)]), parse_prompt("fire, flames"))
         self.assertEqual(make_weighted_conjunction([("fire, flames , fire", 1)]), parse_prompt("fire, flames , fire"))
         self.assertEqual(make_weighted_conjunction([("cat hot-dog eating", 1)]), parse_prompt("cat hot-dog eating"))
@@ -102,20 +102,17 @@ class PromptParserTestCase(unittest.TestCase):
 
         assert_if_prompt_string_not_untouched('a test prompt')
         assert_if_prompt_string_not_untouched('a badly formed +test prompt')
-        with self.assertRaises(pyparsing.ParseException):
-            parse_prompt('a badly (formed test prompt')
+        assert_if_prompt_string_not_untouched('a badly (formed test prompt')
+
         #with self.assertRaises(pyparsing.ParseException):
-        with self.assertRaises(pyparsing.ParseException):
-            parse_prompt('a badly (formed +test prompt')
+        assert_if_prompt_string_not_untouched('a badly (formed +test prompt')
         self.assertEqual(Conjunction([FlattenedPrompt([Fragment('a badly formed +test prompt',1)])]) , parse_prompt('a badly (formed +test )prompt'))
-        with self.assertRaises(pyparsing.ParseException):
-            parse_prompt('(((a badly (formed +test )prompt')
-        with self.assertRaises(pyparsing.ParseException):
-            parse_prompt('(a (ba)dly (f)ormed +test prompt')
-        with self.assertRaises(pyparsing.ParseException):
-            parse_prompt('(a (ba)dly (f)ormed +test +prompt')
-        with self.assertRaises(pyparsing.ParseException):
-            parse_prompt('("((a badly (formed +test ").blend(1.0)')
+        self.assertEqual(Conjunction([FlattenedPrompt([Fragment('(((a badly formed +test prompt',1)])]) , parse_prompt('(((a badly (formed +test )prompt'))
+
+        self.assertEqual(Conjunction([FlattenedPrompt([Fragment('(a ba dly f ormed +test prompt',1)])]) , parse_prompt('(a (ba)dly (f)ormed +test prompt'))
+        self.assertEqual(Conjunction([FlattenedPrompt([Fragment('(a ba dly f ormed +test +prompt',1)])]) , parse_prompt('(a (ba)dly (f)ormed +test +prompt'))
+        self.assertEqual(Conjunction([Blend([FlattenedPrompt([Fragment('((a badly (formed +test', 1)])], [1.0])]),
+                         parse_prompt('("((a badly (formed +test ").blend(1.0)'))
 
         self.assertEqual(Conjunction([FlattenedPrompt([Fragment('hamburger bun', 1)])]),
             parse_prompt("hamburger ((bun))"))
@@ -166,8 +163,8 @@ class PromptParserTestCase(unittest.TestCase):
             )
 
         self.assertEqual(
-            Conjunction([Blend([FlattenedPrompt([('mountain, man, hairy', 1)]),
-                                FlattenedPrompt([('face, teeth,', 1), ('eyes', 0.9*0.9)])], weights=[1.0,-1.0])]),
+            Conjunction([Blend([FlattenedPrompt([('mountain , man , hairy', 1)]),
+                                FlattenedPrompt([('face , teeth ,', 1), ('eyes', 0.9*0.9)])], weights=[1.0,-1.0])]),
             parse_prompt('("mountain, man, hairy", "face, teeth, eyes--").blend(1,-1)')
         )
 
@@ -176,7 +173,7 @@ class PromptParserTestCase(unittest.TestCase):
         self.assertEqual(make_weighted_conjunction([('fire', 1.0), ('flames', 2.0), ('trees', 3.0)]),
                          parse_prompt('fire (flames (trees)1.5)2.0'))
         self.assertEqual(Conjunction([Blend(prompts=[FlattenedPrompt([('fire', 1.0), ('flames', 1.2100000000000002)]),
-                                                     FlattenedPrompt([(', mountain', 1.0), ('man', 2.0)])],
+                                                     FlattenedPrompt([('mountain', 1.0), ('man', 2.0)])],
                                             weights=[1.0, 1.0])]),
                          parse_prompt('("fire (flames)++", "mountain (man)2").blend(1,1)'))
 
@@ -262,6 +259,12 @@ class PromptParserTestCase(unittest.TestCase):
                                                         Fragment(',', 1), Fragment('fire', 2.0)])])
         self.assertEqual(flames_to_trees_fire, parse_prompt('"(fire (flames)0.5)0.5".swap("(trees)0.7 houses"), (fire)2.0'))
 
+        self.assertEqual(Conjunction([FlattenedPrompt([Fragment('a', 1),
+                                                       CrossAttentionControlSubstitute([Fragment('cat',1)], [Fragment('dog',1)]),
+                                                       Fragment('eating a', 1),
+                                                       CrossAttentionControlSubstitute([Fragment('hotdog',1)], [Fragment('hotdog', pow(1.1,4))])
+                                                       ])]),
+            parse_prompt("a cat.swap(dog) eating a hotdog.swap(hotdog++++)"))
         self.assertEqual(Conjunction([FlattenedPrompt([Fragment('a', 1),
                                                        CrossAttentionControlSubstitute([Fragment('cat',1)], [Fragment('dog',1)]),
                                                        Fragment('eating a', 1),
