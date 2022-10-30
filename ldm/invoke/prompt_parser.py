@@ -387,7 +387,6 @@ def build_parser_syntax(attention_plus_base: float, attention_minus_base: float)
             weights = [float(w[0]) for w in x[2]]
             return Conjunction(prompts=prompts, weights=weights)
 
-
         raise PromptParser.UnrecognizedOperatorException(operator)
 
     def make_attention(x):
@@ -403,7 +402,6 @@ def build_parser_syntax(attention_plus_base: float, attention_minus_base: float)
         assert(type(x[0]) is list or type(x[0]) is pp.ParseResults)
         children = [x for x in x[0]]
         return Attention(weight=weight, children=children)
-
 
     def parse_fragment_str(x, expression: pp.ParseExpression, in_quotes: bool = False, in_parens: bool = False):
         #print(f"parsing fragment string for {x}")
@@ -460,41 +458,43 @@ def build_parser_syntax(attention_plus_base: float, attention_minus_base: float)
              pp.Combine(pp.Optional("-")+pp.Word(pp.nums)).set_parse_action(pp.token_map(float))
 
     # a word that absolutely does not contain any meaningful syntax
-    restricted_word = pp.Combine(pp.OneOrMore(pp.MatchFirst([
+    vanilla_word = pp.Combine(pp.OneOrMore(pp.MatchFirst([
             pp.Or(syntactic_symbols.values()),
             pp.one_of(['-', '+']) + pp.NotAny(pp.White() | pp.Char(syntactic_chars) | pp.StringEnd()),
             pp.CharsNotIn(string.whitespace + syntactic_chars, exact=1)
         ])))
-    restricted_word.set_parse_action(lambda x: [Fragment(t) for t in x])
-    restricted_word.set_name('restricted_word')
-    restricted_word.set_debug(False)
+    vanilla_word.set_parse_action(lambda x: [Fragment(t) for t in x])
+    vanilla_word.set_name('non_syntax_word')
+    vanilla_word.set_debug(False)
 
-    restricted_fragment = pp.OneOrMore(restricted_word)
+    vanilla_fragment = pp.OneOrMore(vanilla_word)
 
     attention = pp.Forward()
     quoted_fragment = pp.Forward()
     parenthesized_fragment = pp.Forward()
-    unrestricted_word = pp.Forward()
+    free_word = pp.Forward()
     cross_attention_substitute = pp.Forward()
+
+    # a part of a prompt, consisting of syntax-full and/or vanilla components
     fragment = pp.ZeroOrMore(pp.MatchFirst([
         attention,
         cross_attention_substitute,
         parenthesized_fragment,
         quoted_fragment,
-        restricted_word,
+        vanilla_word,
         pp.Literal(',').set_parse_action(lambda x: Fragment(x[0]))
     ]))
 
+    # a fragment in double quotes (may be nested)
     quoted_fragment << pp.QuotedString(quote_char='"', esc_char=None, esc_quote='\\"')
     quoted_fragment.set_parse_action(lambda x: parse_fragment_str(x, fragment, in_quotes=True))
-    prompt = pp.Forward()
-    quoted_prompt = quoted_fragment.copy().set_parse_action(lambda x: parse_fragment_str(x, prompt, in_quotes=True))
 
+    # a fragment inside parentheses (may be nested)
     parenthesized_fragment << (lparen + fragment + rparen)
     parenthesized_fragment.set_name('parenthesized_fragment')
     parenthesized_fragment.set_debug(False)
 
-
+    # a string of the form (<keyword>=<float|keyword> | <float> | <keyword>) where keyword is alphanumeric + '_'
     option = pp.Group(pp.MatchFirst([
         pp.Word(pp.alphanums + '_') + equals + (number | pp.Word(pp.alphanums + '_')),  # option=value
         number.copy().set_parse_action(pp.token_map(str)), # weight
@@ -504,13 +504,20 @@ def build_parser_syntax(attention_plus_base: float, attention_minus_base: float)
     options.set_name('options')
     options.set_debug(False)
 
-    potential_target_fragment = (quoted_fragment | parenthesized_fragment | restricted_word)
+    # a fragment which can be used as the target for an operator - either quoted or in parentheses, or a bare vanilla word
+    potential_target_fragment = (quoted_fragment | parenthesized_fragment | vanilla_word)
 
+    # a fragment whose weight has been increased or decreased by a given amount
+    attention << pp.Group(potential_target_fragment) + pp.NotAny(pp.White()) + (pp.Word('+') | pp.Word('-') | number)
+    attention.set_parse_action(make_attention)
+    attention.set_name('attention').set_debug(False)
+
+    # cross-attention control by swapping one fragment for another
     cross_attention_substitute << (
         pp.Group(potential_target_fragment).set_name('ca-target').set_debug(False)
         + pp.Literal(".swap").set_name('ca-operator').set_debug(False)
         + lparen
-        + pp.Group(quoted_fragment | parenthesized_fragment | attention | restricted_fragment | pp.Empty()).set_name('ca-replacement').set_debug(False)
+        + pp.Group(quoted_fragment | parenthesized_fragment | attention | vanilla_fragment | pp.Empty()).set_name('ca-replacement').set_debug(False)
         + pp.Optional(comma + options).set_name('ca-options').set_debug(False)
         + rparen
     )
@@ -518,6 +525,24 @@ def build_parser_syntax(attention_plus_base: float, attention_minus_base: float)
     cross_attention_substitute.set_debug(False)
     cross_attention_substitute.set_parse_action(make_operator_object)
 
+    # a word that can contain any character at all - gobbles up syntax, use with care
+    free_word << pp.CharsNotIn(string.whitespace).set_parse_action(lambda x: Fragment(x[0]))
+    free_word.set_name('unrestricted_word')
+    free_word.set_debug(False)
+
+    # an entire self-contained prompt, which can be used in a Blend or Conjunction
+    prompt = pp.ZeroOrMore(pp.MatchFirst([
+        cross_attention_substitute,
+        attention,
+        quoted_fragment,
+        parenthesized_fragment,
+        free_word,
+        pp.White().suppress()
+    ]))
+    quoted_prompt = quoted_fragment.copy().set_parse_action(lambda x: parse_fragment_str(x, prompt, in_quotes=True))
+
+
+    # a blend/lerp between the feature vectors for two or more prompts
     blend = (
         lparen
         + pp.Group(pp.Group(potential_target_fragment | quoted_prompt) + pp.ZeroOrMore(comma + pp.Group(potential_target_fragment | quoted_prompt))).set_name('bl-target').set_debug(False)
@@ -531,26 +556,7 @@ def build_parser_syntax(attention_plus_base: float, attention_minus_base: float)
     blend.set_debug(False)
     blend.set_parse_action(make_operator_object)
 
-
-
-    attention << pp.Group(quoted_fragment | parenthesized_fragment | restricted_word) + pp.NotAny(pp.White()) + (pp.Word('+') | pp.Word('-') | number)
-    attention.set_parse_action(make_attention)
-    attention.set_name('attention').set_debug(False)
-
-    unrestricted_word << pp.CharsNotIn(string.whitespace).set_parse_action(lambda x: Fragment(x[0]))
-    unrestricted_word.set_name('unrestricted_word')
-    unrestricted_word.set_debug(False)
-
-    prompt << pp.ZeroOrMore(pp.MatchFirst([
-        cross_attention_substitute,
-        attention,
-        quoted_fragment,
-        parenthesized_fragment,
-        unrestricted_word,
-        pp.White().suppress()
-        #pp.Literal(',').set_parse_action(lambda x: Fragment(x[0])),
-    ]))
-
+    # an operator to direct stable diffusion to step multiple times, once for each target, and then add the results together with different weights
     explicit_conjunction = (
         lparen
         + pp.Group(pp.Group(potential_target_fragment | quoted_prompt) + pp.ZeroOrMore(comma + pp.Group(potential_target_fragment | quoted_prompt))).set_name('cj-target').set_debug(False)
@@ -564,6 +570,7 @@ def build_parser_syntax(attention_plus_base: float, attention_minus_base: float)
     explicit_conjunction.set_debug(False)
     explicit_conjunction.set_parse_action(make_operator_object)
 
+    # by default a prompt consists of a Conjunction with a single term
     implicit_conjunction = (blend | pp.Group(prompt)) + pp.StringEnd()
     implicit_conjunction.set_parse_action(lambda x: Conjunction(x))
 
