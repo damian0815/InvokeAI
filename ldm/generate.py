@@ -1,4 +1,6 @@
 # Copyright (c) 2022 Lincoln D. Stein (https://github.com/lstein)
+from math import sqrt
+
 import pyparsing
 # Derived from source code carrying the following copyrights
 # Copyright (c) 2022 Machine Vision and Learning Group, LMU Munich
@@ -456,6 +458,7 @@ class Generate:
                 'extractor':self.safety_feature_extractor
             } if self.safety_checker else None
 
+            attention_maps_storage = {}
             results = generator.generate(
                 prompt,
                 iterations=iterations,
@@ -485,8 +488,26 @@ class Generate:
                 seam_strength = seam_strength,
                 seam_steps = seam_steps,
                 tile_size = tile_size,
-                force_outpaint = force_outpaint
+                force_outpaint = force_outpaint,
+                attention_maps_storage = attention_maps_storage
             )
+            print("attention_maps_storage populated with", [(name, t.shape) for name, t in attention_maps_storage.items()])
+            if len(attention_maps_storage) > 0:
+                # todo upscale all different sized maps per-token to fixed size eg 64x64 + composite (screen works well)
+                # mkdir bigger
+                # for f in *.png; do convert $f -resize 64x64 bigger/$f-64.jpg; done
+                # cd bigger
+                # tokens_count=8
+                # for i in `seq 0 $tokens_count`; do
+                #   out=attn_tokens_0$i.blend.png;
+                #   cp attn_down_tokens_4096_0$i.png-64.jpg $out;
+                #   for t in down_tokens_1024 down_tokens_256 mid_tokens_64 up_tokens_256 up_tokens_1024 up_tokens_4096; do
+                #     composite -compose screen attn_"$t"_0$i.png-64.jpg $out $out;
+                #   done;
+                # done
+                # montage -tile 9x1 attn_tokens_0[0-9].blend.png attn_tokens_montage.png
+                for (name,t) in attention_maps_storage.items():
+                    self.write_attention_map(name, t, width, height)
 
             if init_color:
                 self.correct_colors(image_list           = results,
@@ -533,6 +554,31 @@ class Generate:
                 '%4.2fG' % (self.session_peakmem / 1e9),
             )
         return results
+
+    def write_attention_map(self, name, map, img_width, img_height):
+        inv_scale = int(sqrt((img_width*img_height) / map.shape[1]))
+        output_size = (int(img_width/inv_scale), int(img_height/inv_scale))
+        # normalize and convert to ubyte
+        images_raw = torch.sum(map, 0)
+        def normalize_and_ubyte(x):
+            x_min = torch.min(x)
+            x_range = torch.max(x)-x_min
+            x_normalized = (x-x_min) / x_range
+            return x_normalized.mul(0xff).byte().cpu()
+
+        tokens_length = 9
+        images_ubyte = normalize_and_ubyte(images_raw[:, 1:tokens_length+1])
+
+        #for i in range(images.shape[1]):
+        #for j in range(map.shape[0]):
+        for i in range(tokens_length):
+            image_ubyte = images_ubyte[:, i]
+            #image_raw = images_raw[:, i]
+            #image_ubyte = normalize_and_ubyte(image_raw)
+            image = torch.reshape(image_ubyte, output_size).numpy()
+            pil_image = Image.fromarray(image, mode='L')
+            path= f'/tmp/attn_{name}_{i:02}.png'
+            pil_image.save(path, "PNG")
 
     # this needs to be generalized to all sorts of postprocessors, which should be wrapped
     # in a nice harmonized call signature. For now we have a bunch of if/elses!

@@ -48,6 +48,7 @@ class Generator():
     def generate(self,prompt,init_image,width,height,sampler, iterations=1,seed=None,
                  image_callback=None, step_callback=None, threshold=0.0, perlin=0.0,
                  safety_checker:dict=None,
+                 attention_maps_storage=None,
                  **kwargs):
         scope = choose_autocast(self.precision)
         self.safety_checker = safety_checker
@@ -60,6 +61,7 @@ class Generator():
             step_callback = step_callback,
             threshold     = threshold,
             perlin        = perlin,
+            attention_maps_storage = attention_maps_storage,
             **kwargs
         )
         results             = []

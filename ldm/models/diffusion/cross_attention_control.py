@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import Optional
 
 import torch
 
@@ -42,13 +43,15 @@ class CrossAttentionControl:
 
     @classmethod
     def setup_cross_attention_control(cls, model,
-                                      cross_attention_control_args: Arguments
+                                      cross_attention_control_args: Arguments,
+                                      attention_store: Optional[dict] = None
                                       ):
         """
         Inject attention parameters and functions into the passed in model to enable cross attention editing.
 
         :param model: The unet model to inject into.
-        :param cross_attention_control_args: Arugments passeed to the CrossAttentionControl implementations
+        :param cross_attention_control_args: Arguments passed to the CrossAttentionControl implementations
+        :param attention_store: A dict for storing attention maps, or None if not required
         :return: None
         """
 
@@ -68,7 +71,7 @@ class CrossAttentionControl:
                     indices[b0:b1] = indices_target[a0:a1]
                     mask[b0:b1] = 1
 
-        cls.inject_attention_function(model)
+        cls.inject_attention_function(model, attention_store=attention_store)
 
         for m in cls.get_attention_modules(model, cls.CrossAttentionType.SELF):
             m.last_attn_slice_mask = None
@@ -136,12 +139,12 @@ class CrossAttentionControl:
 
 
     @classmethod
-    def inject_attention_function(cls, unet):
+    def inject_attention_function(cls, unet, attention_store = None):
         # ORIGINAL SOURCE CODE: https://github.com/huggingface/diffusers/blob/91ddd2a25b848df0fa1262d4f1cd98c7ccb87750/src/diffusers/models/attention.py#L276
 
-        def attention_slice_wrangler(self, attention_scores, suggested_attention_slice, dim, offset, slice_size):
+        def attention_slice_wrangler(self, attention_scores, suggested_attention_slice, dim, offset, slice_size, key):
 
-            #print("in wrangler with suggested_attention_slice shape", suggested_attention_slice.shape, "dim", dim)
+            # print(f"in wrangler {key} with suggested_attention_slice shape", suggested_attention_slice.shape, "dim", dim)
 
             attn_slice = suggested_attention_slice
             if dim is not None:
@@ -150,6 +153,18 @@ class CrossAttentionControl:
                 #print(f"in wrangler, sliced dim {dim} {start}-{end}, use_last_attn_slice is {self.use_last_attn_slice}, save_last_attn_slice is {self.save_last_attn_slice}")
             #else:
             #    print(f"in wrangler, whole, use_last_attn_slice is {self.use_last_attn_slice}, save_last_attn_slice is {self.save_last_attn_slice}")
+
+            should_store_attention_map = (
+                    attention_store is not None
+                    and '_tokens' in key
+                    and dim is None
+                    and suggested_attention_slice.shape[1] <= 4096
+            )
+            if should_store_attention_map:
+                key_and_size = f'{key}_{suggested_attention_slice.shape[1]}'
+                if key_and_size not in attention_store:
+                    attention_store[key_and_size] = torch.zeros_like(suggested_attention_slice)
+                attention_store[key_and_size] += suggested_attention_slice
 
             if self.use_last_attn_slice:
                 if dim is None:
@@ -190,7 +205,12 @@ class CrossAttentionControl:
                 module.use_last_attn_weights = False
                 module.use_last_attn_slice = False
                 module.save_last_attn_slice = False
-                module.set_attention_slice_wrangler(attention_slice_wrangler)
+                key = ('down' if 'input_block' in name else
+                        'up' if 'output_block' in name else
+                        'mid') + \
+                        ('_self' if 'attn1' in name else '_tokens')
+                module.set_attention_slice_wrangler(lambda o, a, slice, dim, offset, length, key=key:
+                                                    attention_slice_wrangler(o, a, slice, dim, offset, length, key))
 
     @classmethod
     def remove_attention_function(cls, unet):
@@ -198,4 +218,3 @@ class CrossAttentionControl:
             module_name = type(module).__name__
             if module_name == "CrossAttention":
                 module.set_attention_slice_wrangler(None)
-

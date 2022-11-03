@@ -36,23 +36,28 @@ class InvokeAIDiffuserComponent:
         self.model_forward_callback = model_forward_callback
 
 
-    def setup_cross_attention_control(self, conditioning: ExtraConditioningInfo, step_count: int):
+    def setup_cross_attention_control(self,
+                                      conditioning: ExtraConditioningInfo,
+                                      step_count: int,
+                                      attention_store: Optional[dict]):
         self.conditioning = conditioning
         self.cross_attention_control_context = CrossAttentionControl.Context(
             arguments=self.conditioning.cross_attention_control_args,
             step_count=step_count
         )
         CrossAttentionControl.setup_cross_attention_control(self.model,
-                                                            cross_attention_control_args=self.conditioning.cross_attention_control_args
+                                                            cross_attention_control_args=self.conditioning.cross_attention_control_args,
+                                                            attention_store=attention_store
                                                             )
-        #todo: refactor  edited_conditioning, edit_opcodes, edit_options into a struct
-        #todo: apply edit_options using step_count
 
     def remove_cross_attention_control(self):
         self.conditioning = None
         self.cross_attention_control_context = None
         CrossAttentionControl.remove_cross_attention_control(self.model)
 
+    def write_tokens_attention_maps(self):
+        if self.attention_store is not None:
+            print("writing attention maps now")
 
     def do_diffusion_step(self, x: torch.Tensor, sigma: torch.Tensor,
                                 unconditioning: Union[torch.Tensor,dict],
@@ -222,4 +227,5 @@ class InvokeAIDiffuserComponent:
         # assert(0 == len(torch.nonzero(old_return_value - (uncond_latents + deltas_merged * cond_scale))))
 
         return uncond_latents + deltas_merged * global_guidance_scale
+
 

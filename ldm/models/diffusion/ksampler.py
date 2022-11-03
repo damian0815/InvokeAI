@@ -39,12 +39,14 @@ class CFGDenoiser(nn.Module):
     def prepare_to_sample(self, t_enc, **kwargs):
 
         extra_conditioning_info = kwargs.get('extra_conditioning_info', None)
+        attention_store = kwargs.get('attention_store', None)
 
         if extra_conditioning_info is not None and extra_conditioning_info.wants_cross_attention_control:
-            self.invokeai_diffuser.setup_cross_attention_control(extra_conditioning_info, step_count = t_enc)
+            self.invokeai_diffuser.setup_cross_attention_control(extra_conditioning_info, step_count=t_enc, attention_store=attention_store)
+        elif attention_store is not None:
+            self.invokeai_diffuser.setup_cross_attention_storage(attention_store, 2, 1)
         else:
             self.invokeai_diffuser.remove_cross_attention_control()
-
 
     def forward(self, x, sigma, uncond, cond, cond_scale):
         next_x = self.invokeai_diffuser.do_diffusion_step(x, sigma, uncond, cond, cond_scale)
@@ -158,6 +160,7 @@ class KSampler(Sampler):
         callback=None,
         normals_sequence=None,
         img_callback=None,
+        attention_maps_storage=None,
         quantize_x0=False,
         eta=0.0,
         mask=None,
@@ -203,7 +206,7 @@ class KSampler(Sampler):
             x = torch.randn([batch_size, *shape], device=self.device) * sigmas[0]
 
         model_wrap_cfg = CFGDenoiser(self.model, threshold=threshold, warmup=max(0.8*S,S-10))
-        model_wrap_cfg.prepare_to_sample(S, extra_conditioning_info=extra_conditioning_info)
+        model_wrap_cfg.prepare_to_sample(S, extra_conditioning_info=extra_conditioning_info, attention_store=attention_maps_storage)
         extra_args = {
             'cond': conditioning,
             'uncond': unconditional_conditioning,
@@ -217,6 +220,7 @@ class KSampler(Sampler):
             ),
             None,
         )
+
         return sampling_result
 
     # this code will support inpainting if and when ksampler API modified or

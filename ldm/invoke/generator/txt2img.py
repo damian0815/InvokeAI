@@ -13,8 +13,18 @@ class Txt2Img(Generator):
         super().__init__(model, precision)
 
     @torch.no_grad()
-    def get_make_image(self,prompt,sampler,steps,cfg_scale,ddim_eta,
-                       conditioning,width,height,step_callback=None,threshold=0.0,perlin=0.0,**kwargs):
+    def get_make_image(self,
+                       prompt,
+                       sampler,
+                       steps,
+                       cfg_scale,
+                       ddim_eta,
+                       conditioning,width,height,
+                       step_callback=None,
+                       threshold=0.0,
+                       perlin=0.0,
+                       attention_maps_storage=None,
+                       **kwargs):
         """
         Returns a function returning an image derived from the prompt and the initial image
         Return value depends on the seed at the time you call it
@@ -48,6 +58,7 @@ class Txt2Img(Generator):
                 extra_conditioning_info      = extra_conditioning_info,
                 eta                          = ddim_eta,
                 img_callback                 = step_callback,
+                attention_maps_storage       = attention_maps_storage,
                 threshold                    = threshold,
             )
 
