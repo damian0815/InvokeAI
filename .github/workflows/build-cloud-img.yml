@@ -1,12 +1,30 @@
-name: Placeholder for build and push cloud image
+name: Build cloud image
 on:
-   workflow_dispatch:
+  push:
+    # TEMP until PR is ready
+    branches:
+    - docker-min
 
 jobs:
-  test:
-    runs-on: ubuntu-18.04
+  docker:
+    strategy:
+      fail-fast: false
+      matrix:
+        # only x86_64 for now. aarch64+cuda isn't really a thing yet
+        arch:
+        - x86_64
+    runs-on: ubuntu-latest
+    name: ${{ matrix.arch }}
     steps:
-      - name: Show environment v1
-        run: env | grep ^GITHUB
-      - name: Show ref v1
-        run: echo "===============> Version from $GITHUB_REF"
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+    - name: Build container
+      uses: docker/build-push-action@v3
+      with:
+        context: .
+        file: docker-build/Dockerfile.cloud
+        platforms: Linux/${{ matrix.arch }}
+        push: false
+        tags: local/invokeai:${{ matrix.arch }}
