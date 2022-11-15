@@ -200,6 +200,7 @@ class Generator():
         masked = noise - mean
         masked = masked * scale
         masked = masked + mean
+        masked = masked + offset
         return masked
 
     def adjust_noise_color(self, noise:torch.Tensor, contrast: float, saturation: float, brightness: float) -> torch.Tensor:
