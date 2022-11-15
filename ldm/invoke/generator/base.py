@@ -8,7 +8,7 @@ import random
 import os
 import traceback
 from tqdm import tqdm, trange
-from PIL import Image, ImageFilter
+from PIL import Image, ImageFilter, ImageEnhance
 from einops import rearrange, repeat
 from pytorch_lightning import seed_everything
 from ldm.invoke.devices import choose_autocast
@@ -94,6 +94,7 @@ class Generator():
                 initial_noise_mask_mean = torch.ones_like(x_T) * initial_noise_mean
                 initial_noise_mask_offset = torch.ones_like(x_T) * initial_noise_offset
                 x_T = self.mask_noise(x_T, initial_noise_mask_scale, initial_noise_mask_mean, initial_noise_mask_offset)
+                #x_T = self.adjust_noise_color(x_T, contrast=initial_noise_scale, brightness=initial_noise_offset, saturation=initial_noise_mean)
 
                 image = make_image(x_T)
 
@@ -200,6 +201,30 @@ class Generator():
         masked = masked * scale
         masked = masked + mean
         return masked
+
+    def adjust_noise_color(self, noise:torch.Tensor, contrast: float, saturation: float, brightness: float) -> torch.Tensor:
+        v1_5_latent_rgbt_factors = torch.tensor([[0.3444, 0.1385, 0.0670, 0.4838],
+                                                  [0.1247, 0.4027, 0.1494, -0.3709],
+                                                  [-0.3192, 0.2513, 0.2103, 0.1221],
+                                                  [-0.1307, -0.1874, -0.7445, 0.1484]],
+                                                 dtype=noise.dtype, device=noise.device)
+        v1_5_latent_rgbt_factors_inv = torch.linalg.inv(v1_5_latent_rgbt_factors)
+
+        scale = max(abs(noise.max()), abs(noise.min()))
+        image_rgbt_array = (noise/scale).squeeze(0).permute(1, 2, 0) @ v1_5_latent_rgbt_factors
+        image_rgb = Image.fromarray((((image_rgbt_array[:, :, 0:3] + 1) / 2)
+                         .clamp(0, 1)  # change scale from -1..1 to 0..1
+                         .mul(0xFF)  # to 0..255
+                         .byte()).cpu().numpy())
+        #image_rgb = ImageEnhance.Contrast(image_rgb).enhance(contrast)
+        #image_rgb = ImageEnhance.Brightness(image_rgb).enhance(brightness)
+        #image_rgb = ImageEnhance.Color(image_rgb).enhance(saturation)
+        image_rgb_array = (torch.tensor(np.asarray(image_rgb), dtype=noise.dtype, device=noise.device)
+                           .div(128.0)
+                           .sub(1))
+        new_image_rgbt_array = torch.cat((image_rgb_array, image_rgbt_array[:, :, 3:4]), dim=2)
+        new_noise = (new_image_rgbt_array @ v1_5_latent_rgbt_factors_inv).permute(2, 0, 1)
+        return new_noise.unsqueeze(0) * scale
 
 
     # returns a tensor filled with random numbers from a normal distribution
