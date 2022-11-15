@@ -87,6 +87,14 @@ class Generator():
                         print('** An error occurred while getting initial noise **')
                         print(traceback.format_exc())
 
+                initial_noise_scale = kwargs.get('initial_noise_scale', None) or 1
+                initial_noise_mean = kwargs.get('initial_noise_mean', None) or 0
+                initial_noise_offset = kwargs.get('initial_noise_offset', None) or 0
+                initial_noise_mask_scale = torch.ones_like(x_T) * initial_noise_scale
+                initial_noise_mask_mean = torch.ones_like(x_T) * initial_noise_mean
+                initial_noise_mask_offset = torch.ones_like(x_T) * initial_noise_offset
+                x_T = self.mask_noise(x_T, initial_noise_mask_scale, initial_noise_mask_mean, initial_noise_mask_offset)
+
                 image = make_image(x_T)
 
                 if self.safety_checker is not None:
@@ -139,8 +147,30 @@ class Generator():
 
         return Image.fromarray(latents_ubyte.numpy())
 
+    def image_to_sample(self, rgbt_array_ubyte, dtype):
+        """
+        Convert a RGB+T image to a latent vector, where RGB is pixel colors and T represents "texture" somehow
+        that probably only the VAE understands.
+        :param rgbt_array_ubyte: RGB+T image, ubyte with shape [H, W, 4]
+        :param dtype: Output dtype for the latent sample tensor
+        :return: A latent sample tensor with shape [4, H, W]
+        """
+        v1_5_latent_rgbt_factors_inv = torch.linalg.inv(torch.tensor([[0.3444, 0.1385, 0.0670, 0.4838],
+             [0.1247, 0.4027, 0.1494, -0.3709],
+             [-0.3192, 0.2513, 0.2103, 0.1221],
+             [-0.1307, -0.1874, -0.7445, 0.1484]],
+                dtype=dtype, device=rgbt_array_ubyte.device))
+
+        latent_image = (rgbt_array_ubyte.to(float)
+                        .div(128.0) # change scale from 0..255 to 0..2
+                        .sub(1)) # to -1..1
+        sample = (latent_image @ v1_5_latent_rgbt_factors_inv).permute(2, 0, 1)
+        return sample
+
+
     def generate_initial_noise(self, seed, width, height):
         initial_noise = None
+
         if self.variation_amount > 0 or len(self.with_variations) > 0:
             # use fixed initial noise plus random noise per iteration
             seed_everything(seed)
@@ -156,6 +186,21 @@ class Generator():
             return (seed, initial_noise)
         else:
             return (seed, None)
+
+    def mask_noise(self, noise:torch.Tensor, scale:torch.Tensor, mean:torch.Tensor, offset: torch.Tensor) -> torch.Tensor:
+        """
+        Mask the noise by scaling it against a mean
+        :param noise: The input noise to mask, shape is [4, H, W]
+        :param scale: The scaling factor, shape [1, H, W] (pass all 1s to do nothing)
+        :param mean: The mean against which to scale, shape [1, H, W] (pass all 0s to preserve the default)
+        :param offset: An offset applied after scaling, shape [1, H, W] (pass all 0s to preserve the default)
+        :return: The input noise scaled by `scale` against `mean`
+        """
+        masked = noise - mean
+        masked = masked * scale
+        masked = masked + mean
+        return masked
+
 
     # returns a tensor filled with random numbers from a normal distribution
     def get_noise(self,width,height):

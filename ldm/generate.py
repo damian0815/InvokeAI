@@ -315,8 +315,13 @@ class Generate:
             seam_steps: int  = 10,
             tile_size: int   = 32,
             force_outpaint: bool = False,
+            # stuff
+            initial_noise_scale = 1,
+            initial_noise_mean = 0,
+            initial_noise_offset = 0,
+            # eat up additional cruft
             **args,
-    ):   # eat up additional cruft
+    ):
         """
         ldm.generate.prompt2image() is the common entry point for txt2img() and img2img()
         It takes the following arguments:
@@ -495,7 +500,10 @@ class Generate:
                 tile_size = tile_size,
                 force_outpaint = force_outpaint,
                 inpaint_width  = inpaint_width,
-                inpaint_height = inpaint_height
+                inpaint_height = inpaint_height,
+                initial_noise_scale = initial_noise_scale,
+                initial_noise_mean = initial_noise_mean,
+                initial_noise_offset = initial_noise_offset,
             )
 
             if init_color:

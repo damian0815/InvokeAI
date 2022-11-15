@@ -647,12 +647,31 @@ class Args(object):
             type=int,
             help='Number of steps'
         )
+
         render_group.add_argument(
             '-S',
             '--seed',
             type=int,
             default=None,
             help='Image seed; a +ve integer, or use -1 for the previous seed, -2 for the one before that, etc',
+        )
+        render_group.add_argument(
+            '-Ss',
+            '--initial_noise_scale',
+            type=float,
+            help='scale for initial noise'
+        )
+        render_group.add_argument(
+            '-Sm',
+            '--initial_noise_mean',
+            type=float,
+            help='mean for initial noise'
+        )
+        render_group.add_argument(
+            '-So',
+            '--initial_noise_offset',
+            type=float,
+            help='offset for initial noise'
         )
         render_group.add_argument(
             '-n',
