@@ -93,8 +93,20 @@ class Generator():
                 initial_noise_mask_scale = torch.ones_like(x_T) * initial_noise_scale
                 initial_noise_mask_mean = torch.ones_like(x_T) * initial_noise_mean
                 initial_noise_mask_offset = torch.ones_like(x_T) * initial_noise_offset
-                x_T = self.mask_noise(x_T, initial_noise_mask_scale, initial_noise_mask_mean, initial_noise_mask_offset)
-                #x_T = self.adjust_noise_color(x_T, contrast=initial_noise_scale, brightness=initial_noise_offset, saturation=initial_noise_mean)
+                #x_T = self.mask_noise(x_T, initial_noise_mask_scale, initial_noise_mask_mean, initial_noise_mask_offset)
+                x_T_adj = self.adjust_noise_color(x_T, contrast=initial_noise_scale, brightness=initial_noise_offset, saturation=initial_noise_mean)
+                lerp_factor = 1.0
+                x_T = x_T_adj
+                #x_T = (x_T * (1-lerp_factor)) + (x_T_adj * lerp_factor)
+                #x_T = x_T_adj
+                #x_T = torch.clone(x_T_adj)
+                #x_T = x_T_adj.clone().detach()  # method b
+
+                #x_T = torch.empty_like(x_T_adj).copy_(x_T_adj)  # method c
+
+                #x_T = torch.tensor(x_T_adj)  # method d
+
+                # x_T = x_T_adj.detach().clone()  # method e
 
                 image = make_image(x_T)
 
@@ -197,10 +209,7 @@ class Generator():
         :param offset: An offset applied after scaling, shape [1, H, W] (pass all 0s to preserve the default)
         :return: The input noise scaled by `scale` against `mean`
         """
-        masked = noise - mean
-        masked = masked * scale
-        masked = masked + mean
-        masked = masked + offset
+        masked = noise * scale + offset
         return masked
 
     def adjust_noise_color(self, noise:torch.Tensor, contrast: float, saturation: float, brightness: float) -> torch.Tensor:
@@ -211,21 +220,33 @@ class Generator():
                                                  dtype=noise.dtype, device=noise.device)
         v1_5_latent_rgbt_factors_inv = torch.linalg.inv(v1_5_latent_rgbt_factors)
 
-        scale = max(abs(noise.max()), abs(noise.min()))
-        image_rgbt_array = (noise/scale).squeeze(0).permute(1, 2, 0) @ v1_5_latent_rgbt_factors
-        image_rgb = Image.fromarray((((image_rgbt_array[:, :, 0:3] + 1) / 2)
+        in_image_rgbt_array = noise.squeeze(0).permute(1, 2, 0) @ v1_5_latent_rgbt_factors
+        scale = max(abs(in_image_rgbt_array.max()), abs(in_image_rgbt_array.min()))
+        in_image_rgb_slice = in_image_rgbt_array[:, :, 0:3]
+        in_image_texture_slice = in_image_rgbt_array[:, :, 3:4]
+        in_image_rgb_array = (((in_image_rgb_slice/scale + 1) / 2)
                          .clamp(0, 1)  # change scale from -1..1 to 0..1
-                         .mul(0xFF)  # to 0..255
-                         .byte()).cpu().numpy())
+                         .mul(255) # to 0..255
+                         .cpu()
+                         #.round()
+                         #.byte()
+                                     ).numpy()
+        #image_rgb = Image.fromarray(in_image_rgb_array)
         #image_rgb = ImageEnhance.Contrast(image_rgb).enhance(contrast)
         #image_rgb = ImageEnhance.Brightness(image_rgb).enhance(brightness)
         #image_rgb = ImageEnhance.Color(image_rgb).enhance(saturation)
-        image_rgb_array = (torch.tensor(np.asarray(image_rgb), dtype=noise.dtype, device=noise.device)
-                           .div(128.0)
-                           .sub(1))
-        new_image_rgbt_array = torch.cat((image_rgb_array, image_rgbt_array[:, :, 3:4]), dim=2)
+        out_image_rgb_array = (torch.tensor(
+                            #np.asarray(image_rgb),
+                                in_image_rgb_array,
+            dtype=noise.dtype, device=noise.device)
+                           .div(255.0)
+                           .sub(0.5)
+                           .mul(2))*scale
+        new_image_rgbt_array = torch.cat((out_image_rgb_array, in_image_texture_slice), dim=2)
         new_noise = (new_image_rgbt_array @ v1_5_latent_rgbt_factors_inv).permute(2, 0, 1)
-        return new_noise.unsqueeze(0) * scale
+        # permute() returns a view, and this seems to cause weird problems on MPS, so we make it contiguous()
+        new_noise = new_noise.contiguous()
+        return new_noise.unsqueeze(0)
 
 
     # returns a tensor filled with random numbers from a normal distribution
