@@ -87,7 +87,7 @@ class Generator():
                         print('** An error occurred while getting initial noise **')
                         print(traceback.format_exc())
 
-                initial_noise_scale = kwargs.get('initial_noise_scale', None) or 1
+                initial_noise_scale = kwargs.get('w', None) or 1
                 initial_noise_mean = kwargs.get('initial_noise_mean', None) or 0
                 initial_noise_offset = kwargs.get('initial_noise_offset', None) or 0
                 initial_noise_mask_scale = torch.ones_like(x_T) * initial_noise_scale
@@ -221,6 +221,7 @@ class Generator():
         v1_5_latent_rgbt_factors_inv = torch.linalg.inv(v1_5_latent_rgbt_factors)
 
         in_image_rgbt_array = noise.squeeze(0).permute(1, 2, 0) @ v1_5_latent_rgbt_factors
+        # preserve values outside of (-1..1) range
         scale = max(abs(in_image_rgbt_array.max()), abs(in_image_rgbt_array.min()))
         in_image_rgb_slice = in_image_rgbt_array[:, :, 0:3]
         in_image_texture_slice = in_image_rgbt_array[:, :, 3:4]
@@ -228,16 +229,16 @@ class Generator():
                          .clamp(0, 1)  # change scale from -1..1 to 0..1
                          .mul(255) # to 0..255
                          .cpu()
-                         #.round()
-                         #.byte()
+                         .round()
+                         .byte()
                                      ).numpy()
-        #image_rgb = Image.fromarray(in_image_rgb_array)
-        #image_rgb = ImageEnhance.Contrast(image_rgb).enhance(contrast)
-        #image_rgb = ImageEnhance.Brightness(image_rgb).enhance(brightness)
-        #image_rgb = ImageEnhance.Color(image_rgb).enhance(saturation)
+        image_rgb = Image.fromarray(in_image_rgb_array)
+        image_rgb = ImageEnhance.Contrast(image_rgb).enhance(contrast)
+        image_rgb = ImageEnhance.Brightness(image_rgb).enhance(brightness)
+        image_rgb = ImageEnhance.Color(image_rgb).enhance(saturation)
         out_image_rgb_array = (torch.tensor(
-                            #np.asarray(image_rgb),
-                                in_image_rgb_array,
+                            np.asarray(image_rgb),
+                            #    in_image_rgb_array,
             dtype=noise.dtype, device=noise.device)
                            .div(255.0)
                            .sub(0.5)
