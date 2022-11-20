@@ -93,12 +93,12 @@ class InvokeAIDiffuserComponent:
         scaled_delta = (conditioned_next_x - unconditioned_next_x) * unconditional_guidance_scale
         combined_next_x = unconditioned_next_x + scaled_delta
 
-        percent_through = self.estimate_percent_through(step_index, sigma)
-        if percent_through > 0.3 and percent_through <= 0.4:
-            print(f"{percent_through*100}%: manipulating")
-            #x_flipped = torch.flip(combined_next_x, dims=[2])
-            #combined_next_x = torch.cat([x_flipped[:, :, 0:32], combined_next_x[:, :, 32:64]], dim=2)
-            combined_next_x = self.kaleidoscope(combined_next_x, 3, 0)
+        #percent_through = self.estimate_percent_through(step_index, sigma)
+        #if percent_through > 0.3 and percent_through <= 0.4:
+        #    print(f"{percent_through*100}%: manipulating")
+        #    #x_flipped = torch.flip(combined_next_x, dims=[2])
+        #    #combined_next_x = torch.cat([x_flipped[:, :, 0:32], combined_next_x[:, :, 32:64]], dim=2)
+        #    combined_next_x = self.kaleidoscope(combined_next_x, 3, 0)
 
         return combined_next_x
 

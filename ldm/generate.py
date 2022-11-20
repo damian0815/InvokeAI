@@ -1123,6 +1123,26 @@ class Generate:
             image.save(os.path.join(path,f'{counter:03}.png'),'PNG')
         return callback
 
+def kaleidoscope(source, segment_count, offset_rad=0):
+    result = torch.zeros_like(source)
+    segment_arclength = (math.pi * 2) / segment_count
+    for y in range(source.shape[2]):
+        for x in range(source.shape[3]):
+            center_delta_x = float(x-source.shape[2]/2)
+            center_delta_y = float(y-source.shape[3]/2)
+            angle = math.atan2(center_delta_y, center_delta_x)
+            radius = math.sqrt(center_delta_x*center_delta_x + center_delta_y*center_delta_y)
+            angle = angle % segment_arclength
+            # flip for second half of segment
+            if angle > segment_arclength/2:
+                angle = segment_arclength - angle
+            elif angle < -segment_arclength/2:
+                angle = -segment_arclength - angle
+            s_y = int(numpy.clip(math.sin(angle) * radius, 0, source.shape[3]-1))
+            s_x = int(numpy.clip(math.cos(angle) * radius, 0, source.shape[2]-1))
+            result[:, :, y, x] = source[:, :, s_y, s_x]
+    return result
+
 def _pairwise(iterable):
     "s -> (s0, s1), (s2, s3), (s4, s5), ..."
     a = iter(iterable)

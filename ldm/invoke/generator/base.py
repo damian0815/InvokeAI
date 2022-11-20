@@ -2,6 +2,8 @@
 Base class for ldm.invoke.generator.*
 including img2img, txt2img, and inpaint
 '''
+import math
+
 import torch
 import numpy as  np
 import random
@@ -106,6 +108,8 @@ class Generator():
         Given samples returned from a sampler, converts
         it into a PIL Image
         """
+
+        samples = self.kaleidoscope(samples, 6)
         x_samples = self.model.decode_first_stage(samples)
         x_samples = torch.clamp((x_samples + 1.0) / 2.0, min=0.0, max=1.0)
         if len(x_samples) != 1:
@@ -117,6 +121,26 @@ class Generator():
         return Image.fromarray(x_sample.astype(np.uint8))
 
         # write an approximate RGB image from latent samples for a single step to PNG
+
+    def kaleidoscope(self, source, segment_count, offset_rad=0):
+        result = torch.zeros_like(source)
+        segment_arclength = (math.pi * 2) / segment_count
+        for y in range(source.shape[2]):
+            for x in range(source.shape[3]):
+                center_delta_x = float(x-source.shape[2]/2)
+                center_delta_y = float(y-source.shape[3]/2)
+                angle = math.atan2(center_delta_y, center_delta_x)
+                radius = math.sqrt(center_delta_x*center_delta_x + center_delta_y*center_delta_y)
+                angle = angle % segment_arclength
+                # flip for second half of segment
+                if angle > segment_arclength/2:
+                    angle = segment_arclength - angle
+                elif angle < -segment_arclength/2:
+                    angle = -segment_arclength - angle
+                s_y = int(np.clip(math.sin(angle) * radius, 0, source.shape[3]-1))
+                s_x = int(np.clip(math.cos(angle) * radius, 0, source.shape[2]-1))
+                result[:, :, y, x] = source[:, :, s_y, s_x]
+        return result
 
     def sample_to_lowres_estimated_image(self,samples):
         # origingally adapted from code by @erucipe and @keturn here:
