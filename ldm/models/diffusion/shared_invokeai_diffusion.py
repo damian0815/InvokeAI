@@ -40,6 +40,7 @@ class InvokeAIDiffuserComponent:
         self.model = model
         self.model_forward_callback = model_forward_callback
         self.cross_attention_control_context = None
+        self.did_kaleidoscope = False
 
     def setup_cross_attention_control(self, conditioning: ExtraConditioningInfo, step_count: int):
         self.conditioning = conditioning
@@ -94,11 +95,12 @@ class InvokeAIDiffuserComponent:
         combined_next_x = unconditioned_next_x + scaled_delta
 
         percent_through = self.estimate_percent_through(step_index, sigma)
-        if percent_through > 0.3 and percent_through <= 0.4:
+        if not self.did_kaleidoscope and percent_through > 0.3:
             print(f"{percent_through*100}%: manipulating")
             #x_flipped = torch.flip(combined_next_x, dims=[2])
             #combined_next_x = torch.cat([x_flipped[:, :, 0:32], combined_next_x[:, :, 32:64]], dim=2)
             combined_next_x = self.kaleidoscope(combined_next_x, 3, 0)
+            self.did_kaleidoscope = True
 
         return combined_next_x
 
