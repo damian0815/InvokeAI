@@ -1,7 +1,9 @@
+import math
 import traceback
 from math import ceil
 from typing import Callable, Optional, Union
 
+import numpy
 import torch
 
 from ldm.models.diffusion.cross_attention_control import Arguments, \
@@ -91,8 +93,34 @@ class InvokeAIDiffuserComponent:
         scaled_delta = (conditioned_next_x - unconditioned_next_x) * unconditional_guidance_scale
         combined_next_x = unconditioned_next_x + scaled_delta
 
+        percent_through = self.estimate_percent_through(step_index, sigma)
+        if percent_through > 0.3 and percent_through <= 0.4:
+            print(f"{percent_through*100}%: manipulating")
+            #x_flipped = torch.flip(combined_next_x, dims=[2])
+            #combined_next_x = torch.cat([x_flipped[:, :, 0:32], combined_next_x[:, :, 32:64]], dim=2)
+            combined_next_x = self.kaleidoscope(combined_next_x, 3, 0)
+
         return combined_next_x
 
+    def kaleidoscope(self, source, segment_count, offset_rad=0):
+        result = torch.zeros_like(source)
+        segment_arclength = (math.pi * 2) / segment_count
+        for y in range(source.shape[2]):
+            for x in range(source.shape[3]):
+                center_delta_x = float(x-source.shape[2]/2)
+                center_delta_y = float(y-source.shape[3]/2)
+                angle = math.atan2(center_delta_y, center_delta_x)
+                radius = math.sqrt(center_delta_x*center_delta_x + center_delta_y*center_delta_y)
+                angle = angle % segment_arclength
+                # flip for second half of segment
+                if angle > segment_arclength/2:
+                    angle = segment_arclength - angle
+                elif angle < -segment_arclength/2:
+                    angle = -segment_arclength - angle
+                s_y = int(numpy.clip(math.sin(angle) * radius, 0, source.shape[3]-1))
+                s_x = int(numpy.clip(math.cos(angle) * radius, 0, source.shape[2]-1))
+                result[:, :, y, x] = source[:, :, s_y, s_x]
+        return result
 
     # methods below are called from do_diffusion_step and should be considered private to this class.
 
