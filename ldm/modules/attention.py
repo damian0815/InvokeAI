@@ -215,7 +215,7 @@ class CrossAttention(nn.Module):
 
     def einsum_lowest_level(self, q, k, v, dim, offset, slice_size):
         # calculate attention scores
-        attention_scores = einsum('b i d, b j d -> b i j', q, k)
+        attention_scores = einsum('b i d, b j d -> b i j', q, k) * self.scale
         # calculate attention slice by taking the best scores for each latent pixel
         default_attention_slice = attention_scores.softmax(dim=-1, dtype=attention_scores.dtype)
         attention_slice_wrangler = self.attention_slice_wrangler
@@ -299,7 +299,7 @@ class CrossAttention(nn.Module):
 
         q = self.to_q(x)
         context = default(context, x)
-        k = self.to_k(context) * self.scale
+        k = self.to_k(context)
         v = self.to_v(context)
         del context, x
 
