@@ -4,8 +4,9 @@ from typing import Callable, Optional
 
 import torch
 import torch.nn.functional as F
-from torch import nn, einsum
+from torch import nn, einsum, baddbmm, bmm, empty
 from einops import rearrange, repeat
+from torch.nn import Parameter
 
 from ldm.modules.diffusionmodules.util import checkpoint
 
@@ -188,6 +189,8 @@ class CrossAttention(nn.Module):
         self.attention_slice_wrangler = None
         self.slicing_strategy_getter = None
 
+        self.empty = Parameter(empty((1, 1, 1)), requires_grad=False)
+
     def set_attention_slice_wrangler(self, wrangler: Optional[Callable[[nn.Module, torch.Tensor, int, int, int], torch.Tensor]]):
         '''
         Set custom attention calculator to be called when attention is calculated
@@ -213,9 +216,11 @@ class CrossAttention(nn.Module):
     def clear_cached_free_memory_count(self):
         self.cached_mem_free_total = None
 
+
     def einsum_lowest_level(self, q, k, v, dim, offset, slice_size):
         # calculate attention scores
-        attention_scores = einsum('b i d, b j d -> b i j', q, k)
+        #attention_scores = einsum('b i d, b j d -> b i j', q, k)
+        attention_scores = baddbmm(self.empty, q, k.transpose(1, 2), beta=0)
         # calculate attention slice by taking the best scores for each latent pixel
         default_attention_slice = attention_scores.softmax(dim=-1, dtype=attention_scores.dtype)
         attention_slice_wrangler = self.attention_slice_wrangler
@@ -224,7 +229,8 @@ class CrossAttention(nn.Module):
         else:
             attention_slice = default_attention_slice
 
-        return einsum('b i j, b j d -> b i d', attention_slice, v)
+        return bmm(attention_slice, v)
+        #return einsum('b i j, b j d -> b i d', attention_slice, v)
 
     def einsum_op_slice_dim0(self, q, k, v, slice_size):
         r = torch.zeros(q.shape[0], q.shape[1], v.shape[2], device=q.device, dtype=q.dtype)
@@ -281,6 +287,9 @@ class CrossAttention(nn.Module):
 
 
     def get_attention_mem_efficient(self, q, k, v):
+
+        self.empty = self.empty.to(q.device)
+
         if q.device.type == 'cuda':
             #print("in get_attention_mem_efficient with q shape", q.shape, ", k shape", k.shape, ", free memory is", get_mem_free_total(q.device))
             return self.einsum_op_cuda(q, k, v)
