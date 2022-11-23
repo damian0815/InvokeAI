@@ -8,6 +8,7 @@ import pytorch_lightning as pl
 
 from packaging import version
 from omegaconf import OmegaConf
+from torch.profiler import ProfilerActivity, record_function, profile
 from torch.utils.data import random_split, DataLoader, Dataset, Subset
 from functools import partial
 from PIL import Image
@@ -947,11 +948,17 @@ if __name__ == '__main__':
 
         # run
         if opt.train:
-            try:
-                trainer.fit(model, data)
-            except Exception:
-                melk()
-                raise
+            with profile(activities=[ProfilerActivity.CPU], profile_memory=True) as prof:
+                try:
+                    with record_function("fit"):
+                        trainer.fit(model, data)
+                except Exception:
+                    print(prof.key_averages().table(sort_by="cpu_time_total", row_limit=50))
+                    melk()
+                    raise
+                print('computing profile...')
+                print(prof.key_averages().table(sort_by="cpu_time_total", row_limit=50))
+
         if not opt.no_test and not trainer.interrupted:
             trainer.test(model, data)
     except Exception:
