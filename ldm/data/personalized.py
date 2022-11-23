@@ -142,7 +142,7 @@ class PersonalizedBase(Dataset):
 
         self.size = size
         self.interpolation = {
-            'linear': PIL.Image.Resampling.LINEAR,
+            'linear': PIL.Image.Resampling.BILINEAR,
             'bilinear': PIL.Image.Resampling.BILINEAR,
             'bicubic': PIL.Image.Resampling.BICUBIC,
             'lanczos': PIL.Image.Resampling.LANCZOS,
