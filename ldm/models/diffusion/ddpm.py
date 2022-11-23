@@ -12,6 +12,7 @@ import torch.nn as nn
 import os
 import numpy as np
 import pytorch_lightning as pl
+from torch.autograd.profiler import record_function
 from torch.optim.lr_scheduler import LambdaLR
 from einops import rearrange, repeat
 from contextlib import contextmanager
@@ -1250,7 +1251,8 @@ class LatentDiffusion(DDPM):
             return self.first_stage_model.encode(x)
 
     def shared_step(self, batch, **kwargs):
-        x, c = self.get_input(batch, self.first_stage_key)
+        with record_function("get_input"):
+            x, c = self.get_input(batch, self.first_stage_key)
         loss = self(x, c)
         return loss
 
@@ -1268,7 +1270,8 @@ class LatentDiffusion(DDPM):
                     x_start=c, t=tc, noise=torch.randn_like(c.float())
                 )
 
-        return self.p_losses(x, c, t, *args, **kwargs)
+        with record_function("p_losses"):
+            return self.p_losses(x, c, t, *args, **kwargs)
 
     def _rescale_annotations(
         self, bboxes, crop_coordinates
@@ -1438,7 +1441,10 @@ class LatentDiffusion(DDPM):
             x_recon = fold(o) / normalization
 
         else:
-            x_recon = self.model(x_noisy, t, **cond)
+            #print('doing model(x_noisy, t, **cond)')
+            with record_function("apply_model-self.model()"):
+                x_recon = self.model(x_noisy, t, **cond)
+            #print('done model(x_noisy, t, **cond)')
 
         if isinstance(x_recon, tuple) and not return_ids:
             return x_recon[0]
@@ -1473,7 +1479,9 @@ class LatentDiffusion(DDPM):
     def p_losses(self, x_start, cond, t, noise=None):
         noise = default(noise, lambda: torch.randn_like(x_start))
         x_noisy = self.q_sample(x_start=x_start, t=t, noise=noise)
-        model_output = self.apply_model(x_noisy, t, cond)
+
+        with record_function("apply_model"):
+            model_output = self.apply_model(x_noisy, t, cond)
 
         loss_dict = {}
         prefix = 'train' if self.training else 'val'
@@ -1485,27 +1493,29 @@ class LatentDiffusion(DDPM):
         else:
             raise NotImplementedError()
 
-        loss_simple = self.get_loss(model_output, target, mean=False).mean(
-            [1, 2, 3]
-        )
-        loss_dict.update({f'{prefix}/loss_simple': loss_simple.mean()})
+        with record_function("get_loss"):
+            loss_simple = self.get_loss(model_output, target, mean=False).mean(
+                [1, 2, 3]
+            )
+            loss_dict.update({f'{prefix}/loss_simple': loss_simple.mean()})
 
-        logvar_t = self.logvar[t].to(self.device)
-        loss = loss_simple / torch.exp(logvar_t) + logvar_t
-        # loss = loss_simple / torch.exp(self.logvar) + self.logvar
-        if self.learn_logvar:
-            loss_dict.update({f'{prefix}/loss_gamma': loss.mean()})
-            loss_dict.update({'logvar': self.logvar.data.mean()})
+            logvar_t = self.logvar[t].to(self.device)
+            loss = loss_simple / torch.exp(logvar_t) + logvar_t
+            # loss = loss_simple / torch.exp(self.logvar) + self.logvar
+            if self.learn_logvar:
+                loss_dict.update({f'{prefix}/loss_gamma': loss.mean()})
+                loss_dict.update({'logvar': self.logvar.data.mean()})
 
-        loss = self.l_simple_weight * loss.mean()
+            loss = self.l_simple_weight * loss.mean()
 
-        loss_vlb = self.get_loss(model_output, target, mean=False).mean(
-            dim=(1, 2, 3)
-        )
-        loss_vlb = (self.lvlb_weights[t] * loss_vlb).mean()
-        loss_dict.update({f'{prefix}/loss_vlb': loss_vlb})
-        loss += self.original_elbo_weight * loss_vlb
-        loss_dict.update({f'{prefix}/loss': loss})
+        with record_function("get_loss_vlb"):
+            loss_vlb = self.get_loss(model_output, target, mean=False).mean(
+                dim=(1, 2, 3)
+            )
+            loss_vlb = (self.lvlb_weights[t] * loss_vlb).mean()
+            loss_dict.update({f'{prefix}/loss_vlb': loss_vlb})
+            loss += self.original_elbo_weight * loss_vlb
+            loss_dict.update({f'{prefix}/loss': loss})
 
         if self.embedding_reg_weight > 0:
             loss_embedding_reg = (

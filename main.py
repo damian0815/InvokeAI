@@ -948,16 +948,16 @@ if __name__ == '__main__':
 
         # run
         if opt.train:
-            with profile(activities=[ProfilerActivity.CPU], profile_memory=True) as prof:
-                try:
+            try:
+                with profile(activities=[ProfilerActivity.CPU], profile_memory=True) as prof:
                     with record_function("fit"):
                         trainer.fit(model, data)
-                except Exception:
-                    print(prof.key_averages().table(sort_by="cpu_time_total", row_limit=50))
-                    melk()
-                    raise
                 print('computing profile...')
                 print(prof.key_averages().table(sort_by="cpu_time_total", row_limit=50))
+            except Exception:
+                print(prof.key_averages().table(sort_by="cpu_time_total", row_limit=50))
+                melk()
+                raise
 
         if not opt.no_test and not trainer.interrupted:
             trainer.test(model, data)
