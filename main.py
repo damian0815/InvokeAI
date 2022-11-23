@@ -8,6 +8,7 @@ import pytorch_lightning as pl
 
 from packaging import version
 from omegaconf import OmegaConf
+from torch.profiler import ProfilerActivity, record_function, profile
 from torch.utils.data import random_split, DataLoader, Dataset, Subset
 from functools import partial
 from PIL import Image
@@ -25,7 +26,7 @@ from pytorch_lightning.utilities import rank_zero_info
 from ldm.data.base import Txt2ImgIterableBaseDataset
 from ldm.util import instantiate_from_config
 
-def fix_func(orig):
+def force_run_func_on_cpu(orig):
     if hasattr(torch.backends, 'mps') and torch.backends.mps.is_available():
         def new_func(*args, **kw):
             device = kw.get("device", "mps")
@@ -34,14 +35,14 @@ def fix_func(orig):
         return new_func
     return orig
 
-torch.rand = fix_func(torch.rand)
-torch.rand_like = fix_func(torch.rand_like)
-torch.randn = fix_func(torch.randn)
-torch.randn_like = fix_func(torch.randn_like)
-torch.randint = fix_func(torch.randint)
-torch.randint_like = fix_func(torch.randint_like)
-torch.bernoulli = fix_func(torch.bernoulli)
-torch.multinomial = fix_func(torch.multinomial)
+torch.rand = force_run_func_on_cpu(torch.rand)
+torch.rand_like = force_run_func_on_cpu(torch.rand_like)
+torch.randn = force_run_func_on_cpu(torch.randn)
+torch.randn_like = force_run_func_on_cpu(torch.randn_like)
+torch.randint = force_run_func_on_cpu(torch.randint)
+torch.randint_like = force_run_func_on_cpu(torch.randint_like)
+#torch.bernoulli = force_run_func_on_cpu(torch.bernoulli)
+#torch.multinomial = force_run_func_on_cpu(torch.multinomial)
 
 def load_model_from_config(config, ckpt, verbose=False):
     print(f'Loading model from {ckpt}')
@@ -58,7 +59,9 @@ def load_model_from_config(config, ckpt, verbose=False):
         print(u)
 
     if torch.cuda.is_available():
-        model.cuda()
+        model = model.cuda()
+    elif torch.backends.mps.is_available():
+        model = model.to('mps')
     return model
 
 
@@ -945,11 +948,17 @@ if __name__ == '__main__':
 
         # run
         if opt.train:
-            try:
-                trainer.fit(model, data)
-            except Exception:
-                melk()
-                raise
+            with profile(activities=[ProfilerActivity.CPU], profile_memory=True) as prof:
+                try:
+                    with record_function("fit"):
+                        trainer.fit(model, data)
+                except Exception:
+                    print(prof.key_averages().table(sort_by="cpu_time_total", row_limit=50))
+                    melk()
+                    raise
+                print('computing profile...')
+                print(prof.key_averages().table(sort_by="cpu_time_total", row_limit=50))
+
         if not opt.no_test and not trainer.interrupted:
             trainer.test(model, data)
     except Exception:
