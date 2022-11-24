@@ -1066,7 +1066,7 @@ increasing size, every tile after the first in a row or column
 effectively only covers an extra <code>1 - overlap_ratio</code> on each axis. If
 the input/<code>--init_img</code> is same size as a tile, the ideal (for time)
 scaling factors with the default overlap (0.25) are 1.75, 2.5, 3.25,
-4.0, etc.</p>
+4.0 etc..</p>
 <p><code>-embiggen_tiles &lt;spaced list of tiles&gt;</code></p>
 <p>An advanced usage useful if you only want to alter parts of the image
 while running Embiggen. It takes a list of tiles by number to run and
@@ -1077,13 +1077,6 @@ coherency reasons.</p>
 <p>Tiles are numbered starting with one, and left-to-right,
 top-to-bottom.  So, if you are generating a 3x3 tiled image, the
 middle row would be <code>4 5 6</code>.</p>
-<p><code>-embiggen_strength &lt;strength&gt;</code></p>
-<p>Another advanced option if you want to experiment with the strength parameter
-that embiggen uses when it calls Img2Img. Values range from 0.0 to 1.0
-and lower values preserve more of the character of the initial image.
-Values that are too high will result in a completely different end image,
-while values that are too low will result in an image not dissimilar to one
-you would get with ESRGAN upscaling alone. The default value is 0.4.</p>
 <h3 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">#</a></h3>
 <div class="admonition example">
 <p>Running Embiggen with 512x512 tiles on an existing image, scaling up by a factor of 2.5x;
@@ -1133,7 +1126,7 @@ preserve the best parts from each.</p>
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">November 15, 2022</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">October 11, 2022</span>
       
         <br>
         Created:
