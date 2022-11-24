@@ -224,7 +224,7 @@ class MemoryEfficientAttentionOp(AttentionOpBase):
     """
 
     FORWARD_OPERATOR = get_xformers_operator("efficient_attention")
-    SUPPORTED_DEVICES = {"cuda", "cpu"}
+    SUPPORTED_DEVICES = {"cuda", "cpu", "mps"}
     SUPPORTED_DTYPES = {torch.float}
     SUPPORTED_MAX_K: float = 32
     SUPPORTED_ATTN_BIAS_TYPES: Set[Any] = {type(None), torch.Tensor}
@@ -354,7 +354,7 @@ class MemoryEfficientAttentionCutlassOp(AttentionOpBase):
     """
 
     FORWARD_OPERATOR = get_xformers_operator("efficient_attention_forward_cutlass")
-    SUPPORTED_DEVICES = {"cuda"}
+    SUPPORTED_DEVICES = {"cuda", "mps"}
     SUPPORTED_DTYPES = {torch.float, torch.half, torch.bfloat16}
     SUPPORTED_MAX_K = math.inf
     SUPPORTED_ATTN_BIAS_TYPES: Set[Any] = {type(None), LowerTriangularMask}
@@ -417,19 +417,24 @@ class MemoryEfficientAttentionCutlassOp(AttentionOpBase):
 
     @classmethod
     def uses_tensorcores(cls, d: "AttentionOpDispatch", is_half: bool) -> bool:
-        sm_major = torch.cuda.get_device_capability(d.device)[0]
-        if sm_major >= 8:
-            return True
-        if sm_major >= 7:
-            return is_half
+        if torch.cuda.is_available():
+            sm_major = torch.cuda.get_device_capability(d.device)[0]
+            if sm_major >= 8:
+                return True
+            if sm_major >= 7:
+                return is_half
         return False
 
     @classmethod
     def supports(cls, d: "AttentionOpDispatch") -> bool:
         if not super(MemoryEfficientAttentionCutlassOp, cls).supports(d):
             return False
-        cap = torch.cuda.get_device_capability(d.device)
-        sm = cap[0] * 10 + cap[1]
+        if torch.cuda.is_available():
+            cap = torch.cuda.get_device_capability(d.device)
+            sm = cap[0] * 10 + cap[1]
+        else:
+            # this is probably wrong
+            sm = 0
         bits_per_scalar = {torch.float: 32, torch.half: 16, torch.bfloat16: 16}[d.dtype]
         uses_tensorcores = cls.uses_tensorcores(d, bits_per_scalar == 16)
         matmul_alignment_mn = 1
@@ -485,7 +490,7 @@ class MemoryEfficientAttentionFlashAttentionOp(AttentionOpBase):
     """
 
     FORWARD_OPERATOR = None
-    SUPPORTED_DEVICES = {"cuda"}
+    SUPPORTED_DEVICES = {"cuda", "mps"}
     SUPPORTED_DTYPES = {torch.half, torch.bfloat16}
     SUPPORTED_MAX_K = 128
     SUPPORTED_ATTN_BIAS_TYPES: Set[Any] = {type(None), LowerTriangularMask}

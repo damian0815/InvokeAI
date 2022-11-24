@@ -7,6 +7,7 @@ import torch.nn.functional as F
 from torch import nn, einsum
 from einops import rearrange, repeat
 
+from ldm.models.diffusion.memory_efficient_attention import memory_efficient_attention
 from ldm.modules.diffusionmodules.util import checkpoint
 
 import psutil
@@ -305,7 +306,9 @@ class CrossAttention(nn.Module):
 
         q, k, v = map(lambda t: rearrange(t, 'b n (h d) -> (b h) n d', h=h), (q, k, v))
 
-        r = self.get_attention_mem_efficient(q, k, v)
+        r = memory_efficient_attention(q, k, v)
+
+        #r = self.get_attention_mem_efficient(q, k, v)
 
         hidden_states = rearrange(r, '(b h) n d -> b n (h d)', h=h)
         return self.to_out(hidden_states)
