@@ -10,14 +10,14 @@
         <meta name="author" content="mauwii">
       
       
-        <link rel="canonical" href="https://invoke-ai.github.io/InvokeAI/features/POSTPROCESS/">
+        <link rel="canonical" href="https://invoke-ai.github.io/InvokeAI/installation/INSTALL_PCP/">
       
       <link rel="icon" href="../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-8.5.10">
     
     
       
-        <title>Postprocessing - Stable Diffusion Toolkit Docs</title>
+        <title>Installing InvokeAI with the Pre-Compiled PIP Installer - Stable Diffusion Toolkit Docs</title>
       
     
     
@@ -70,7 +70,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#postprocessing" class="md-skip">
+        <a href="#this-needs-to-be-fleshed-out" class="md-skip">
           Skip to content
         </a>
       
@@ -103,7 +103,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Postprocessing
+              Installing InvokeAI with the Pre-Compiled PIP Installer
             
           </span>
         </div>
@@ -225,15 +225,13 @@
         
   
   
-    
-  
 
 
   
   
   
     <li class="md-tabs__item">
-      <a href="../CLI/" class="md-tabs__link md-tabs__link--active">
+      <a href="../../features/CLI/" class="md-tabs__link">
         Features
       </a>
     </li>
@@ -259,13 +257,15 @@
         
   
   
+    
+  
 
 
   
   
   
     <li class="md-tabs__item">
-      <a href="../../installation/" class="md-tabs__link">
+      <a href="../" class="md-tabs__link md-tabs__link--active">
         Installation
       </a>
     </li>
@@ -370,14 +370,12 @@
 
   
   
-    
-  
   
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" checked>
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" >
       
       
       
@@ -400,7 +398,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../CLI/" class="md-nav__link">
+      <a href="../../features/CLI/" class="md-nav__link">
         CLI
       </a>
     </li>
@@ -414,7 +412,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../EMBIGGEN/" class="md-nav__link">
+      <a href="../../features/EMBIGGEN/" class="md-nav__link">
         Embiggen
       </a>
     </li>
@@ -428,7 +426,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../IMG2IMG/" class="md-nav__link">
+      <a href="../../features/IMG2IMG/" class="md-nav__link">
         Image-to-Image
       </a>
     </li>
@@ -442,7 +440,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../INPAINTING/" class="md-nav__link">
+      <a href="../../features/INPAINTING/" class="md-nav__link">
         Inpainting
       </a>
     </li>
@@ -456,7 +454,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../OTHER/" class="md-nav__link">
+      <a href="../../features/OTHER/" class="md-nav__link">
         Others
       </a>
     </li>
@@ -470,7 +468,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../OUTPAINTING/" class="md-nav__link">
+      <a href="../../features/OUTPAINTING/" class="md-nav__link">
         Outpainting
       </a>
     </li>
@@ -482,140 +480,11 @@
               
   
   
-    
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          Postprocessing
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../features/POSTPROCESS/" class="md-nav__link">
         Postprocessing
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#intro" class="md-nav__link">
-    Intro
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#face-fixing" class="md-nav__link">
-    Face Fixing
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#usage" class="md-nav__link">
-    Usage
-  </a>
-  
-    <nav class="md-nav" aria-label="Usage">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#upscaling" class="md-nav__link">
-    Upscaling
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#face-restoration" class="md-nav__link">
-    Face Restoration
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#example-usage" class="md-nav__link">
-    Example Usage
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#codeformer-support" class="md-nav__link">
-    CodeFormer Support
-  </a>
-  
-    <nav class="md-nav" aria-label="CodeFormer Support">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#usage_1" class="md-nav__link">
-    Usage
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#other-options" class="md-nav__link">
-    Other Options
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#fixing-previously-generated-images" class="md-nav__link">
-    Fixing Previously-Generated Images
-  </a>
-  
-    <nav class="md-nav" aria-label="Fixing Previously-Generated Images">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#disabling" class="md-nav__link">
-    Disabling
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -627,7 +496,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../PROMPTS/" class="md-nav__link">
+      <a href="../../features/PROMPTS/" class="md-nav__link">
         Prompting-Features
       </a>
     </li>
@@ -641,7 +510,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../TEXTUAL_INVERSION/" class="md-nav__link">
+      <a href="../../features/TEXTUAL_INVERSION/" class="md-nav__link">
         Textual-Inversion
       </a>
     </li>
@@ -655,7 +524,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../VARIATIONS/" class="md-nav__link">
+      <a href="../../features/VARIATIONS/" class="md-nav__link">
         Variations
       </a>
     </li>
@@ -669,7 +538,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../WEB/" class="md-nav__link">
+      <a href="../../features/WEB/" class="md-nav__link">
         InvokeAI Web Server
       </a>
     </li>
@@ -683,7 +552,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../WEBUIHOTKEYS/" class="md-nav__link">
+      <a href="../../features/WEBUIHOTKEYS/" class="md-nav__link">
         WebUI Hotkey List
       </a>
     </li>
@@ -765,12 +634,14 @@
 
   
   
+    
+  
   
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5" type="checkbox" id="__nav_5" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5" type="checkbox" id="__nav_5" checked>
       
       
       
@@ -793,7 +664,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../installation/" class="md-nav__link">
+      <a href="../" class="md-nav__link">
         Overview
       </a>
     </li>
@@ -807,7 +678,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../installation/INSTALLING_MODELS/" class="md-nav__link">
+      <a href="../INSTALLING_MODELS/" class="md-nav__link">
         Installing Models
       </a>
     </li>
@@ -821,7 +692,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../installation/INSTALL_DOCKER/" class="md-nav__link">
+      <a href="../INSTALL_DOCKER/" class="md-nav__link">
         Docker
       </a>
     </li>
@@ -835,7 +706,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../installation/INSTALL_INVOKE/" class="md-nav__link">
+      <a href="../INSTALL_INVOKE/" class="md-nav__link">
         InvokeAI Installer
       </a>
     </li>
@@ -849,7 +720,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../installation/INSTALL_JUPYTER/" class="md-nav__link">
+      <a href="../INSTALL_JUPYTER/" class="md-nav__link">
         Running InvokeAI on Google Colab using a Jupyter Notebook
       </a>
     </li>
@@ -863,7 +734,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../installation/INSTALL_MANUAL/" class="md-nav__link">
+      <a href="../INSTALL_MANUAL/" class="md-nav__link">
         Manual Installation
       </a>
     </li>
@@ -875,11 +746,93 @@
               
   
   
+    
   
-    <li class="md-nav__item">
-      <a href="../../installation/INSTALL_PCP/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Installing InvokeAI with the Pre-Compiled PIP Installer
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         Installing InvokeAI with the Pre-Compiled PIP Installer
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#introduction" class="md-nav__link">
+    Introduction
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#walkthrough" class="md-nav__link">
+    Walkthrough
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#updating-to-newer-versions" class="md-nav__link">
+    Updating to newer versions
+  </a>
+  
+    <nav class="md-nav" aria-label="Updating to newer versions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#updating-the-stable-version" class="md-nav__link">
+    Updating the stable version
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#updating-to-the-development-version" class="md-nav__link">
+    Updating to the development version
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    Troubleshooting
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -891,7 +844,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../installation/INSTALL_SOURCE/" class="md-nav__link">
+      <a href="../INSTALL_SOURCE/" class="md-nav__link">
         Source Installer
       </a>
     </li>
@@ -931,7 +884,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../installation/older_docs_to_be_removed/INSTALL_LINUX/" class="md-nav__link">
+      <a href="../older_docs_to_be_removed/INSTALL_LINUX/" class="md-nav__link">
         Manual Installation, Linux
       </a>
     </li>
@@ -945,7 +898,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../installation/older_docs_to_be_removed/INSTALL_MAC/" class="md-nav__link">
+      <a href="../older_docs_to_be_removed/INSTALL_MAC/" class="md-nav__link">
         Manual Installation, macOS
       </a>
     </li>
@@ -959,7 +912,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../installation/older_docs_to_be_removed/INSTALL_WINDOWS/" class="md-nav__link">
+      <a href="../older_docs_to_be_removed/INSTALL_WINDOWS/" class="md-nav__link">
         Manual Installation, Windows
       </a>
     </li>
@@ -1056,137 +1009,30 @@
                 
                   
 
-  <a href="https://github.com/invoke-ai/InvokeAI/edit/main/docs/features/POSTPROCESS.md" title="Edit this page" class="md-content__button md-icon">
+  <a href="https://github.com/invoke-ai/InvokeAI/edit/main/docs/installation/INSTALL_PCP.md" title="Edit this page" class="md-content__button md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8 12h8v2H8v-2m2 8H6V4h7v5h5v3.1l2-2V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4v-2m-2-2h4.1l.9-.9V16H8v2m12.2-5c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1 2.1 2.1Z"/></svg>
   </a>
 
 
-<h1 id="postprocessing"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m22.7 14.3-1 1-2-2 1-1c.1-.1.2-.2.4-.2.1 0 .3.1.4.2l1.3 1.3c.1.2.1.5-.1.7M13 19.9V22h2.1l6.1-6.1-2-2-6.2 6M21 5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h6v-1.9l1.1-1.1H5l3.5-4.5 2.5 3 3.5-4.5 1.6 2.1 4.9-5V5Z"/></svg></span> Postprocessing<a class="headerlink" href="#postprocessing" title="Permanent link">#</a></h1>
-<h2 id="intro">Intro<a class="headerlink" href="#intro" title="Permanent link">#</a></h2>
-<p>This extension provides the ability to restore faces and upscale images.</p>
-<p>Face restoration and upscaling can be applied at the time you generate the
-images, or at any later time against a previously-generated PNG file, using the
-<a href="#fixing-previously-generated-images">!fix</a> command.
-<a href="../OUTPAINTING/">Outpainting and outcropping</a> can only be applied after the
-fact.</p>
-<h2 id="face-fixing">Face Fixing<a class="headerlink" href="#face-fixing" title="Permanent link">#</a></h2>
-<p>The default face restoration module is GFPGAN. The default upscale is
-Real-ESRGAN. For an alternative face restoration module, see
-<a href="#codeformer-support">CodeFormer Support</a> below.</p>
-<p>As of version 1.14, environment.yaml will install the Real-ESRGAN package into
-the standard install location for python packages, and will put GFPGAN into a
-subdirectory of "src" in the InvokeAI directory. Upscaling with Real-ESRGAN
-should "just work" without further intervention. Simply pass the <code>--upscale</code>
-(<code>-U</code>) option on the <code>invoke&gt;</code> command line, or indicate the desired scale on
-the popup in the Web GUI.</p>
-<p><strong>GFPGAN</strong> requires a series of downloadable model files to work. These are
-loaded when you run <code>scripts/preload_models.py</code>. If GFPAN is failing with an
-error, please run the following from the InvokeAI directory:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>python scripts/preload_models.py
-</code></pre></div>
-<p>If you do not run this script in advance, the GFPGAN module will attempt to
-download the models files the first time you try to perform facial
-reconstruction.</p>
-<h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">#</a></h2>
-<p>You will now have access to two new prompt arguments.</p>
-<h3 id="upscaling">Upscaling<a class="headerlink" href="#upscaling" title="Permanent link">#</a></h3>
-<p><code>-U : &lt;upscaling_factor&gt; &lt;upscaling_strength&gt;</code></p>
-<p>The upscaling prompt argument takes two values. The first value is a scaling
-factor and should be set to either <code>2</code> or <code>4</code> only. This will either scale the
-image 2x or 4x respectively using different models.</p>
-<p>You can set the scaling stength between <code>0</code> and <code>1.0</code> to control intensity of
-the of the scaling. This is handy because AI upscalers generally tend to smooth
-out texture details. If you wish to retain some of those for natural looking
-results, we recommend using values between <code>0.5 to 0.8</code>.</p>
-<p>If you do not explicitly specify an upscaling_strength, it will default to 0.75.</p>
-<h3 id="face-restoration">Face Restoration<a class="headerlink" href="#face-restoration" title="Permanent link">#</a></h3>
-<p><code>-G : &lt;facetool_strength&gt;</code></p>
-<p>This prompt argument controls the strength of the face restoration that is being
-applied. Similar to upscaling, values between <code>0.5 to 0.8</code> are recommended.</p>
-<p>You can use either one or both without any conflicts. In cases where you use
-both, the image will be first upscaled and then the face restoration process
-will be executed to ensure you get the highest quality facial features.</p>
-<p><code>--save_orig</code></p>
-<p>When you use either <code>-U</code> or <code>-G</code>, the final result you get is upscaled or face
-modified. If you want to save the original Stable Diffusion generation, you can
-use the <code>-save_orig</code> prompt argument to save the original unaffected version
-too.</p>
-<h3 id="example-usage">Example Usage<a class="headerlink" href="#example-usage" title="Permanent link">#</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>invoke&gt; <span class="s2">&quot;superman dancing with a panda bear&quot;</span> -U <span class="m">2</span> <span class="m">0</span>.6 -G <span class="m">0</span>.4
-</code></pre></div>
-<p>This also works with img2img:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>invoke&gt; <span class="s2">&quot;a man wearing a pineapple hat&quot;</span> -I path/to/your/file.png -U <span class="m">2</span> <span class="m">0</span>.5 -G <span class="m">0</span>.6
-</code></pre></div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>GFPGAN and Real-ESRGAN are both memory intensive. In order to avoid crashes and memory overloads
-during the Stable Diffusion process, these effects are applied after Stable Diffusion has completed
-its work.</p>
-<p>In single image generations, you will see the output right away but when you are using multiple
-iterations, the images will first be generated and then upscaled and face restored after that
-process is complete. While the image generation is taking place, you will still be able to preview
-the base images.</p>
-</div>
-<p>If you wish to stop during the image generation but want to upscale or face
-restore a particular generated image, pass it again with the same prompt and
-generated seed along with the <code>-U</code> and <code>-G</code> prompt arguments to perform those
-actions.</p>
-<h2 id="codeformer-support">CodeFormer Support<a class="headerlink" href="#codeformer-support" title="Permanent link">#</a></h2>
-<p>This repo also allows you to perform face restoration using
-<a href="https://github.com/sczhou/CodeFormer">CodeFormer</a>.</p>
-<p>In order to setup CodeFormer to work, you need to download the models like with
-GFPGAN. You can do this either by running <code>preload_models.py</code> or by manually
-downloading the
-<a href="https://github.com/sczhou/CodeFormer/releases/download/v0.1.0/codeformer.pth">model file</a>
-and saving it to <code>ldm/invoke/restoration/codeformer/weights</code> folder.</p>
-<p>You can use <code>-ft</code> prompt argument to swap between CodeFormer and the default
-GFPGAN. The above mentioned <code>-G</code> prompt argument will allow you to control the
-strength of the restoration effect.</p>
-<h3 id="usage_1">Usage<a class="headerlink" href="#usage_1" title="Permanent link">#</a></h3>
-<p>The following command will perform face restoration with CodeFormer instead of
-the default gfpgan.</p>
-<p><code>&lt;prompt&gt; -G 0.8 -ft codeformer</code></p>
-<h3 id="other-options">Other Options<a class="headerlink" href="#other-options" title="Permanent link">#</a></h3>
-<ul>
-<li><code>-cf</code> - cf or CodeFormer Fidelity takes values between <code>0</code> and <code>1</code>. 0 produces
-  high quality results but low accuracy and 1 produces lower quality results but
-  higher accuacy to your original face.</li>
-</ul>
-<p>The following command will perform face restoration with CodeFormer. CodeFormer
-will output a result that is closely matching to the input face.</p>
-<p><code>&lt;prompt&gt; -G 1.0 -ft codeformer -cf 0.9</code></p>
-<p>The following command will perform face restoration with CodeFormer. CodeFormer
-will output a result that is the best restoration possible. This may deviate
-slightly from the original face. This is an excellent option to use in
-situations when there is very little facial data to work with.</p>
-<p><code>&lt;prompt&gt; -G 1.0 -ft codeformer -cf 0.1</code></p>
-<h2 id="fixing-previously-generated-images">Fixing Previously-Generated Images<a class="headerlink" href="#fixing-previously-generated-images" title="Permanent link">#</a></h2>
-<p>It is easy to apply face restoration and/or upscaling to any
-previously-generated file. Just use the syntax
-<code>!fix path/to/file.png &lt;options&gt;</code>. For example, to apply GFPGAN at strength 0.8
-and upscale 2X for a file named <code>./outputs/img-samples/000044.2945021133.png</code>,
-just run:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>invoke&gt; !fix ./outputs/img-samples/000044.2945021133.png -G <span class="m">0</span>.8 -U <span class="m">2</span>
-</code></pre></div>
-<p>A new file named <code>000044.2945021133.fixed.png</code> will be created in the output
-directory. Note that the <code>!fix</code> command does not replace the original file,
-unlike the behavior at generate time.</p>
-<h3 id="disabling">Disabling<a class="headerlink" href="#disabling" title="Permanent link">#</a></h3>
-<p>If, for some reason, you do not wish to load the GFPGAN and/or ESRGAN libraries,
-you can disable them on the invoke.py command line with the <code>--no_restore</code> and
-<code>--no_upscale</code> options, respectively.</p>
+<h1 id="this-needs-to-be-fleshed-out">THIS NEEDS TO BE FLESHED OUT<a class="headerlink" href="#this-needs-to-be-fleshed-out" title="Permanent link">#</a></h1>
+<h2 id="introduction">Introduction<a class="headerlink" href="#introduction" title="Permanent link">#</a></h2>
+<h2 id="walkthrough">Walkthrough<a class="headerlink" href="#walkthrough" title="Permanent link">#</a></h2>
+<h2 id="updating-to-newer-versions">Updating to newer versions<a class="headerlink" href="#updating-to-newer-versions" title="Permanent link">#</a></h2>
+<h3 id="updating-the-stable-version">Updating the stable version<a class="headerlink" href="#updating-the-stable-version" title="Permanent link">#</a></h3>
+<h3 id="updating-to-the-development-version">Updating to the development version<a class="headerlink" href="#updating-to-the-development-version" title="Permanent link">#</a></h3>
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">#</a></h2>
 
   <hr>
 <div class="md-source-file">
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">November 10, 2022</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">November 12, 2022</span>
       
         <br>
         Created:
-        <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">September 11, 2022</span>
+        <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">November 12, 2022</span>
       
     
   </small>
@@ -1216,7 +1062,7 @@ you can disable them on the invoke.py command line with the <code>--no_restore</
     <nav class="md-footer__inner md-grid" aria-label="Footer" >
       
         
-        <a href="../OUTPAINTING/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Outpainting" rel="prev">
+        <a href="../INSTALL_MANUAL/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Manual Installation" rel="prev">
           <div class="md-footer__button md-icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
           </div>
@@ -1225,20 +1071,20 @@ you can disable them on the invoke.py command line with the <code>--no_restore</
               <span class="md-footer__direction">
                 Previous
               </span>
-              Outpainting
+              Manual Installation
             </div>
           </div>
         </a>
       
       
         
-        <a href="../PROMPTS/" class="md-footer__link md-footer__link--next" aria-label="Next: Prompting-Features" rel="next">
+        <a href="../INSTALL_SOURCE/" class="md-footer__link md-footer__link--next" aria-label="Next: Source Installer" rel="next">
           <div class="md-footer__title">
             <div class="md-ellipsis">
               <span class="md-footer__direction">
                 Next
               </span>
-              Prompting-Features
+              Source Installer
             </div>
           </div>
           <div class="md-footer__button md-icon">
