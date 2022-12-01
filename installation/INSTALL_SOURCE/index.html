@@ -866,13 +866,6 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#updating-to-the-development-version" class="md-nav__link">
-    Updating to the development version
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
   
@@ -1117,7 +1110,7 @@ graphical or command-line Zip extractor:</p>
 </li>
 <li>
 <p>After installation completes, the installer will launch a script called
-    <code>preload_models.py</code>, which will guide you through the first-time process of
+    <code>configure_invokeai.py</code>, which will guide you through the first-time process of
     selecting one or more Stable Diffusion model weights files, downloading and
     configuring them.</p>
 <p>Note that the main Stable Diffusion weights file is protected by a license
@@ -1159,25 +1152,14 @@ the script <code>scripts/invoke.py</code> as shown in this example:</p>
 <p>This distribution is changing rapidly, and we add new features on a daily basis.
 To update to the latest released version (recommended), run the <code>update.sh</code>
 (Linux/Mac) or <code>update.bat</code> (Windows) scripts. This will fetch the latest
-release and re-run the <code>preload_models</code> script to download any updated models
+release and re-run the <code>configure_invokeai</code> script to download any updated models
 files that may be needed. You can also use this to add additional models that
 you did not select at installation time.</p>
-<h3 id="updating-to-the-development-version">Updating to the development version<a class="headerlink" href="#updating-to-the-development-version" title="Permanent link">#</a></h3>
-<p>There may be times that there is a feature in the <code>development</code> branch of
-InvokeAI that you'd like to take advantage of. Or perhaps there is a branch that
-corrects an annoying bug. To do this, you will use the developer's console.</p>
-<p>From within the invokeAI directory, run the command <code>invoke.sh</code> (Linux/Mac) or
-<code>invoke.bat</code> (Windows) and selection option (3) to open the developers console.
-Then run the following command to get the <code>development branch</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>git checkout development
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>git pull
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>conda env update
-</code></pre></div>
 <p>You can now close the developer console and run <code>invoke</code> as before. If you get
 complaints about missing models, then you may need to do the additional step of
-running <code>preload_models.py</code>. This happens relatively infrequently. To do this,
+running <code>configure_invokeai.py</code>. This happens relatively infrequently. To do this,
 simply open up the developer's console again and type
-<code>python scripts/preload_models.py</code>.</p>
+<code>python scripts/configure_invokeai.py</code>.</p>
 <h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">#</a></h2>
 <p>If you run into problems during or after installation, the InvokeAI team is
 available to help you. Either create an
@@ -1192,7 +1174,7 @@ hours, and often much sooner.</p>
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">November 12, 2022</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">December 1, 2022</span>
       
         <br>
         Created:

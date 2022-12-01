@@ -880,8 +880,8 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#preload_modelspy-or-invokepy-crashes-at-an-early-stage" class="md-nav__link">
-    preload_models.py or invoke.py crashes at an early stage
+  <a href="#configure_invokeaipy-or-invokepy-crashes-at-an-early-stage" class="md-nav__link">
+    configure_invokeai.py or invoke.py crashes at an early stage
   </a>
   
 </li>
@@ -1262,9 +1262,9 @@ Diffusion distribution, you may skip this step (by selecting "skip" when
 prompted) and configure InvokeAI to use the previously-downloaded files. The
 process for this is described in <a href="../INSTALLING_MODELS/">here</a>.</p>
 </div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>python scripts/preload_models.py
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>python scripts/configure_invokeai.py
 </code></pre></div>
-<p>The script <code>preload_models.py</code> will interactively guide you through the
+<p>The script <code>configure_invokeai.py</code> will interactively guide you through the
 process of downloading and installing the weights files needed for InvokeAI.
 Note that the main Stable Diffusion weights file is protected by a license
 agreement that you have to agree to. The script will list the steps you need
@@ -1322,7 +1322,7 @@ rendering will be fast.</p>
 greatest version, launch the Anaconda window, enter <code>InvokeAI</code> and type:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>git pull
 <a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>conda env update
-<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>python scripts/preload_models.py --no-interactive  <span class="c1">#optional</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>python scripts/configure_invokeai.py --no-interactive  <span class="c1">#optional</span>
 </code></pre></div>
 <p>This will bring your local copy into sync with the remote one. The last step may
 be needed to take advantage of new features or released models. The
@@ -1458,7 +1458,7 @@ Start by installing additional XCode command line tools, followed by brew instal
 <a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>brew install llvm
 </code></pre></div>
 <p>If brew config has Clang installed, update to the latest llvm and try creating the environment again.</p>
-<h4 id="preload_modelspy-or-invokepy-crashes-at-an-early-stage"><code>preload_models.py</code> or <code>invoke.py</code> crashes at an early stage<a class="headerlink" href="#preload_modelspy-or-invokepy-crashes-at-an-early-stage" title="Permanent link">#</a></h4>
+<h4 id="configure_invokeaipy-or-invokepy-crashes-at-an-early-stage"><code>configure_invokeai.py</code> or <code>invoke.py</code> crashes at an early stage<a class="headerlink" href="#configure_invokeaipy-or-invokepy-crashes-at-an-early-stage" title="Permanent link">#</a></h4>
 <p>This is usually due to an incomplete or corrupted Conda install. Make sure you
 have linked to the correct environment file and run <code>conda update</code> again.</p>
 <p>If the problem persists, a more extreme measure is to clear Conda's caches and
@@ -1519,7 +1519,7 @@ the magic incantations for Conda and PIP.</p>
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">November 14, 2022</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">December 1, 2022</span>
       
         <br>
         Created:

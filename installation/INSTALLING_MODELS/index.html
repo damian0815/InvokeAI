@@ -783,8 +783,8 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#installation-via-preload_modelspy" class="md-nav__link">
-    Installation via preload_models.py
+  <a href="#installation-via-configure_invokeaipy" class="md-nav__link">
+    Installation via configure_invokeai.py
   </a>
   
 </li>
@@ -1140,7 +1140,7 @@ unofficial Stable Diffusion models and where they can be obtained.</p>
 <p>There are three ways to install weights files:</p>
 <ol>
 <li>
-<p>During InvokeAI installation, the <code>preload_models.py</code> script can download
+<p>During InvokeAI installation, the <code>configure_invokeai.py</code> script can download
    them for you.</p>
 </li>
 <li>
@@ -1152,11 +1152,11 @@ unofficial Stable Diffusion models and where they can be obtained.</p>
    <code>models.yaml</code>.</p>
 </li>
 </ol>
-<h3 id="installation-via-preload_modelspy">Installation via <code>preload_models.py</code><a class="headerlink" href="#installation-via-preload_modelspy" title="Permanent link">#</a></h3>
-<p>This is the most automatic way. Run <code>scripts/preload_models.py</code> from the
+<h3 id="installation-via-configure_invokeaipy">Installation via <code>configure_invokeai.py</code><a class="headerlink" href="#installation-via-configure_invokeaipy" title="Permanent link">#</a></h3>
+<p>This is the most automatic way. Run <code>scripts/configure_invokeai.py</code> from the
 console. It will ask you to select which models to download and lead you through
 the steps of setting up a Hugging Face account if you haven't done so already.</p>
-<p>To start, run <code>python scripts/preload_models.py</code> from within the InvokeAI:
+<p>To start, run <code>python scripts/configure_invokeai.py</code> from within the InvokeAI:
 directory</p>
 <div class="admonition example">
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Loading Python libraries...
@@ -1327,7 +1327,7 @@ file <code>configs/models.yaml</code>, and add a new stanza that follows this mo
 </tr>
 <tr>
 <td align="left">config</td>
-<td align="left">This is the confusingly-named configuration file for the model itself. Use <code>./configs/stable-diffusion/v1-inference.yaml</code> unless the model happens to need a custom configuration, in which case the place you downloaded it from will tell you what to use instead. For example, the runwayML custom inpainting model requires the file <code>configs/stable-diffusion/v1-inpainting-inference.yaml</code>. This is already inclued in the InvokeAI distribution and is configured automatically for you by the <code>preload_models.py</code> script.</td>
+<td align="left">This is the confusingly-named configuration file for the model itself. Use <code>./configs/stable-diffusion/v1-inference.yaml</code> unless the model happens to need a custom configuration, in which case the place you downloaded it from will tell you what to use instead. For example, the runwayML custom inpainting model requires the file <code>configs/stable-diffusion/v1-inpainting-inference.yaml</code>. This is already inclued in the InvokeAI distribution and is configured automatically for you by the <code>configure_invokeai.py</code> script.</td>
 </tr>
 <tr>
 <td align="left">vae</td>
@@ -1347,7 +1347,7 @@ available for your use.</p>
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">November 12, 2022</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">December 1, 2022</span>
       
         <br>
         Created:

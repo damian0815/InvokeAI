@@ -1255,13 +1255,13 @@ it isn't required but won't hurt.</p>
 </div>
 <div class="admonition todo">
 <p class="admonition-title">Download the model weight files</p>
-<p>The <code>preload_models.py</code> script downloads and installs the model weight
+<p>The <code>configure_invokeai.py</code> script downloads and installs the model weight
 files for you. It will lead you through the process of getting a Hugging Face
 account, accepting the Stable Diffusion model weight license agreement, and
 creating a download token:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1"># This will take some time, depending on the speed of your internet connection</span>
 <a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="c1"># and will consume about 10GB of space</span>
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>python scripts/preload_models.py
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>python scripts/configure_invokeai.py
 </code></pre></div>
 </div>
 <div class="admonition todo">
@@ -1342,8 +1342,8 @@ solution please <a href="https://github.com/invoke-ai/InvokeAI/issues">create an
    something else you haven't.</p>
 </li>
 <li>
-<p>You might've run <code>./scripts/preload_models.py</code> or <code>./scripts/invoke.py</code>
-   instead of <code>python ./scripts/preload_models.py</code> or
+<p>You might've run <code>./scripts/configure_invokeai.py</code> or <code>./scripts/invoke.py</code>
+   instead of <code>python ./scripts/configure_invokeai.py</code> or
    <code>python ./scripts/invoke.py</code>. The cause of this error is long so it's below.</p>
 <!-- I could not find out where the error is, otherwise would have marked it as a footnote -->
 </li>
@@ -1444,7 +1444,7 @@ quick feedback.</p>
 </code></pre></div>
 <hr />
 <h3 id="oserror-cant-load-tokenizer-for-openaiclip-vit-large-patch14">OSError: Can't load tokenizer for 'openai/clip-vit-large-patch14'<a class="headerlink" href="#oserror-cant-load-tokenizer-for-openaiclip-vit-large-patch14" title="Permanent link">#</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a>python scripts/preload_models.py
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a>python scripts/configure_invokeai.py
 </code></pre></div>
 <hr />
 <h3 id="the-operator-name-is-not-current-implemented-for-the-mps-device-sic">"The operator [name] is not current implemented for the MPS device." (sic)<a class="headerlink" href="#the-operator-name-is-not-current-implemented-for-the-mps-device-sic" title="Permanent link">#</a></h3>
@@ -1566,7 +1566,7 @@ use ARM packages, and use <code>nomkl</code> as described above.</p>
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">November 12, 2022</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">December 1, 2022</span>
       
         <br>
         Created:
