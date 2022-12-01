@@ -10,14 +10,14 @@
         <meta name="author" content="mauwii">
       
       
-        <link rel="canonical" href="https://invoke-ai.github.io/InvokeAI/installation/INSTALL_INVOKE/">
+        <link rel="canonical" href="https://invoke-ai.github.io/InvokeAI/features/NSFW/">
       
       <link rel="icon" href="../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-8.5.10">
     
     
       
-        <title>InvokeAI Installer - Stable Diffusion Toolkit Docs</title>
+        <title>The NSFW Checker - Stable Diffusion Toolkit Docs</title>
       
     
     
@@ -70,7 +70,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#steps-to-install" class="md-skip">
+        <a href="#nsfw-checker" class="md-skip">
           Skip to content
         </a>
       
@@ -103,7 +103,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              InvokeAI Installer
+              The NSFW Checker
             
           </span>
         </div>
@@ -225,13 +225,15 @@
         
   
   
+    
+  
 
 
   
   
   
     <li class="md-tabs__item">
-      <a href="../../features/CLI/" class="md-tabs__link">
+      <a href="../CLI/" class="md-tabs__link md-tabs__link--active">
         Features
       </a>
     </li>
@@ -257,15 +259,13 @@
         
   
   
-    
-  
 
 
   
   
   
     <li class="md-tabs__item">
-      <a href="../" class="md-tabs__link md-tabs__link--active">
+      <a href="../../installation/" class="md-tabs__link">
         Installation
       </a>
     </li>
@@ -370,12 +370,14 @@
 
   
   
+    
+  
   
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" checked>
       
       
       
@@ -398,7 +400,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../features/CLI/" class="md-nav__link">
+      <a href="../CLI/" class="md-nav__link">
         CLI
       </a>
     </li>
@@ -412,7 +414,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../features/CONCEPTS/" class="md-nav__link">
+      <a href="../CONCEPTS/" class="md-nav__link">
         The Hugging Face Concepts Library and Importing Textual Inversion files
       </a>
     </li>
@@ -426,7 +428,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../features/EMBIGGEN/" class="md-nav__link">
+      <a href="../EMBIGGEN/" class="md-nav__link">
         Embiggen
       </a>
     </li>
@@ -440,7 +442,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../features/IMG2IMG/" class="md-nav__link">
+      <a href="../IMG2IMG/" class="md-nav__link">
         Image-to-Image
       </a>
     </li>
@@ -454,7 +456,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../features/INPAINTING/" class="md-nav__link">
+      <a href="../INPAINTING/" class="md-nav__link">
         Inpainting
       </a>
     </li>
@@ -466,11 +468,93 @@
               
   
   
+    
   
-    <li class="md-nav__item">
-      <a href="../../features/NSFW/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          The NSFW Checker
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         The NSFW Checker
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-nsfw-safety-checker" class="md-nav__link">
+    The NSFW ("Safety") Checker
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#caveats" class="md-nav__link">
+    Caveats
+  </a>
+  
+    <nav class="md-nav" aria-label="Caveats">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#accuracy" class="md-nav__link">
+    Accuracy
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#memory-usage-and-performance" class="md-nav__link">
+    Memory Usage and Performance
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#intermediate-images-in-the-web-ui" class="md-nav__link">
+    Intermediate Images in the Web UI
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#watermarking" class="md-nav__link">
+    Watermarking
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -482,7 +566,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../features/OTHER/" class="md-nav__link">
+      <a href="../OTHER/" class="md-nav__link">
         Others
       </a>
     </li>
@@ -496,7 +580,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../features/OUTPAINTING/" class="md-nav__link">
+      <a href="../OUTPAINTING/" class="md-nav__link">
         Outpainting
       </a>
     </li>
@@ -510,7 +594,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../features/POSTPROCESS/" class="md-nav__link">
+      <a href="../POSTPROCESS/" class="md-nav__link">
         Postprocessing
       </a>
     </li>
@@ -524,7 +608,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../features/PROMPTS/" class="md-nav__link">
+      <a href="../PROMPTS/" class="md-nav__link">
         Prompting-Features
       </a>
     </li>
@@ -538,7 +622,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../features/TEXTUAL_INVERSION/" class="md-nav__link">
+      <a href="../TEXTUAL_INVERSION/" class="md-nav__link">
         Textual-Inversion
       </a>
     </li>
@@ -552,7 +636,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../features/UNIFIED_CANVAS/" class="md-nav__link">
+      <a href="../UNIFIED_CANVAS/" class="md-nav__link">
         UNIFIED CANVAS
       </a>
     </li>
@@ -566,7 +650,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../features/VARIATIONS/" class="md-nav__link">
+      <a href="../VARIATIONS/" class="md-nav__link">
         Variations
       </a>
     </li>
@@ -580,7 +664,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../features/WEB/" class="md-nav__link">
+      <a href="../WEB/" class="md-nav__link">
         InvokeAI Web Server
       </a>
     </li>
@@ -594,7 +678,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../features/WEBUIHOTKEYS/" class="md-nav__link">
+      <a href="../WEBUIHOTKEYS/" class="md-nav__link">
         WebUI Hotkey List
       </a>
     </li>
@@ -676,14 +760,12 @@
 
   
   
-    
-  
   
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5" type="checkbox" id="__nav_5" checked>
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5" type="checkbox" id="__nav_5" >
       
       
       
@@ -706,7 +788,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../" class="md-nav__link">
+      <a href="../../installation/" class="md-nav__link">
         Overview
       </a>
     </li>
@@ -720,7 +802,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../INSTALLING_MODELS/" class="md-nav__link">
+      <a href="../../installation/INSTALLING_MODELS/" class="md-nav__link">
         Installing Models
       </a>
     </li>
@@ -734,7 +816,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../INSTALL_DOCKER/" class="md-nav__link">
+      <a href="../../installation/INSTALL_DOCKER/" class="md-nav__link">
         Docker
       </a>
     </li>
@@ -746,55 +828,11 @@
               
   
   
-    
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
-      
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          InvokeAI Installer
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../installation/INSTALL_INVOKE/" class="md-nav__link">
         InvokeAI Installer
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#steps-to-install" class="md-nav__link">
-    Steps to Install
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#troubleshooting" class="md-nav__link">
-    Troubleshooting
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -806,7 +844,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../INSTALL_JUPYTER/" class="md-nav__link">
+      <a href="../../installation/INSTALL_JUPYTER/" class="md-nav__link">
         Running InvokeAI on Google Colab using a Jupyter Notebook
       </a>
     </li>
@@ -820,7 +858,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../INSTALL_MANUAL/" class="md-nav__link">
+      <a href="../../installation/INSTALL_MANUAL/" class="md-nav__link">
         Manual Installation
       </a>
     </li>
@@ -834,7 +872,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../INSTALL_PCP/" class="md-nav__link">
+      <a href="../../installation/INSTALL_PCP/" class="md-nav__link">
         Installing InvokeAI with the Pre-Compiled PIP Installer
       </a>
     </li>
@@ -848,7 +886,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../INSTALL_SOURCE/" class="md-nav__link">
+      <a href="../../installation/INSTALL_SOURCE/" class="md-nav__link">
         Source Installer
       </a>
     </li>
@@ -888,7 +926,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../older_docs_to_be_removed/INSTALL_LINUX/" class="md-nav__link">
+      <a href="../../installation/older_docs_to_be_removed/INSTALL_LINUX/" class="md-nav__link">
         Manual Installation, Linux
       </a>
     </li>
@@ -902,7 +940,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../older_docs_to_be_removed/INSTALL_MAC/" class="md-nav__link">
+      <a href="../../installation/older_docs_to_be_removed/INSTALL_MAC/" class="md-nav__link">
         Manual Installation, macOS
       </a>
     </li>
@@ -916,7 +954,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../older_docs_to_be_removed/INSTALL_WINDOWS/" class="md-nav__link">
+      <a href="../../installation/older_docs_to_be_removed/INSTALL_WINDOWS/" class="md-nav__link">
         Manual Installation, Windows
       </a>
     </li>
@@ -1013,89 +1051,91 @@
                 
                   
 
-  <a href="https://github.com/invoke-ai/InvokeAI/edit/main/docs/installation/INSTALL_INVOKE.md" title="Edit this page" class="md-content__button md-icon">
+  <a href="https://github.com/invoke-ai/InvokeAI/edit/main/docs/features/NSFW.md" title="Edit this page" class="md-content__button md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8 12h8v2H8v-2m2 8H6V4h7v5h5v3.1l2-2V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4v-2m-2-2h4.1l.9-.9V16H8v2m12.2-5c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1 2.1 2.1Z"/></svg>
   </a>
 
 
-  <h1>InvokeAI Installer</h1>
-
-<p>The InvokeAI installer is a shell script that will install InvokeAI onto a stock
-computer running recent versions of Linux, MacOSX or Windows. It will leave you
-with a version that runs a stable version of InvokeAI. When a new version of
-InvokeAI is released, you will download and reinstall the new version.</p>
-<p>If you wish to tinker with unreleased versions of InvokeAI that introduce
-potentially unstable new features, you should consider using the
-<a href="../INSTALL_SOURCE/">source installer</a> or one of the
-<a href="../INSTALL_MANUAL/">manual install</a> methods.</p>
-<p><strong>Important Caveats</strong>
-  - This script does not support AMD GPUs. For Linux AMD support,
-    please use the manual or source code installer methods.</p>
-<ul>
-<li>This script has difficulty on some Macintosh machines
-    that have previously been used for Python development due to
-    conflicting development tools versions. Mac developers may wish
-    to try the source code installer or one of the manual methods instead.</li>
-</ul>
-<div class="admonition todo">
-<p class="admonition-title">Todo</p>
-<p>Before you begin, make sure that you meet
-the<a href="/#hardware-requirements">hardware requirements</a> and has the
-appropriate GPU drivers installed. In particular, if you are a Linux user with
-an AMD GPU installed, you may need to install the
-<a href="https://rocmdocs.amd.com/en/latest/Installation_Guide/Installation-Guide.html">ROCm-driver</a>.</p>
-</div>
-<p>Installation requires roughly 18G of free disk space to load the libraries and
-recommended model weights files.</p>
-<h2 id="steps-to-install">Steps to Install<a class="headerlink" href="#steps-to-install" title="Permanent link">#</a></h2>
-<ol>
-<li>
-<p>Download the
-   <a href="https://github.com/invoke-ai/InvokeAI/releases/latest">latest release</a> of
-   InvokeAI's installer for your platform</p>
-</li>
-<li>
-<p>Place the downloaded package someplace where you have plenty of HDD space,
-   and have full permissions (i.e. <code>~/</code> on Lin/Mac; your home folder on Windows)</p>
-</li>
-<li>
-<p>Extract the 'InvokeAI' folder from the downloaded package</p>
-</li>
-<li>
-<p>Open the extracted 'InvokeAI' folder</p>
-</li>
-<li>
-<p>Double-click 'install.bat' (Windows), or 'install.sh' (Lin/Mac) (or run from
-   a terminal)</p>
-</li>
-<li>
-<p>Follow the prompts</p>
-</li>
-<li>
-<p>After installation, please run the 'invoke.bat' file (on Windows) or
-   'invoke.sh' file (on Linux/Mac) to start InvokeAI.</p>
-</li>
-</ol>
-<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">#</a></h2>
-<p>If you run into problems during or after installation, the InvokeAI team is
-available to help you. Either create an
-<a href="https://github.com/invoke-ai/InvokeAI/issues">Issue</a> at our GitHub site, or
-make a request for help on the "bugs-and-support" channel of our
-<a href="https://discord.gg/ZmtBAhwWhy">Discord server</a>. We are a 100% volunteer
-organization, but typically somebody will be available to help you within 24
-hours, and often much sooner.</p>
+<h1 id="nsfw-checker"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 17.2 6.8 3H19c1.1 0 2 .9 2 2v12.2m-.3 4.8-1-1H5c-1.1 0-2-.9-2-2V4.3l-1-1L3.3 2 22 20.7 20.7 22m-3.9-4-3.9-3.9-1.9 2.4-2.5-3L5 18h11.8Z"/></svg></span> NSFW Checker<a class="headerlink" href="#nsfw-checker" title="Permanent link">#</a></h1>
+<h2 id="the-nsfw-safety-checker">The NSFW ("Safety") Checker<a class="headerlink" href="#the-nsfw-safety-checker" title="Permanent link">#</a></h2>
+<p>The Stable Diffusion image generation models will produce sexual
+imagery if deliberately prompted, and will occasionally produce such
+images when this is not intended. Such images are colloquially known
+as "Not Safe for Work" (NSFW). This behavior is due to the nature of
+the training set that Stable Diffusion was trained on, which culled
+millions of "aesthetic" images from the Internet.</p>
+<p>You may not wish to be exposed to these images, and in some
+jurisdictions it may be illegal to publicly distribute such imagery,
+including mounting a publicly-available server that provides
+unfiltered images to the public. Furthermore, the <a href="https://github.com/invoke-ai/InvokeAI/blob/main/LICENSE-ModelWeights.txt">Stable Diffusion
+weights
+License</a>
+forbids the model from being used to "exploit any of the
+vulnerabilities of a specific group of persons."</p>
+<p>For these reasons Stable Diffusion offers a "safety checker," a
+machine learning model trained to recognize potentially disturbing
+imagery. When a potentially NSFW image is detected, the checker will
+blur the image and paste a warning icon on top. The checker can be
+turned on and off on the command line using <code>--nsfw_checker</code> and
+<code>--no-nsfw_checker</code>.</p>
+<p>At installation time, InvokeAI will ask whether the checker should be
+activated by default (neither argument given on the command line). The
+response is stored in the InvokeAI initialization file (usually
+<code>.invokeai</code> in your home directory). You can change the default at any
+time by opening this file in a text editor and commenting or
+uncommenting the line <code>--nsfw_checker</code>.</p>
+<h2 id="caveats">Caveats<a class="headerlink" href="#caveats" title="Permanent link">#</a></h2>
+<p>There are a number of caveats that you need to be aware of.</p>
+<h3 id="accuracy">Accuracy<a class="headerlink" href="#accuracy" title="Permanent link">#</a></h3>
+<p>The checker is <a href="https://arxiv.org/abs/2210.04610">not perfect</a>.It will
+occasionally flag innocuous images (false positives), and will
+frequently miss violent and gory imagery (false negatives). It rarely
+fails to flag sexual imagery, but this has been known to happen. For
+these reasons, the InvokeAI team prefers to refer to the software as a
+"NSFW Checker" rather than "safety checker."</p>
+<h3 id="memory-usage-and-performance">Memory Usage and Performance<a class="headerlink" href="#memory-usage-and-performance" title="Permanent link">#</a></h3>
+<p>The NSFW checker consumes an additional 1.2G of GPU VRAM on top of the
+3.4G of VRAM used by Stable Diffusion v1.5 (this is with
+half-precision arithmetic). This means that the checker will not run
+successfully on GPU cards with less than 6GB VRAM, and will reduce the
+size of the images that you can produce.</p>
+<p>The checker also introduces a slight performance penalty. Images will
+take ~1 second longer to generate when the checker is
+activated. Generally this is not noticeable.</p>
+<h3 id="intermediate-images-in-the-web-ui">Intermediate Images in the Web UI<a class="headerlink" href="#intermediate-images-in-the-web-ui" title="Permanent link">#</a></h3>
+<p>The checker only operates on the final image produced by the Stable
+Diffusion algorithm. If you are using the Web UI and have enabled the
+display of intermediate images, you will briefly be exposed to a
+low-resolution (mosaicized) version of the final image before it is
+flagged by the checker and replaced by a fully blurred version. You
+are encouraged to turn <strong>off</strong> intermediate image rendering when you
+are using the checker. Future versions of InvokeAI will apply
+additional blurring to intermediate images when the checker is active.</p>
+<h3 id="watermarking">Watermarking<a class="headerlink" href="#watermarking" title="Permanent link">#</a></h3>
+<p>InvokeAI does not apply any sort of watermark to images it
+generates. However, it does write metadata into the PNG data area,
+including the prompt used to generate the image and relevant parameter
+settings. These fields can be examined using the <code>sd-metadata.py</code>
+script that comes with the InvokeAI package.</p>
+<p>Note that several other Stable Diffusion distributions offer
+wavelet-based "invisible" watermarking. We have experimented with the
+library used to generate these watermarks and have reached the
+conclusion that while the watermarking library may be adding
+watermarks to PNG images, the currently available version is unable to
+retrieve them successfully. If and when a functioning version of the
+library becomes available, we will offer this feature as well.</p>
 
   <hr>
 <div class="md-source-file">
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">November 12, 2022</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">November 30, 2022</span>
       
         <br>
         Created:
-        <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">November 12, 2022</span>
+        <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">November 30, 2022</span>
       
     
   </small>
@@ -1125,7 +1165,7 @@ hours, and often much sooner.</p>
     <nav class="md-footer__inner md-grid" aria-label="Footer" >
       
         
-        <a href="../INSTALL_DOCKER/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Docker" rel="prev">
+        <a href="../INPAINTING/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Inpainting" rel="prev">
           <div class="md-footer__button md-icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
           </div>
@@ -1134,20 +1174,20 @@ hours, and often much sooner.</p>
               <span class="md-footer__direction">
                 Previous
               </span>
-              Docker
+              Inpainting
             </div>
           </div>
         </a>
       
       
         
-        <a href="../INSTALL_JUPYTER/" class="md-footer__link md-footer__link--next" aria-label="Next: Running InvokeAI on Google Colab using a Jupyter Notebook" rel="next">
+        <a href="../OTHER/" class="md-footer__link md-footer__link--next" aria-label="Next: Others" rel="next">
           <div class="md-footer__title">
             <div class="md-ellipsis">
               <span class="md-footer__direction">
                 Next
               </span>
-              Running InvokeAI on Google Colab using a Jupyter Notebook
+              Others
             </div>
           </div>
           <div class="md-footer__button md-icon">
