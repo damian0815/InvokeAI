@@ -233,13 +233,20 @@ def inject_attention_function(unet, context: Context):
                 remapped_saved_attention_slice = torch.index_select(saved_attention_slice, -1, index_map)
                 this_attention_slice = suggested_attention_slice
 
+                # the "tokens" part of cross-attention control works by locking down the OTHER (non-`.swap()`ed) tokens.
+                # `context.cross_attention_mask` therefore contains a 1 for these OTHER tokens.
                 mask = context.cross_attention_mask
+                # consider `a cat.swap(dog) eating a fish`. the attention maps for `a` and `eating a fish` are locked
+                # down, so the mask will be 1.0 at indices 1, 3, 4, and 5 (index 0 = beginning-of-sequence token).
                 saved_mask = mask
+                # but SD should be allowed to do what it needs in the space between these, so it can properly draw a `dog`
+                # where the `cat` was. so there should be a 0.0 in the mask at index 1.
                 this_mask = 1 - mask
                 attention_slice = remapped_saved_attention_slice * saved_mask + \
                                   this_attention_slice * this_mask
             else:
-                # just use everything
+                # the "spatial" or "self" part of cross-attention control cannot differentiate by tokens, and so
+                # it just locks down everything.
                 attention_slice = saved_attention_slice
 
         return attention_slice
