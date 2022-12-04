@@ -233,7 +233,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="./" class="md-tabs__link md-tabs__link--active">
+      <a href="../" class="md-tabs__link md-tabs__link--active">
         Features
       </a>
     </li>
@@ -398,6 +398,20 @@
               
   
   
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        Overview
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
     
   
   
@@ -483,13 +497,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#this-is-an-example-of-img2img" class="md-nav__link">
-    This is an example of img2img:
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#inpainting" class="md-nav__link">
     inpainting
   </a>
@@ -505,6 +512,142 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#other-commands" class="md-nav__link">
+    Other Commands
+  </a>
+  
+    <nav class="md-nav" aria-label="Other Commands">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#postprocessing-images" class="md-nav__link">
+    Postprocessing images
+  </a>
+  
+    <nav class="md-nav" aria-label="Postprocessing images">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fix" class="md-nav__link">
+    !fix
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mask" class="md-nav__link">
+    !mask
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#model-selection-and-importation" class="md-nav__link">
+    Model selection and importation
+  </a>
+  
+    <nav class="md-nav" aria-label="Model selection and importation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#models" class="md-nav__link">
+    !models
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#switch-model" class="md-nav__link">
+    !switch &lt;model&gt;
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#import_model-pathtomodelweights" class="md-nav__link">
+    !import_model &lt;path/to/model/weights&gt;
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#edit_model-name_of_model" class="md-nav__link">
+    !edit_model &lt;name_of_model&gt;
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#history-processing" class="md-nav__link">
+    History processing
+  </a>
+  
+    <nav class="md-nav" aria-label="History processing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#history" class="md-nav__link">
+    !history
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fetch" class="md-nav__link">
+    !fetch
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#replay" class="md-nav__link">
+    !replay
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#search-search-string" class="md-nav__link">
+    !search &lt;search string&gt;
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#clear" class="md-nav__link">
+    !clear
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#command-line-editing-and-completion" class="md-nav__link">
+    Command-line editing and completion
+  </a>
   
 </li>
       
@@ -524,7 +667,7 @@
   
     <li class="md-nav__item">
       <a href="../CONCEPTS/" class="md-nav__link">
-        The Hugging Face Concepts Library and Importing Textual Inversion files
+        Concepts Library
       </a>
     </li>
   
@@ -830,7 +973,7 @@
   
     <li class="md-nav__item">
       <a href="../../installation/BUILDING_BINARY_INSTALLERS/" class="md-nav__link">
-        How to build "binary" installers (InvokeAI-mac/windows/linux_on_*.zip)
+        build binary installers
       </a>
     </li>
   
@@ -1371,17 +1514,48 @@ file should contain the startup options as you would type them on the
 command line (<code>--steps=10 --grid</code>), one argument per line, or a
 mixture of both using any of the accepted command switch formats:</p>
 <div class="admonition example">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>--web
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>--steps<span class="o">=</span><span class="m">28</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>--grid
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>-f <span class="m">0</span>.6 -C <span class="m">11</span>.0 -A k_euler_a
-</code></pre></div>
+<p class="admonition-title">my unmodified initialization file</p>
+<div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">~/.invokeai</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-1-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-1-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-1-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-1-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-1-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-1-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-1-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-1-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-1-10">10</a></span>
+<span class="normal"><a href="#__codelineno-1-11">11</a></span>
+<span class="normal"><a href="#__codelineno-1-12">12</a></span>
+<span class="normal"><a href="#__codelineno-1-13">13</a></span>
+<span class="normal"><a href="#__codelineno-1-14">14</a></span>
+<span class="normal"><a href="#__codelineno-1-15">15</a></span>
+<span class="normal"><a href="#__codelineno-1-16">16</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="c1"># InvokeAI initialization file</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2"></a><span class="c1"># This is the InvokeAI initialization file, which contains command-line default values.</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="c1"># Feel free to edit. If anything goes wrong, you can re-initialize this file by deleting</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4"></a><span class="c1"># or renaming it and then running configure_invokeai.py again.</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5"></a>
+<a id="__codelineno-1-6" name="__codelineno-1-6"></a><span class="c1"># The --root option below points to the folder in which InvokeAI stores its models, configs and outputs.</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7"></a>--root<span class="o">=</span><span class="s2">&quot;/Users/mauwii/invokeai&quot;</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8"></a>
+<a id="__codelineno-1-9" name="__codelineno-1-9"></a><span class="c1"># the --outdir option controls the default location of image files.</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10"></a>--outdir<span class="o">=</span><span class="s2">&quot;/Users/mauwii/invokeai/outputs&quot;</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11"></a>
+<a id="__codelineno-1-12" name="__codelineno-1-12"></a><span class="c1"># You may place other  frequently-used startup commands here, one or more per line.</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13"></a><span class="c1"># Examples:</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14"></a><span class="c1"># --web --host=0.0.0.0</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15"></a><span class="c1"># --steps=20</span>
+<a id="__codelineno-1-16" name="__codelineno-1-16"></a><span class="c1"># -Ak_euler_a -C10.0</span>
+</code></pre></div></td></tr></table></div>
 </div>
-<p>Note that the initialization file only accepts the command line arguments.
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The  initialization file only accepts the command line arguments.
 There are additional arguments that you can provide on the <code>invoke&gt;</code> command
 line (such as <code>-n</code> or <code>--iterations</code>) that cannot be entered into this file.
 Also be alert for empty blank lines at the end of the file, which will cause
 an arguments error at startup time.</p>
+</div>
 <h2 id="list-of-prompt-arguments">List of prompt arguments<a class="headerlink" href="#list-of-prompt-arguments" title="Permanent link">#</a></h2>
 <p>After the invoke.py script initializes, it will present you with a <code>invoke&gt;</code>
 prompt. Here you can enter information to generate images from text
@@ -1564,12 +1738,17 @@ and 480 (height).</p>
 </tr>
 </tbody>
 </table>
-<p>Note that the width and height of the image must be multiples of 64. You can
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>the width and height of the image must be multiples of 64. You can
 provide different values, but they will be rounded down to the nearest multiple
 of 64.</p>
-<h3 id="this-is-an-example-of-img2img">This is an example of img2img:<a class="headerlink" href="#this-is-an-example-of-img2img" title="Permanent link">#</a></h3>
+</div>
+<div class="admonition example">
+<p class="admonition-title">This is a example of img2img</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>invoke&gt; waterfall and rainbow -I./vacation-photo.png -W640 -H480 --fit
 </code></pre></div>
+</div>
 <p>This will modify the indicated vacation photograph by making it more like the
 prompt. Results will vary greatly depending on what is in the image. We also ask
 to --fit the image into a box no bigger than 640x480. Otherwise the image size
@@ -1666,18 +1845,18 @@ it identifies. Generally regions that score above 0.5 are reliable, but if you
 are getting too much or too little masking you can adjust the threshold down (to
 get more mask), or up (to get less). In this example, by passing <code>-tm</code> a higher
 value, we are insisting on a more stringent classification.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>invoke&gt; a piece of cake -I /path/to/breakfast.png -tm bagel 0.6
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>invoke&gt; a piece of cake -I /path/to/breakfast.png -tm bagel <span class="m">0</span>.6
 </code></pre></div>
 <h3 id="custom-styles-and-subjects">Custom Styles and Subjects<a class="headerlink" href="#custom-styles-and-subjects" title="Permanent link">#</a></h3>
 <p>You can load and use hundreds of community-contributed Textual
 Inversion models just by typing the appropriate trigger phrase. Please
 see <a href="../CONCEPTS/">Concepts Library</a> for more details.</p>
-<h1 id="other-commands">Other Commands<a class="headerlink" href="#other-commands" title="Permanent link">#</a></h1>
+<h2 id="other-commands">Other Commands<a class="headerlink" href="#other-commands" title="Permanent link">#</a></h2>
 <p>The CLI offers a number of commands that begin with "!".</p>
-<h2 id="postprocessing-images">Postprocessing images<a class="headerlink" href="#postprocessing-images" title="Permanent link">#</a></h2>
+<h3 id="postprocessing-images">Postprocessing images<a class="headerlink" href="#postprocessing-images" title="Permanent link">#</a></h3>
 <p>To postprocess a file using face restoration or upscaling, use the <code>!fix</code>
 command.</p>
-<h3 id="fix"><code>!fix</code><a class="headerlink" href="#fix" title="Permanent link">#</a></h3>
+<h4 id="fix"><code>!fix</code><a class="headerlink" href="#fix" title="Permanent link">#</a></h4>
 <p>This command runs a post-processor on a previously-generated image. It takes a
 PNG filename or path and applies your choice of the <code>-U</code>, <code>-G</code>, or <code>--embiggen</code>
 switches in order to fix faces or upscale. If you provide a filename, the script
@@ -1699,15 +1878,15 @@ full or partial path to the desired file.</p>
 <a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="o">[</span><span class="m">1</span><span class="o">]</span> outputs/img-samples/000017.4829112.gfpgan-00.png: !fix <span class="s2">&quot;outputs/img-samples/0000045.4829112.png&quot;</span> -s <span class="m">50</span> -S  -W <span class="m">512</span> -H <span class="m">512</span> -C <span class="m">7</span>.5 -A k_lms -G <span class="m">0</span>.8
 </code></pre></div>
 </div>
-<h3 id="mask">!mask<a class="headerlink" href="#mask" title="Permanent link">#</a></h3>
+<h4 id="mask"><code>!mask</code><a class="headerlink" href="#mask" title="Permanent link">#</a></h4>
 <p>This command takes an image, a text prompt, and uses the <code>clipseg</code> algorithm to
 automatically generate a mask of the area that matches the text prompt. It is
 useful for debugging the text masking process prior to inpainting with the
 <code>--text_mask</code> argument. See [INPAINTING.md] for details.</p>
-<h2 id="model-selection-and-importation">Model selection and importation<a class="headerlink" href="#model-selection-and-importation" title="Permanent link">#</a></h2>
+<h3 id="model-selection-and-importation">Model selection and importation<a class="headerlink" href="#model-selection-and-importation" title="Permanent link">#</a></h3>
 <p>The CLI allows you to add new models on the fly, as well as to switch among them
 rapidly without leaving the script.</p>
-<h3 id="models">!models<a class="headerlink" href="#models" title="Permanent link">#</a></h3>
+<h4 id="models"><code>!models</code><a class="headerlink" href="#models" title="Permanent link">#</a></h4>
 <p>This prints out a list of the models defined in `config/models.yaml'. The active
 model is bold-faced</p>
 <p>Example:</p>
@@ -1717,7 +1896,7 @@ laion400m                 not loaded  <no description>
 waifu-diffusion           not loaded  Waifu Diffusion v1.3
 </pre>
 
-<h3 id="switch">!switch <model><a class="headerlink" href="#switch" title="Permanent link">#</a></h3>
+<h4 id="switch-model"><code>!switch &lt;model&gt;</code><a class="headerlink" href="#switch-model" title="Permanent link">#</a></h4>
 <p>This quickly switches from one model to another without leaving the CLI script.
 <code>invoke.py</code> uses a memory caching system; once a model has been loaded,
 switching back and forth is quick. The following example shows this in action.
@@ -1740,7 +1919,7 @@ invoke> !switch waifu-diffusion
    | Making attention of type 'vanilla' with 512 in_channels
    | Using faster float16 precision
 >> Model loaded in 18.24s
->> Max VRAM used to load the model: 2.17G 
+>> Max VRAM used to load the model: 2.17G
 >> Current VRAM usage:2.17G
 >> Setting Sampler to k_lms
 
@@ -1760,7 +1939,7 @@ laion400m                 not loaded  <no description>
 waifu-diffusion               cached  Waifu Diffusion v1.3
 </pre>
 
-<h3 id="import_model">!import_model <path/to/model/weights><a class="headerlink" href="#import_model" title="Permanent link">#</a></h3>
+<h4 id="import_model-pathtomodelweights"><code>!import_model &lt;path/to/model/weights&gt;</code><a class="headerlink" href="#import_model-pathtomodelweights" title="Permanent link">#</a></h4>
 <p>This command imports a new model weights file into InvokeAI, makes it available
 for image generation within the script, and writes out the configuration for the
 model into <code>config/models.yaml</code> for use in subsequent sessions.</p>
@@ -1802,10 +1981,10 @@ OK to import [n]? <b>y</b>
    | Working with z of shape (1, 4, 32, 32) = 4096 dimensions.
    | Making attention of type 'vanilla' with 512 in_channels
    | Using faster float16 precision
-invoke> 
+invoke>
 </pre>
 
-<h3 id="edit_model">!edit_model <name_of_model><a class="headerlink" href="#edit_model" title="Permanent link">#</a></h3>
+<h4 id="edit_model-name_of_model"><code>!edit_model &lt;name_of_model&gt;</code><a class="headerlink" href="#edit_model-name_of_model" title="Permanent link">#</a></h4>
 <p>The <code>!edit_model</code> command can be used to modify a model that is already defined
 in <code>config/models.yaml</code>. Call it with the short name of the model you wish to
 modify, and it will allow you to modify the model's <code>description</code>, <code>weights</code> and
@@ -1838,10 +2017,10 @@ OK to import [n]? y
 text... Outputs: [2] outputs/img-samples/000018.2273800735.embiggen-00.png: !fix
 "outputs/img-samples/000017.243781548.gfpgan-00.png" -s 50 -S 2273800735 -W 512
 -H 512 -C 7.5 -A k_lms --embiggen 3.0 0.75 0.25 ```</p>
-<h2 id="history-processing">History processing<a class="headerlink" href="#history-processing" title="Permanent link">#</a></h2>
+<h3 id="history-processing">History processing<a class="headerlink" href="#history-processing" title="Permanent link">#</a></h3>
 <p>The CLI provides a series of convenient commands for reviewing previous actions,
 retrieving them, modifying them, and re-running them.</p>
-<h3 id="history">!history<a class="headerlink" href="#history" title="Permanent link">#</a></h3>
+<h4 id="history"><code>!history</code><a class="headerlink" href="#history" title="Permanent link">#</a></h4>
 <p>The invoke script keeps track of all the commands you issue during a session,
 allowing you to re-run them. On Mac and Linux systems, it also writes the
 command-line history out to disk, giving you access to the most recent 1000
@@ -1850,6 +2029,7 @@ commands issued.</p>
 during the session (Windows), or the most recent 1000 commands (Mac|Linux). You
 can then repeat a command by using the command <code>!NNN</code>, where "NNN" is the
 history line number. For example:</p>
+<div class="admonition example">
 <div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>invoke&gt; !history
 <a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>...
 <a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="o">[</span><span class="m">14</span><span class="o">]</span> happy woman sitting under tree wearing broad hat and flowing garment
@@ -1861,7 +2041,8 @@ history line number. For example:</p>
 <a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>invoke&gt; !20
 <a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>invoke&gt; watercolor of beautiful woman sitting under tree wearing broad hat and flowing garment -v0.2 -n6 -S2878767194
 </code></pre></div>
-<h3 id="fetch">!fetch<a class="headerlink" href="#fetch" title="Permanent link">#</a></h3>
+</div>
+<h4 id="fetch"><code>!fetch</code><a class="headerlink" href="#fetch" title="Permanent link">#</a></h4>
 <p>This command retrieves the generation parameters from a previously generated
 image and either loads them into the command line (Linux|Mac), or prints them
 out in a comment for copy-and-paste (Windows). You may provide either the name
@@ -1869,28 +2050,37 @@ of a file in the current output directory, or a full file path. Specify path to
 a folder with image png files, and wildcard *.png to retrieve the dream command
 used to generate the images, and save them to a file commands.txt for further
 processing.</p>
-<p>This example loads the generation command for a single png file:</p>
+<div class="admonition example">
+<p class="admonition-title">load the generation command for a single png file</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>invoke&gt; !fetch <span class="m">0000015</span>.8929913.png
 <a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="c1"># the script returns the next line, ready for editing and running:</span>
 <a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>invoke&gt; a fantastic alien landscape -W <span class="m">576</span> -H <span class="m">512</span> -s <span class="m">60</span> -A plms -C <span class="m">7</span>.5
 </code></pre></div>
-<p>This one fetches the generation commands from a batch of files and stores them
-into <code>selected.txt</code>:</p>
+</div>
+<div class="admonition example">
+<p class="admonition-title">fetch the generation commands from a batch of files and store them into <code>selected.txt</code></p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>invoke&gt; !fetch outputs<span class="se">\s</span>elected-imgs<span class="se">\*</span>.png selected.txt
 </code></pre></div>
-<h3 id="replay">!replay<a class="headerlink" href="#replay" title="Permanent link">#</a></h3>
+</div>
+<h4 id="replay"><code>!replay</code><a class="headerlink" href="#replay" title="Permanent link">#</a></h4>
 <p>This command replays a text file generated by !fetch or created manually</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>invoke&gt; !replay outputs\selected-imgs\selected.txt
+<div class="admonition example">
+<p class="admonition-title">Example</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>invoke&gt; !replay outputs<span class="se">\s</span>elected-imgs<span class="se">\s</span>elected.txt
 </code></pre></div>
-<p>Note that these commands may behave unexpectedly if given a PNG file that was
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>These commands may behave unexpectedly if given a PNG file that was
 not generated by InvokeAI.</p>
-<h3 id="search">!search <search string><a class="headerlink" href="#search" title="Permanent link">#</a></h3>
+</div>
+<h4 id="search-search-string"><code>!search &lt;search string&gt;</code><a class="headerlink" href="#search-search-string" title="Permanent link">#</a></h4>
 <p>This is similar to !history but it only returns lines that contain
 <code>search string</code>. For example:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>invoke&gt; !search surreal
 <a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="o">[</span><span class="m">21</span><span class="o">]</span> surrealist painting of beautiful woman sitting under tree wearing broad hat and flowing garment -v0.2 -n6 -S2878767194
 </code></pre></div>
-<h3 id="clear"><code>!clear</code><a class="headerlink" href="#clear" title="Permanent link">#</a></h3>
+<h4 id="clear"><code>!clear</code><a class="headerlink" href="#clear" title="Permanent link">#</a></h4>
 <p>This clears the search history from memory and disk. Be advised that this
 operation is irreversible and does not issue any warnings!</p>
 <h2 id="command-line-editing-and-completion">Command-line editing and completion<a class="headerlink" href="#command-line-editing-and-completion" title="Permanent link">#</a></h2>
@@ -1937,7 +2127,7 @@ to complete pathnames for you. This is most handy for the <code>-I</code> (init 
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">November 30, 2022</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">December 2, 2022</span>
       
         <br>
         Created:
@@ -1971,7 +2161,7 @@ to complete pathnames for you. This is most handy for the <code>-I</code> (init 
     <nav class="md-footer__inner md-grid" aria-label="Footer" >
       
         
-        <a href="../../CHANGELOG/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Changelog" rel="prev">
+        <a href="../" class="md-footer__link md-footer__link--prev" aria-label="Previous: Overview" rel="prev">
           <div class="md-footer__button md-icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
           </div>
@@ -1980,20 +2170,20 @@ to complete pathnames for you. This is most handy for the <code>-I</code> (init 
               <span class="md-footer__direction">
                 Previous
               </span>
-              Changelog
+              Overview
             </div>
           </div>
         </a>
       
       
         
-        <a href="../CONCEPTS/" class="md-footer__link md-footer__link--next" aria-label="Next: The Hugging Face Concepts Library and Importing Textual Inversion files" rel="next">
+        <a href="../CONCEPTS/" class="md-footer__link md-footer__link--next" aria-label="Next: Concepts Library" rel="next">
           <div class="md-footer__title">
             <div class="md-ellipsis">
               <span class="md-footer__direction">
                 Next
               </span>
-              The Hugging Face Concepts Library and Importing Textual Inversion files
+              Concepts Library
             </div>
           </div>
           <div class="md-footer__button md-icon">
