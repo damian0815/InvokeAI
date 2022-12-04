@@ -131,8 +131,8 @@ class InvokeAIDiffuserComponent:
         # unconditioned_next_x causes attention maps to *also* be saved for the unconditioned_next_x.
         # This messes app their application later, due to mismatched shape of dim 0 (seems to be 16 for batched vs. 8)
         # (For the batched invocation the `wrangler` function gets attention tensor with shape[0]=16,
-        # representing batched uncond + cond, but then when it comes to applying the saved attention, the
-        # wrangler gets an attention tensor which only has shape[0]=8, representing just self.edited_conditionings.)
+        # representing batched uncond + args.original_conditioning, but then when it comes to applying the saved attention,
+        # the wrangler gets an attention tensor which only has shape[0]=8, representing just conditioning.)
         # todo: give CrossAttentionControl's `wrangler` function more info so it can work with a batched call as well.
         context:Context = self.cross_attention_control_context
 
@@ -143,15 +143,15 @@ class InvokeAIDiffuserComponent:
             #print("saving attention maps for", cross_attention_control_types_to_do)
             for ca_type in cross_attention_control_types_to_do:
                 context.request_save_attention_maps(ca_type)
-            _ = self.model_forward_callback(x, sigma, conditioning)
+            original_conditioning = self.conditioning.cross_attention_control_args.original_conditioning
+            _ = self.model_forward_callback(x, sigma, original_conditioning)
             context.clear_requests(cleanup=False)
 
-            # process x again, using the saved attention maps to control where self.edited_conditioning will be applied
+            # process x again, using the saved attention maps to control where self.original_conditioning will be applied
             #print("applying saved attention maps for", cross_attention_control_types_to_do)
             for ca_type in cross_attention_control_types_to_do:
                 context.request_apply_saved_attention_maps(ca_type)
-            edited_conditioning = self.conditioning.cross_attention_control_args.edited_conditioning
-            conditioned_next_x = self.model_forward_callback(x, sigma, edited_conditioning)
+            conditioned_next_x = self.model_forward_callback(x, sigma, conditioning)
             context.clear_requests(cleanup=True)
 
         except:

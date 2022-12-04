@@ -8,17 +8,17 @@ import torch
 
 
 class Arguments:
-    def __init__(self, edited_conditioning: torch.Tensor, edit_opcodes: list[tuple], edit_options: dict):
+    def __init__(self, original_conditioning: torch.Tensor, edit_opcodes: list[tuple], edit_options: dict):
         """
-        :param edited_conditioning: if doing cross-attention control, the edited conditioning [1 x 77 x 768]
+        :param original_conditioning: if doing cross-attention control, the original, unedited conditioning [1 x 77 x 768]
         :param edit_opcodes: if doing cross-attention control, a list of difflib.SequenceMatcher-like opcodes describing how to map original conditioning tokens to edited conditioning tokens (only the 'equal' opcode is required)
         :param edit_options: if doing cross-attention control, per-edit options. there should be 1 item in edit_options for each item in edit_opcodes.
         """
-        # todo: rewrite this to take embedding fragments rather than a single edited_conditioning vector
-        self.edited_conditioning = edited_conditioning
+        # todo: rewrite this to take embedding fragments rather than a single original_conditioning vector
+        self.original_conditioning = original_conditioning
         self.edit_opcodes = edit_opcodes
 
-        if edited_conditioning is not None:
+        if original_conditioning is not None:
             assert len(edit_opcodes) == len(edit_options), \
                     "there must be 1 edit_options dict for each edit_opcodes tuple"
             non_none_edit_options = [x for x in edit_options if x is not None]
@@ -180,7 +180,7 @@ def setup_cross_attention_control(model, context: Context):
     """
 
     # adapted from init_attention_edit
-    device = context.arguments.edited_conditioning.device
+    device = context.arguments.original_conditioning.device
 
     # urgh. should this be hardcoded?
     max_length = 77

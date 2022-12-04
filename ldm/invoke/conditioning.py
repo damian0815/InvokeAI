@@ -131,11 +131,11 @@ def get_uc_and_c_and_ec(prompt_string_uncleaned, model, log_tokens=False, skip_n
                                                                                                 log_tokens=log_tokens,
                                                                                                 log_display_label="(.swap replacements)")
 
-            conditioning = original_embeddings
-            edited_conditioning = edited_embeddings
+            original_conditioning = original_embeddings
+            conditioning = edited_embeddings
             #print('>> got edit_opcodes', edit_opcodes, 'options', edit_options)
             cac_args = cross_attention_control.Arguments(
-                edited_conditioning = edited_conditioning,
+                original_conditioning = original_conditioning,
                 edit_opcodes = edit_opcodes,
                 edit_options = edit_options
             )
@@ -205,4 +205,4 @@ def flatten_hybrid_conditioning(uncond, cond):
             cond_flattened[k] = torch.cat([uncond[k], cond[k]])
     return uncond, cond_flattened
 
-            
+
