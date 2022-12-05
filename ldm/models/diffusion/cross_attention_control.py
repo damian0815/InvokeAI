@@ -210,7 +210,7 @@ def setup_cross_attention_control(model, context: Context):
     inject_attention_function(model, context)
 
 
-def get_attention_modules(model, which: CrossAttentionType):
+def get_attention_modules(model, which: CrossAttentionType) -> list[tuple[str, 'InvokeAICrossAttentionMixin']]:
     # cross_attention_class: type = ldm.modules.attention.CrossAttention
     cross_attention_class: type = InvokeAIDiffusersCrossAttention
     which_attn = "attn1" if which is CrossAttentionType.SELF else "attn2"
@@ -446,10 +446,8 @@ class InvokeAIDiffusersCrossAttention(diffusers.models.attention.CrossAttention,
         InvokeAICrossAttentionMixin.__init__(self)
 
     def _attention(self, query, key, value):
-        #default_result = super()._attention(query,  key, value)
-        damian_result = self.get_invokeai_attention_mem_efficient(query, key, value)
-
-        hidden_states = self.reshape_batch_dim_to_heads(damian_result)
+        result = self.get_invokeai_attention_mem_efficient(query, key, value)
+        hidden_states = self.reshape_batch_dim_to_heads(result)
         return hidden_states
 
 
