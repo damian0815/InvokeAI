@@ -12,6 +12,7 @@ import torchvision.transforms as T
 from diffusers.models import attention
 
 from ldm.models.diffusion.cross_attention_control import InvokeAIDiffusersCrossAttention
+from ldm.models.diffusion.cross_attention_map_saving import AttentionMapSaver
 
 # monkeypatch diffusers CrossAttention 🙈
 # this is to make prompt2prompt and (future) attention maps work
@@ -262,16 +263,23 @@ class StableDiffusionGeneratorPipeline(StableDiffusionPipeline):
             *,
             run_id: str = None,
             extra_conditioning_info: InvokeAIDiffuserComponent.ExtraConditioningInfo = None,
+            attention_map_saver: Optional[AttentionMapSaver] = None,
             timesteps = None,
             **extra_step_kwargs):
         if run_id is None:
             run_id = secrets.token_urlsafe(self.ID_LENGTH)
+
+        dummy_attention_map_saver = AttentionMapSaver(token_ids=range(1, 10), latents_shape=latents.shape[-2:])
+        attention_map_saver = dummy_attention_map_saver
 
         if extra_conditioning_info is not None and extra_conditioning_info.wants_cross_attention_control:
             self.invokeai_diffuser.setup_cross_attention_control(extra_conditioning_info,
                                                                  step_count=len(self.scheduler.timesteps))
         else:
             self.invokeai_diffuser.remove_cross_attention_control()
+
+        # paranoia in case it was hanging around for some reason
+        self.invokeai_diffuser.remove_attention_map_saving()
 
         if timesteps is None:
             timesteps = self.scheduler.timesteps
@@ -287,6 +295,10 @@ class StableDiffusionGeneratorPipeline(StableDiffusionPipeline):
         # NOTE: Depends on scheduler being already initialized!
         for i, t in enumerate(self.progress_bar(timesteps)):
             batched_t.fill_(t)
+
+            if i == len(timesteps)-1 and attention_map_saver is not None:
+                self.invokeai_diffuser.setup_attention_map_saving(attention_map_saver)
+
             step_output = self.step(batched_t, latents, guidance_scale,
                                     text_embeddings, unconditioned_embeddings,
                                     i, **extra_step_kwargs)
@@ -295,10 +307,16 @@ class StableDiffusionGeneratorPipeline(StableDiffusionPipeline):
             yield PipelineIntermediateState(run_id=run_id, step=i, timestep=int(t), latents=latents,
                                             predicted_original=predicted_original)
 
+        # cleanup after ourselves
+        if attention_map_saver is not None:
+            self.invokeai_diffuser.remove_attention_map_saving()
+            attention_map_saver.write_maps_to_disk()
+
         # https://discuss.huggingface.co/t/memory-usage-by-later-pipeline-stages/23699
         torch.cuda.empty_cache()
 
         with torch.inference_mode():
+            #attention_maps = None if attention_map_saver is None else attention_map_saver.get_saved_maps()
             image = self.decode_latents(latents)
             output = StableDiffusionPipelineOutput(images=image, nsfw_content_detected=[])
             yield self.check_for_safety(output, dtype=text_embeddings.dtype)

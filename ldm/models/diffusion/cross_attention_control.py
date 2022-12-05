@@ -7,7 +7,6 @@ import torch
 import diffusers
 from torch import nn
 
-
 # adapted from bloc97's CrossAttentionControl colab
 # https://github.com/bloc97/CrossAttentionControl
 
@@ -327,6 +326,7 @@ class InvokeAICrossAttentionMixin:
         self.mem_total_gb = psutil.virtual_memory().total // (1 << 30)
         self.attention_slice_wrangler = None
         self.slicing_strategy_getter = None
+        self.attention_slice_calculated_callback = None
 
     def set_attention_slice_wrangler(self, wrangler: Optional[Callable[[nn.Module, torch.Tensor, int, int, int], torch.Tensor]]):
         '''
@@ -345,6 +345,9 @@ class InvokeAICrossAttentionMixin:
 
     def set_slicing_strategy_getter(self, getter: Optional[Callable[[nn.Module], tuple[int,int]]]):
         self.slicing_strategy_getter = getter
+
+    def set_attention_slice_calculated_callback(self, callback: Optional[Callable[[torch.Tensor], None]]):
+        self.attention_slice_calculated_callback = callback
 
     def einsum_lowest_level(self, query, key, value, dim, offset, slice_size):
         # calculate attention scores
@@ -366,6 +369,9 @@ class InvokeAICrossAttentionMixin:
             attention_slice = attention_slice_wrangler(self, default_attention_slice, dim, offset, slice_size)
         else:
             attention_slice = default_attention_slice
+
+        if self.attention_slice_calculated_callback is not None:
+            self.attention_slice_calculated_callback(attention_slice, dim, offset, slice_size)
 
         hidden_states = torch.bmm(attention_slice, value)
         return hidden_states
