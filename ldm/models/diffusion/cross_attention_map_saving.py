@@ -15,62 +15,79 @@ class AttentionMapSaver():
         #self.collated_maps = #torch.zeros([len(token_ids), latents_shape[0], latents_shape[1]])
         self.collated_maps = {}
 
+    def clear_maps(self):
+        self.collated_maps = {}
+
     def add_attention_maps(self, maps: torch.Tensor, key: str):
+        """
+        Accumulate the given attention maps and store by summing with existing maps at the passed-in key (if any).
+        :param maps: Attention maps to store. Expected shape [A, (H*W), N] where A is attention heads count, H and W are the map size (fixed per-key) and N is the number of tokens (typically 77).
+        :param key: Storage key. If a map already exists for this key it will be summed with the incoming data. In this case the maps sizes (H and W) should match.
+        :return: None
+        """
         key_and_size = f'{key}_{maps.shape[1]}'
 
         # extract desired tokens
         maps = maps[:, :, self.token_ids]
 
-        # sum along dim 0
+        # merge attention heads to a single map per token
         maps = torch.sum(maps, 0)
 
-        # summed maps now has shape [(H*W), N] for N tokens
-        # but we want [N, H, W]
-        scale_factor = math.sqrt(maps.shape[0] / (self.latents_shape[0] * self.latents_shape[1]))
-        maps_h = int(float(self.latents_shape[0]) * scale_factor)
-        maps_w = int(self.latents_shape[1] * scale_factor)
-        # and we need to do some dimension juggling
-        num_tokens = maps.shape[1]
-        maps = torch.reshape(torch.swapdims(maps, 0, 1), [num_tokens, maps_h, maps_w])
-        if scale_factor != 1:
-            maps = tv_resize(maps, self.latents_shape, InterpolationMode.BICUBIC)
-
-        #maps = torch.nn.functional.normalize(maps, dim=0)
-
-        #maps = maps.to(self.collated_maps.device)
-        # screen blend, f(a, b) = 1 - (1 - a)(1 - b)
-        #self.collated_maps = torch.cat([self.collated_maps, maps.unsqueeze(0)])
+        # store
         if key_and_size not in self.collated_maps:
             self.collated_maps[key_and_size] = torch.zeros_like(maps, device='cpu')
         self.collated_maps[key_and_size] += maps.cpu()
-        #self.collated_maps = self.collated_maps + maps
 
-    def write_maps_to_disk(self):
-        #print('save goes here')
+    def write_maps_to_disk(self, path: str):
+        pil_image = self.get_stacked_maps_image()
+        pil_image.save(path, 'PNG')
+
+    def get_stacked_maps_image(self) -> PIL.Image:
+        """
+        Scale all collected attention maps to the same size, blend them together and return as an image.
+        :return: An image containing a vertical stack of blended attention maps, one for each requested token.
+        """
+
+        num_tokens = len(self.token_ids)
+        latents_height = self.latents_shape[0]
+        latents_width = self.latents_shape[1]
+
         merged = None
+
         for key, maps in self.collated_maps.items():
 
-            num_tokens = maps.shape[0]
-            height = maps.shape[1]
-            width = maps.shape[2]
+            # maps has shape [(H*W), N] for N tokens
+            # but we want [N, H, W]
+            this_scale_factor = math.sqrt(maps.shape[0] / (latents_width * latents_height))
+            this_maps_height = int(float(latents_height) * this_scale_factor)
+            this_maps_width = int(float(latents_width) * this_scale_factor)
+            # and we need to do some dimension juggling
+            maps = torch.reshape(torch.swapdims(maps, 0, 1), [num_tokens, this_maps_height, this_maps_width])
 
-            stacked = torch.reshape(maps, [num_tokens * height, width])
+            # scale to output size if necessary
+            if this_scale_factor != 1:
+                maps = tv_resize(maps, [latents_height, latents_width], InterpolationMode.BICUBIC)
 
-            stacked_min = torch.min(stacked)
-            stacked_range = torch.max(stacked) - stacked_min
-            stacked_normalized = (stacked - stacked_min) / stacked_range
+            # normalize
+            maps_min = torch.min(maps)
+            maps_range = torch.max(maps) - maps_min
+            #print(f"map {key} size {[this_maps_width, this_maps_height]} range {[maps_min, maps_min + maps_range]}")
+            maps_normalized = (maps - maps_min) / maps_range
+            # expand to (-0.1, 1.1) and clamp
+            maps_normalized_expanded = maps_normalized * 1.1 - 0.05
+            maps_normalized_expanded_clamped = torch.clamp(maps_normalized_expanded, 0, 1)
+
+            # merge together, producing a vertical stack
+            maps_stacked = torch.reshape(maps_normalized_expanded_clamped, [num_tokens * latents_height, latents_width])
+
             if merged is None:
-                merged = stacked_normalized
+                merged = maps_stacked
             else:
                 # screen blend
-                merged = 1 - (1 - stacked_normalized)*(1 - merged)
+                merged = 1 - (1 - maps_stacked)*(1 - merged)
 
-        def normalize_and_ubyte(x):
-            return x.mul(0xff).byte().cpu()
-        merged_ubyte = normalize_and_ubyte(merged)
-        pil_image = PIL.Image.fromarray(merged_ubyte.numpy(), mode='L')
-        path = f'/tmp/attention_maps_merged.png'
-        pil_image.save(path, 'PNG')
+        merged_bytes = merged.mul(0xff).byte()
+        return PIL.Image.fromarray(merged_bytes.numpy(), mode='L')
 
 def setup_attention_map_saving(unet, saver: AttentionMapSaver):
     def callback(slice, dim, offset, slice_size, key):
