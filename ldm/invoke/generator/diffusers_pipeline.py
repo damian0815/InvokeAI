@@ -111,7 +111,6 @@ def image_resized_to_grid_as_tensor(image: PIL.Image.Image, normalize: bool=True
 def is_inpainting_model(unet: UNet2DConditionModel):
     return unet.conv_in.in_channels == 9
 
-
 class StableDiffusionGeneratorPipeline(StableDiffusionPipeline):
     r"""
     Pipeline for text-to-image generation using Stable Diffusion.
@@ -263,14 +262,12 @@ class StableDiffusionGeneratorPipeline(StableDiffusionPipeline):
             *,
             run_id: str = None,
             extra_conditioning_info: InvokeAIDiffuserComponent.ExtraConditioningInfo = None,
-            attention_map_saver: Optional[AttentionMapSaver] = None,
             timesteps = None,
             **extra_step_kwargs):
         if run_id is None:
             run_id = secrets.token_urlsafe(self.ID_LENGTH)
 
-        dummy_attention_map_saver = AttentionMapSaver(token_ids=range(1, 10), latents_shape=latents.shape[-2:])
-        attention_map_saver = dummy_attention_map_saver
+        attention_map_saver = AttentionMapSaver(token_ids=range(1, 77), latents_shape=latents.shape[-2:])
 
         if extra_conditioning_info is not None and extra_conditioning_info.wants_cross_attention_control:
             self.invokeai_diffuser.setup_cross_attention_control(extra_conditioning_info,
@@ -296,6 +293,7 @@ class StableDiffusionGeneratorPipeline(StableDiffusionPipeline):
         for i, t in enumerate(self.progress_bar(timesteps)):
             batched_t.fill_(t)
 
+            # save attention maps on the final step
             if i == len(timesteps)-1 and attention_map_saver is not None:
                 self.invokeai_diffuser.setup_attention_map_saving(attention_map_saver)
 
@@ -310,7 +308,6 @@ class StableDiffusionGeneratorPipeline(StableDiffusionPipeline):
         # cleanup after ourselves
         if attention_map_saver is not None:
             self.invokeai_diffuser.remove_attention_map_saving()
-            attention_map_saver.write_maps_to_disk()
 
         # https://discuss.huggingface.co/t/memory-usage-by-later-pipeline-stages/23699
         torch.cuda.empty_cache()
