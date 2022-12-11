@@ -760,6 +760,20 @@
               
   
   
+  
+    <li class="md-nav__item">
+      <a href="../INSTALL_AUTOMATED/" class="md-nav__link">
+        InvokeAI Automated Installation
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
     
   
   
@@ -803,11 +817,11 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#installation-on-a-linux-container" class="md-nav__link">
-    Installation on a Linux container
+  <a href="#installation-in-a-linux-container-desktop" class="md-nav__link">
+    Installation in a Linux container (desktop)
   </a>
   
-    <nav class="md-nav" aria-label="Installation on a Linux container">
+    <nav class="md-nav" aria-label="Installation in a Linux container (desktop)">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -861,6 +875,53 @@
         
       </ul>
     </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#running-invokeai-in-the-cloud-with-docker" class="md-nav__link">
+    Running InvokeAI in the cloud with Docker
+  </a>
+  
+    <nav class="md-nav" aria-label="Running InvokeAI in the cloud with Docker">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#prerequisites_1" class="md-nav__link">
+    Prerequisites
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#building-and-running-the-image-locally" class="md-nav__link">
+    Building and running the image locally
+  </a>
+  
+    <nav class="md-nav" aria-label="Building and running the image locally">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#building-and-running-without-make" class="md-nav__link">
+    Building and running without make
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#running-the-image-in-the-cloud" class="md-nav__link">
+    Running the image in the cloud
+  </a>
   
 </li>
         
@@ -1019,18 +1080,18 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_11" type="checkbox" id="__nav_5_11" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_12" type="checkbox" id="__nav_5_12" >
       
       
       
       
-        <label class="md-nav__link" for="__nav_5_11">
+        <label class="md-nav__link" for="__nav_5_12">
           Older docs to be removed
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" aria-label="Older docs to be removed" data-md-level="2">
-        <label class="md-nav__title" for="__nav_5_11">
+        <label class="md-nav__title" for="__nav_5_12">
           <span class="md-nav__icon md-icon"></span>
           Older docs to be removed
         </label>
@@ -1176,7 +1237,7 @@
 <h1 id="docker"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M349.9 236.3h-66.1v-59.4h66.1v59.4zm0-204.3h-66.1v60.7h66.1V32zm78.2 144.8H362v59.4h66.1v-59.4zm-156.3-72.1h-66.1v60.1h66.1v-60.1zm78.1 0h-66.1v60.1h66.1v-60.1zm276.8 100c-14.4-9.7-47.6-13.2-73.1-8.4-3.3-24-16.7-44.9-41.1-63.7l-14-9.3-9.3 14c-18.4 27.8-23.4 73.6-3.7 103.8-8.7 4.7-25.8 11.1-48.4 10.7H2.4c-8.7 50.8 5.8 116.8 44 162.1 37.1 43.9 92.7 66.2 165.4 66.2 157.4 0 273.9-72.5 328.4-204.2 21.4.4 67.6.1 91.3-45.2 1.5-2.5 6.6-13.2 8.5-17.1l-13.3-8.9zm-511.1-27.9h-66v59.4h66.1v-59.4zm78.1 0h-66.1v59.4h66.1v-59.4zm78.1 0h-66.1v59.4h66.1v-59.4zm-78.1-72.1h-66.1v60.1h66.1v-60.1z"/></svg></span> Docker<a class="headerlink" href="#docker" title="Permanent link">#</a></h1>
 <div class="admonition warning">
 <p class="admonition-title">For end users</p>
-<p>We highly recommend to Install InvokeAI locally using <a href="../">these instructions</a>"</p>
+<p>We highly recommend to Install InvokeAI locally using <a href="../">these instructions</a></p>
 </div>
 <div class="admonition tip">
 <p class="admonition-title">For developers</p>
@@ -1184,6 +1245,10 @@
 deployment to other environments (on-premises or cloud), follow these
 instructions.</p>
 <p>For general use, install locally to leverage your machine's GPU.</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">For running on a cloud instance/service</p>
+<p>Check out the <a href="#running-invokeai-in-the-cloud-with-docker">Running InvokeAI in the cloud with Docker</a> section below</p>
 </div>
 <h2 id="why-containers">Why containers?<a class="headerlink" href="#why-containers" title="Permanent link">#</a></h2>
 <p>They provide a flexible, reliable way to build and deploy InvokeAI. You'll also
@@ -1201,7 +1266,7 @@ and performance is reduced compared with running it directly on macOS but for
 development purposes it's fine. Once you're done with development tasks on your
 laptop you can build for the target platform and architecture and deploy to
 another environment with NVIDIA GPUs on-premises or in the cloud.</p>
-<h2 id="installation-on-a-linux-container">Installation on a Linux container<a class="headerlink" href="#installation-on-a-linux-container" title="Permanent link">#</a></h2>
+<h2 id="installation-in-a-linux-container-desktop">Installation in a Linux container (desktop)<a class="headerlink" href="#installation-in-a-linux-container-desktop" title="Permanent link">#</a></h2>
 <h3 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">#</a></h3>
 <h4 id="install-docker">Install <a href="https://github.com/santisbon/guides#docker">Docker</a><a class="headerlink" href="#install-docker" title="Permanent link">#</a></h4>
 <p>On the <a href="https://docs.docker.com/get-docker/">Docker Desktop app</a>, go to
@@ -1293,9 +1358,77 @@ also do so.</p>
 <p class="admonition-title">run script example</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>./docker-build/run.sh <span class="s2">&quot;banana sushi&quot;</span> -Ak_lms -S42 -s10
 </code></pre></div>
-<p>This would generate the legendary "banana sushi" with Seed 42, k_lms Sampler and 10 steps. </p>
+<p>This would generate the legendary "banana sushi" with Seed 42, k_lms Sampler and 10 steps.</p>
 <p>Find out more about available CLI-Parameters at <a href="../../features/CLI/#arguments">features/CLI.md</a></p>
 </div>
+<hr />
+<h2 id="running-invokeai-in-the-cloud-with-docker">Running InvokeAI in the cloud with Docker<a class="headerlink" href="#running-invokeai-in-the-cloud-with-docker" title="Permanent link">#</a></h2>
+<p>We offer an optimized Ubuntu-based image that has been well-tested in cloud deployments. Note: it also works well locally on Linux x86_64 systems with an Nvidia GPU. It <em>may</em> also work on Windows under WSL2 and on Intel Mac (not tested).</p>
+<p>An advantage of this method is that it does not need any local setup or additional dependencies.</p>
+<p>See the <code>docker-build/Dockerfile.cloud</code> file to familizarize yourself with the image's content.</p>
+<h3 id="prerequisites_1">Prerequisites<a class="headerlink" href="#prerequisites_1" title="Permanent link">#</a></h3>
+<ul>
+<li>a <code>docker</code> runtime</li>
+<li><code>make</code> (optional but helps for convenience)</li>
+<li>Huggingface token to download models, or an existing InvokeAI runtime directory from a previous installation</li>
+</ul>
+<p>Neither local Python nor any dependencies are required. If you don't have <code>make</code> (part of <code>build-essentials</code> on Ubuntu), or do not wish to install it, the commands from the <code>docker-build/Makefile</code> are readily adaptable to be executed directly.</p>
+<h3 id="building-and-running-the-image-locally">Building and running the image locally<a class="headerlink" href="#building-and-running-the-image-locally" title="Permanent link">#</a></h3>
+<ol>
+<li>Clone this repo and <code>cd docker-build</code></li>
+<li><code>make build</code> - this will build the image. (This does <em>not</em> require a GPU-capable system).</li>
+<li><em>(skip this step if you already have a complete InvokeAI runtime directory)</em><ul>
+<li><code>make configure</code> (This does <em>not</em> require a GPU-capable system)</li>
+<li>this will create a local cache of models and configs (a.k.a the <em>runtime dir</em>)</li>
+<li>enter your Huggingface token when prompted</li>
+</ul>
+</li>
+<li><code>make web</code></li>
+<li>Open the <code>http://localhost:9090</code> URL in your browser, and enjoy the banana sushi!</li>
+</ol>
+<p>To use InvokeAI on the cli, run <code>make cli</code>. To open a Bash shell in the container for arbitraty advanced use, <code>make shell</code>.</p>
+<h4 id="building-and-running-without-make">Building and running without <code>make</code><a class="headerlink" href="#building-and-running-without-make" title="Permanent link">#</a></h4>
+<p>(Feel free to adapt paths such as <code>${HOME}/invokeai</code> to your liking, and modify the CLI arguments as necessary).</p>
+<div class="admonition example">
+<p class="admonition-title">Build the image and configure the runtime directory</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nb">cd</span> docker-build
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="nv">DOCKER_BUILDKIT</span><span class="o">=</span><span class="m">1</span> docker build -t local/invokeai:latest -f Dockerfile.cloud ..
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>docker run --rm -it -v <span class="si">${</span><span class="nv">HOME</span><span class="si">}</span>/invokeai:/mnt/invokeai local/invokeai:latest -c <span class="s2">&quot;python scripts/configure_invokeai.py&quot;</span>
+</code></pre></div>
+</div>
+<div class="admonition example">
+<p class="admonition-title">Run the web server</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>docker run --runtime<span class="o">=</span>nvidia --gpus<span class="o">=</span>all --rm -it -v <span class="si">${</span><span class="nv">HOME</span><span class="si">}</span>/invokeai:/mnt/invokeai -p9090:9090 local/invokeai:latest
+</code></pre></div>
+<p>Access the Web UI at <a href="http://localhost:9090">http://localhost:9090</a></p>
+</div>
+<div class="admonition example">
+<p class="admonition-title">Run the InvokeAI interactive CLI</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>docker run --runtime=nvidia --gpus=all --rm -it -v ${HOME}/invokeai:/mnt/invokeai local/invokeai:latest -c &quot;python scripts/invoke.py&quot;
+</code></pre></div>
+</div>
+<h3 id="running-the-image-in-the-cloud">Running the image in the cloud<a class="headerlink" href="#running-the-image-in-the-cloud" title="Permanent link">#</a></h3>
+<p>This image works anywhere you can run a container with a mounted Docker volume. You may either build this image on a cloud instance, or build and push it to your Docker registry. To manually run this on a cloud instance (such as AWS EC2, GCP or Azure VM):</p>
+<ol>
+<li>build this image either in the cloud (you'll need to pull the repo), or locally</li>
+<li><code>docker tag</code> it as <code>your-registry/invokeai</code> and push to your registry (i.e. Dockerhub)</li>
+<li><code>docker pull</code> it on your cloud instance</li>
+<li>configure the runtime directory as per above example, using <code>docker run ... configure_invokeai.py</code> script</li>
+<li>use either one of the <code>docker run</code> commands above, substituting the image name for your own image.</li>
+</ol>
+<p>To run this on Runpod, please refer to the following Runpod template: <a href="https://www.runpod.io/console/gpu-secure-cloud?template=vm19ukkycf">https://www.runpod.io/console/gpu-secure-cloud?template=vm19ukkycf</a> (you need a Runpod subscription). When launching the template, feel free to set the image to pull your own build.</p>
+<p>The template's <code>README</code> provides ample detail, but at a high level, the process is as follows:</p>
+<ol>
+<li>create a pod using this Docker image</li>
+<li>ensure the pod has an <code>INVOKEAI_ROOT=&lt;path_to_your_persistent_volume&gt;</code> environment variable, and that it corresponds to the path to your pod's persistent volume mount</li>
+<li>Run the pod with <code>sleep infinity</code> as the Docker command</li>
+<li>Use Runpod basic SSH to connect to the pod, and run <code>python scripts/configure_invokeai.py</code> script</li>
+<li>Stop the pod, and change the Docker command to <code>python scripts/invoke.py --web --host 0.0.0.0</code></li>
+<li>Run the pod again, connect to your pod on HTTP port 9090, and enjoy the banana sushi!</li>
+</ol>
+<p>Running on other cloud providers such as Vast.ai will likely work in a similar fashion.</p>
 <hr />
 <div class="admonition warning">
 <p class="admonition-title">Deprecated</p>
@@ -1306,39 +1439,39 @@ provide some usefull informations.</p>
 <h3 id="startup">Startup<a class="headerlink" href="#startup" title="Permanent link">#</a></h3>
 <p>If you're on a <strong>Linux container</strong> the <code>invoke</code> script is <strong>automatically
 started</strong> and the output dir set to the Docker volume you created earlier.</p>
-<p>If you're <strong>directly on macOS follow these startup instructions</strong>.<br />
+<p>If you're <strong>directly on macOS follow these startup instructions</strong>.
 With the Conda environment activated (<code>conda activate ldm</code>), run the interactive
 interface that combines the functionality of the original scripts <code>txt2img</code> and
-<code>img2img</code>:<br />
+<code>img2img</code>:
 Use the more accurate but VRAM-intensive full precision math because
-half-precision requires autocast and won't work.<br />
+half-precision requires autocast and won't work.
 By default the images are saved in <code>outputs/img-samples/</code>.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>python3 scripts/invoke.py --full_precision
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>python3 scripts/invoke.py --full_precision
 </code></pre></div>
 <p>You'll get the script's prompt. You can see available options or quit.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>invoke&gt; -h
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>invoke&gt; q
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>invoke&gt; -h
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>invoke&gt; q
 </code></pre></div>
 <h3 id="text-to-image">Text to Image<a class="headerlink" href="#text-to-image" title="Permanent link">#</a></h3>
 <p>For quick (but bad) image results test with 5 steps (default 50) and 1 sample
-image. This will let you know that everything is set up correctly.<br />
-Then increase steps to 100 or more for good (but slower) results.<br />
+image. This will let you know that everything is set up correctly.
+Then increase steps to 100 or more for good (but slower) results.
 The prompt can be in quotes or not.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>invoke&gt; The hulk fighting with sheldon cooper -s5 -n1
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>invoke&gt; <span class="s2">&quot;woman closeup highly detailed&quot;</span>  -s <span class="m">150</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="c1"># Reuse previous seed and apply face restoration</span>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>invoke&gt; <span class="s2">&quot;woman closeup highly detailed&quot;</span>  --steps <span class="m">150</span> --seed -1 -G <span class="m">0</span>.75
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>invoke&gt; The hulk fighting with sheldon cooper -s5 -n1
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>invoke&gt; <span class="s2">&quot;woman closeup highly detailed&quot;</span>  -s <span class="m">150</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="c1"># Reuse previous seed and apply face restoration</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>invoke&gt; <span class="s2">&quot;woman closeup highly detailed&quot;</span>  --steps <span class="m">150</span> --seed -1 -G <span class="m">0</span>.75
 </code></pre></div>
 <p>You'll need to experiment to see if face restoration is making it better or
 worse for your specific prompt.</p>
 <p>If you're on a container the output is set to the Docker volume. You can copy it
-wherever you want.<br />
-You can download it from the Docker Desktop app, Volumes, my-vol, data.<br />
+wherever you want.
+You can download it from the Docker Desktop app, Volumes, my-vol, data.
 Or you can copy it from your Mac terminal. Keep in mind <code>docker cp</code> can't expand
 <code>*.png</code> so you'll need to specify the image file name.</p>
 <p>On your host Mac (you can use the name of any container that mounted the
 volume):</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>docker cp dummy:/data/000001.928403745.png /Users/&lt;your-user&gt;/Pictures
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>docker cp dummy:/data/000001.928403745.png /Users/&lt;your-user&gt;/Pictures
 </code></pre></div>
 <h3 id="image-to-image">Image to Image<a class="headerlink" href="#image-to-image" title="Permanent link">#</a></h3>
 <p>You can also do text-guided image-to-image translation. For example, turning a
@@ -1353,32 +1486,32 @@ get the error
 <a href="https://support.apple.com/guide/preview/resize-rotate-or-flip-an-image-prvw2015/mac#:~:text=image's%20file%20size-,In%20the%20Preview%20app%20on%20your%20Mac%2C%20open%20the%20file,is%20shown%20at%20the%20bottom.">try a different size</a>
 like 512x256.</p>
 <p>If you're on a Docker container, copy your input image into the Docker volume</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>docker cp /Users/&lt;your-user&gt;/Pictures/sketch-mountains-input.jpg dummy:/data/
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>docker cp /Users/&lt;your-user&gt;/Pictures/sketch-mountains-input.jpg dummy:/data/
 </code></pre></div>
 <p>Try it out generating an image (or more). The <code>invoke</code> script needs absolute
 paths to find the image so don't use <code>~</code>.</p>
 <p>If you're on your Mac</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>invoke&gt; <span class="s2">&quot;A fantasy landscape, trending on artstation&quot;</span> -I /Users/&lt;your-user&gt;/Pictures/sketch-mountains-input.jpg --strength <span class="m">0</span>.75  --steps <span class="m">100</span> -n4
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>invoke&gt; <span class="s2">&quot;A fantasy landscape, trending on artstation&quot;</span> -I /Users/&lt;your-user&gt;/Pictures/sketch-mountains-input.jpg --strength <span class="m">0</span>.75  --steps <span class="m">100</span> -n4
 </code></pre></div>
 <p>If you're on a Linux container on your Mac</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>invoke&gt; <span class="s2">&quot;A fantasy landscape, trending on artstation&quot;</span> -I /data/sketch-mountains-input.jpg --strength <span class="m">0</span>.75  --steps <span class="m">50</span> -n1
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>invoke&gt; <span class="s2">&quot;A fantasy landscape, trending on artstation&quot;</span> -I /data/sketch-mountains-input.jpg --strength <span class="m">0</span>.75  --steps <span class="m">50</span> -n1
 </code></pre></div>
 <h3 id="web-interface">Web Interface<a class="headerlink" href="#web-interface" title="Permanent link">#</a></h3>
 <p>You can use the <code>invoke</code> script with a graphical web interface. Start the web
 server with:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>python3 scripts/invoke.py --full_precision --web
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>python3 scripts/invoke.py --full_precision --web
 </code></pre></div>
 <p>If it's running on your Mac point your Mac web browser to
 <a href="http://127.0.0.1:9090">http://127.0.0.1:9090</a></p>
 <p>Press Control-C at the command line to stop the web server.</p>
 <h3 id="notes">Notes<a class="headerlink" href="#notes" title="Permanent link">#</a></h3>
 <p>Some text you can add at the end of the prompt to make it very pretty:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>cinematic photo, highly detailed, cinematic lighting, ultra-detailed, ultrarealistic, photorealism, Octane Rendering, cyberpunk lights, Hyper Detail, 8K, HD, Unreal Engine, V-Ray, full hd, cyberpunk, abstract, 3d octane render + 4k UHD + immense detail + dramatic lighting + well lit + black, purple, blue, pink, cerulean, teal, metallic colours, + fine details, ultra photoreal, photographic, concept art, cinematic composition, rule of thirds, mysterious, eerie, photorealism, breathtaking detailed, painting art deco pattern, by hsiao, ron cheng, john james audubon, bizarre compositions, exquisite detail, extremely moody lighting, painted by greg rutkowski makoto shinkai takashi takeuchi studio ghibli, akihiko yoshida
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>cinematic photo, highly detailed, cinematic lighting, ultra-detailed, ultrarealistic, photorealism, Octane Rendering, cyberpunk lights, Hyper Detail, 8K, HD, Unreal Engine, V-Ray, full hd, cyberpunk, abstract, 3d octane render + 4k UHD + immense detail + dramatic lighting + well lit + black, purple, blue, pink, cerulean, teal, metallic colours, + fine details, ultra photoreal, photographic, concept art, cinematic composition, rule of thirds, mysterious, eerie, photorealism, breathtaking detailed, painting art deco pattern, by hsiao, ron cheng, john james audubon, bizarre compositions, exquisite detail, extremely moody lighting, painted by greg rutkowski makoto shinkai takashi takeuchi studio ghibli, akihiko yoshida
 </code></pre></div>
 <p>The original scripts should work as well.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>python3 scripts/orig_scripts/txt2img.py --help
-<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>python3 scripts/orig_scripts/txt2img.py --ddim_steps <span class="m">100</span> --n_iter <span class="m">1</span> --n_samples <span class="m">1</span>  --plms --prompt <span class="s2">&quot;new born baby kitten. Hyper Detail, Octane Rendering, Unreal Engine, V-Ray&quot;</span>
-<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>python3 scripts/orig_scripts/txt2img.py --ddim_steps <span class="m">5</span>   --n_iter <span class="m">1</span> --n_samples <span class="m">1</span>  --plms --prompt <span class="s2">&quot;ocean&quot;</span> <span class="c1"># or --klms</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>python3 scripts/orig_scripts/txt2img.py --help
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>python3 scripts/orig_scripts/txt2img.py --ddim_steps <span class="m">100</span> --n_iter <span class="m">1</span> --n_samples <span class="m">1</span>  --plms --prompt <span class="s2">&quot;new born baby kitten. Hyper Detail, Octane Rendering, Unreal Engine, V-Ray&quot;</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>python3 scripts/orig_scripts/txt2img.py --ddim_steps <span class="m">5</span>   --n_iter <span class="m">1</span> --n_samples <span class="m">1</span>  --plms --prompt <span class="s2">&quot;ocean&quot;</span> <span class="c1"># or --klms</span>
 </code></pre></div>
 
   <hr>
@@ -1386,7 +1519,7 @@ server with:</p>
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">November 30, 2022</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">December 6, 2022</span>
       
         <br>
         Created:
@@ -1420,7 +1553,7 @@ server with:</p>
     <nav class="md-footer__inner md-grid" aria-label="Footer" >
       
         
-        <a href="../INSTALLING_MODELS/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Installing Models" rel="prev">
+        <a href="../INSTALL_AUTOMATED/" class="md-footer__link md-footer__link--prev" aria-label="Previous: InvokeAI Automated Installation" rel="prev">
           <div class="md-footer__button md-icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
           </div>
@@ -1429,7 +1562,7 @@ server with:</p>
               <span class="md-footer__direction">
                 Previous
               </span>
-              Installing Models
+              InvokeAI Automated Installation
             </div>
           </div>
         </a>

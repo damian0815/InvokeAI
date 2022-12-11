@@ -762,6 +762,20 @@
   
   
     <li class="md-nav__item">
+      <a href="../INSTALL_AUTOMATED/" class="md-nav__link">
+        InvokeAI Automated Installation
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../INSTALL_DOCKER/" class="md-nav__link">
         Docker
       </a>
@@ -870,6 +884,26 @@
     Linux
   </a>
   
+    <nav class="md-nav" aria-label="Linux">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#debian-based-distros" class="md-nav__link">
+    Debian Based Distros
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#arch-based-distros" class="md-nav__link">
+    Arch Based Distros
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -918,18 +952,18 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_11" type="checkbox" id="__nav_5_11" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_12" type="checkbox" id="__nav_5_12" >
       
       
       
       
-        <label class="md-nav__link" for="__nav_5_11">
+        <label class="md-nav__link" for="__nav_5_12">
           Older docs to be removed
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" aria-label="Older docs to be removed" data-md-level="2">
-        <label class="md-nav__title" for="__nav_5_11">
+        <label class="md-nav__title" for="__nav_5_12">
           <span class="md-nav__icon md-icon"></span>
           Older docs to be removed
         </label>
@@ -1087,6 +1121,7 @@ it.</p>
 <h2 id="linux">Linux<a class="headerlink" href="#linux" title="Permanent link">#</a></h2>
 <p>Prior to installing PyPatchMatch, you need to take the following
 steps:</p>
+<h3 id="debian-based-distros">Debian Based Distros<a class="headerlink" href="#debian-based-distros" title="Permanent link">#</a></h3>
 <ol>
 <li>Install the <code>build-essential</code> tools:</li>
 </ol>
@@ -1101,9 +1136,9 @@ steps:</p>
 <ol>
 <li>Fix the naming of the <code>opencv</code> package configuration file:</li>
 </ol>
-<p>```
-   cd /usr/lib/x86_64-linux-gnu/pkgconfig/
-   ln -sf opencv4.pc opencv.pc</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>cd /usr/lib/x86_64-linux-gnu/pkgconfig/
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>ln -sf opencv4.pc opencv.pc
+</code></pre></div>
 <ol>
 <li>
 <p>Activate the environment you use for invokeai, either with
@@ -1113,7 +1148,7 @@ steps:</p>
 <p>Do a "develop" install of pypatchmatch:</p>
 </li>
 </ol>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>pip install -e git+https://github.com/invoke-ai/PyPatchMatch@0.1.3#egg=pypatchmatch
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>pip install &quot;git+https://github.com/invoke-ai/PyPatchMatch@0.1.3#egg=pypatchmatch&quot;
 </code></pre></div>
 <ol>
 <li>Confirm that pypatchmatch is installed.
@@ -1121,24 +1156,48 @@ steps:</p>
    then at the <code>&gt;&gt;&gt;</code> line type <code>from patchmatch import patch_match</code>:
    It should look like the follwing:</li>
 </ol>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>Python 3.9.5 (default, Nov 23 2021, 15:27:38) 
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>[GCC 9.3.0] on linux
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>Type &quot;help&quot;, &quot;copyright&quot;, &quot;credits&quot; or &quot;license&quot; for more information.
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>&gt;&gt;&gt; from patchmatch import patch_match
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>Compiling and loading c extensions from &quot;/home/lstein/Projects/InvokeAI/.invokeai-env/src/pypatchmatch/patchmatch&quot;.
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>rm -rf build/obj libpatchmatch.so
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>mkdir: created directory &#39;build/obj&#39;
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>mkdir: created directory &#39;build/obj/csrc/&#39;
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>[dep] csrc/masked_image.cpp ...
-<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>[dep] csrc/nnf.cpp ...
-<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>[dep] csrc/inpaint.cpp ...
-<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>[dep] csrc/pyinterface.cpp ...
-<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>[CC] csrc/pyinterface.cpp ...
-<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>[CC] csrc/inpaint.cpp ...
-<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>[CC] csrc/nnf.cpp ...
-<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>[CC] csrc/masked_image.cpp ...
-<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>[link] libpatchmatch.so ...
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>Python 3.9.5 (default, Nov 23 2021, 15:27:38) 
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>[GCC 9.3.0] on linux
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>Type &quot;help&quot;, &quot;copyright&quot;, &quot;credits&quot; or &quot;license&quot; for more information.
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>&gt;&gt;&gt; from patchmatch import patch_match
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>Compiling and loading c extensions from &quot;/home/lstein/Projects/InvokeAI/.invokeai-env/src/pypatchmatch/patchmatch&quot;.
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>rm -rf build/obj libpatchmatch.so
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>mkdir: created directory &#39;build/obj&#39;
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>mkdir: created directory &#39;build/obj/csrc/&#39;
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>[dep] csrc/masked_image.cpp ...
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>[dep] csrc/nnf.cpp ...
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>[dep] csrc/inpaint.cpp ...
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>[dep] csrc/pyinterface.cpp ...
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>[CC] csrc/pyinterface.cpp ...
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>[CC] csrc/inpaint.cpp ...
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>[CC] csrc/nnf.cpp ...
+<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>[CC] csrc/masked_image.cpp ...
+<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a>[link] libpatchmatch.so ...
 </code></pre></div>
+<h3 id="arch-based-distros">Arch Based Distros<a class="headerlink" href="#arch-based-distros" title="Permanent link">#</a></h3>
+<ol>
+<li>
+<p>Install the <code>base-devel</code> package:
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>sudo pacman -Syu
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>sudo pacman -S --needed base-devel
+</code></pre></div></p>
+</li>
+<li>
+<p>Install <code>opencv</code>:
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>sudo pacman -S opencv
+</code></pre></div>
+   or for CUDA support
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>sudo pacman -S opencv-cuda
+</code></pre></div></p>
+</li>
+<li>
+<p>Fix the naming of the <code>opencv</code> package configuration file:
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>cd /usr/lib/pkgconfig/
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>ln -sf opencv4.pc opencv.pc
+</code></pre></div></p>
+</li>
+</ol>
+<p><strong>Next, Follow Steps 4-6 from the Debian Section above</strong></p>
 <p>If you see no errors, then you're ready to go!</p>
 
   <hr>
@@ -1146,7 +1205,7 @@ steps:</p>
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">December 1, 2022</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">December 7, 2022</span>
       
         <br>
         Created:

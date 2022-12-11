@@ -70,7 +70,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#this-documentation-is-unfinished-volunteers-gratefully-accepted" class="md-skip">
+        <a href="#introduction" class="md-skip">
           Skip to content
         </a>
       
@@ -762,6 +762,20 @@
   
   
     <li class="md-nav__item">
+      <a href="../INSTALL_AUTOMATED/" class="md-nav__link">
+        InvokeAI Automated Installation
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../INSTALL_DOCKER/" class="md-nav__link">
         Docker
       </a>
@@ -796,8 +810,6 @@
       <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
       
       
-        
-      
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
           Running InvokeAI on Google Colab using a Jupyter Notebook
@@ -814,8 +826,6 @@
   
   
   
-    
-  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -831,35 +841,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#walkthrough" class="md-nav__link">
-    Walkthrough
+  <a href="#running-online-on-google-colabotary" class="md-nav__link">
+    Running Online On Google Colabotary
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#updating-to-newer-versions" class="md-nav__link">
-    Updating to newer versions
-  </a>
-  
-    <nav class="md-nav" aria-label="Updating to newer versions">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#updating-the-stable-version" class="md-nav__link">
-    Updating the stable version
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#troubleshooting" class="md-nav__link">
-    Troubleshooting
+  <a href="#running-locally-cloning" class="md-nav__link">
+    Running Locally (Cloning)
   </a>
   
 </li>
@@ -938,18 +928,18 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_11" type="checkbox" id="__nav_5_11" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_12" type="checkbox" id="__nav_5_12" >
       
       
       
       
-        <label class="md-nav__link" for="__nav_5_11">
+        <label class="md-nav__link" for="__nav_5_12">
           Older docs to be removed
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" aria-label="Older docs to be removed" data-md-level="2">
-        <label class="md-nav__title" for="__nav_5_11">
+        <label class="md-nav__title" for="__nav_5_12">
           <span class="md-nav__icon md-icon"></span>
           Older docs to be removed
         </label>
@@ -1092,9 +1082,10 @@
   </a>
 
 
-<h1 id="this-documentation-is-unfinished-volunteers-gratefully-accepted">THIS DOCUMENTATION IS UNFINISHED - VOLUNTEERS GRATEFULLY ACCEPTED<a class="headerlink" href="#this-documentation-is-unfinished-volunteers-gratefully-accepted" title="Permanent link">#</a></h1>
+  <h1>Running InvokeAI on Google Colab using a Jupyter Notebook</h1>
+
 <h2 id="introduction">Introduction<a class="headerlink" href="#introduction" title="Permanent link">#</a></h2>
-<p>We have a <a href="https://github.com/invoke-ai/InvokeAI/blob/main/notebooks/Stable-Diffusion-local-Windows.ipynb">Jupyter
+<p>We have a <a href="https://github.com/invoke-ai/InvokeAI/blob/main/notebooks/Stable_Diffusion_AI_Notebook.ipynb">Jupyter
 notebook</a>
 with cell-by-cell installation steps. It will download the code in
 this repo as one of the steps, so instead of cloning this repo, simply
@@ -1104,17 +1095,32 @@ start running the cells one-by-one.</p>
 <div class="admonition note">
 <p class="admonition-title">you will need NVIDIA drivers, Python 3.10, and Git installed beforehand</p>
 </div>
-<h2 id="walkthrough">Walkthrough<a class="headerlink" href="#walkthrough" title="Permanent link">#</a></h2>
-<h2 id="updating-to-newer-versions">Updating to newer versions<a class="headerlink" href="#updating-to-newer-versions" title="Permanent link">#</a></h2>
-<h3 id="updating-the-stable-version">Updating the stable version<a class="headerlink" href="#updating-the-stable-version" title="Permanent link">#</a></h3>
-<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">#</a></h2>
+<h2 id="running-online-on-google-colabotary">Running Online On Google Colabotary<a class="headerlink" href="#running-online-on-google-colabotary" title="Permanent link">#</a></h2>
+<p><a href="https://colab.research.google.com/github/invoke-ai/InvokeAI/blob/main/notebooks/Stable_Diffusion_AI_Notebook.ipynb"><img alt="Open in Colab" src="https://colab.research.google.com/assets/colab-badge.svg" /></a></p>
+<h2 id="running-locally-cloning">Running Locally (Cloning)<a class="headerlink" href="#running-locally-cloning" title="Permanent link">#</a></h2>
+<ol>
+<li>
+<p>Install the Jupyter Notebook python library (one-time):
+pip install jupyter</p>
+</li>
+<li>
+<p>Clone the InvokeAI repository:
+git clone <a href="https://github.com/invoke-ai/InvokeAI.git">https://github.com/invoke-ai/InvokeAI.git</a>
+cd invoke-ai</p>
+</li>
+<li>Create a virtual environment using conda:
+conda create -n invoke jupyter</li>
+<li>Activate the environment and start the Jupyter notebook:
+conda activate invoke
+jupyter notebook</li>
+</ol>
 
   <hr>
 <div class="md-source-file">
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">December 1, 2022</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">December 6, 2022</span>
       
         <br>
         Created:

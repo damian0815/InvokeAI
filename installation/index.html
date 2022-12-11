@@ -765,6 +765,20 @@
   
   
     <li class="md-nav__item">
+      <a href="INSTALL_AUTOMATED/" class="md-nav__link">
+        InvokeAI Automated Installation
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
       <a href="INSTALL_DOCKER/" class="md-nav__link">
         Docker
       </a>
@@ -866,18 +880,18 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_11" type="checkbox" id="__nav_5_11" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_12" type="checkbox" id="__nav_5_12" >
       
       
       
       
-        <label class="md-nav__link" for="__nav_5_11">
+        <label class="md-nav__link" for="__nav_5_12">
           Older docs to be removed
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" aria-label="Older docs to be removed" data-md-level="2">
-        <label class="md-nav__title" for="__nav_5_11">
+        <label class="md-nav__title" for="__nav_5_12">
           <span class="md-nav__icon md-icon"></span>
           Older docs to be removed
         </label>
@@ -1026,35 +1040,19 @@
 experience and preferences.</p>
 <ol>
 <li>
-<p><a href="INSTALL_SOURCE/">InvokeAI source code installer</a>
-    This is a script that will install Python, the Anaconda ("conda")
-    package manager, all of InvokeAI's its essential third party
-    libraries and InvokeAI itself. It includes access to a "developer
-    console" which will help us debug problems with you and give you
-    to access experimental features.</p>
-<p>When a new InvokeAI feature is available, even between releases,
-you will be able to upgrade and try it out by running an <code>update</code>
-script. This method is recommended for individuals who wish to
-stay on the cutting edge of InvokeAI development and are not
-afraid of occasional breakage.</p>
-<p>To get started go to the bottom of the
-<a href="https://github.com/invoke-ai/InvokeAI/releases/latest">Latest Release Page</a>
-and download the .zip file for your platform. Unzip the file.
-If you are on a Windows system, double-click on the <code>install.bat</code>
-script. On a Mac or Linux system, navigate to the file <code>install.sh</code>
-from within the terminal application, and run the script.</p>
-<p>Sit back and watch the script run.</p>
-<p><strong>Important Caveats</strong>
-- This script is a bit cranky and occasionally hangs or times out,
-forcing you to cancel and restart the script (it will pick up where
-it left off).</p>
+<p><a href="INSTALL_AUTOMATED/">Automated Installer</a></p>
+<p>This is a script that will install all of InvokeAI's essential
+third party libraries and InvokeAI itself. It includes access to a
+"developer console" which will help us debug problems with you and
+give you to access experimental features.</p>
 </li>
 <li>
 <p><a href="INSTALL_MANUAL/">Manual Installation</a></p>
 <p>In this method you will manually run the commands needed to install
 InvokeAI and its dependencies. We offer two recipes: one suited to
 those who prefer the <code>conda</code> tool, and one suited to those who prefer
-<code>pip</code> and Python virtual environments.</p>
+<code>pip</code> and Python virtual environments. In our hands the pip install
+is faster and more reliable, but your mileage may vary.</p>
 <p>This method is recommended for users who have previously used <code>conda</code>
 or <code>pip</code> in the past, developers, and anyone who wishes to remain on
 the cutting edge of future InvokeAI development and is willing to put
@@ -1067,13 +1065,6 @@ InvokeAI and its dependencies. This method is recommended for
 individuals with experience with Docker containers and understand
 the pluses and minuses of a container-based install.</p>
 </li>
-<li>
-<p><a href="INSTALL_JUPYTER/">Jupyter Notebooks Installation</a></p>
-<p>This method is suitable for running InvokeAI on a Google Colab
-account. It is recommended for individuals who have previously
-worked on the Colab and are comfortable with the Jupyter notebook
-environment.</p>
-</li>
 </ol>
 
   <hr>
@@ -1081,7 +1072,7 @@ environment.</p>
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">December 3, 2022</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">December 11, 2022</span>
       
         <br>
         Created:
