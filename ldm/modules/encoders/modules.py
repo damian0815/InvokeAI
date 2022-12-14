@@ -322,7 +322,7 @@ class FrozenCLIPEmbedder(AbstractEncoder):
             encoder_states = () if output_hidden_states else None
             all_attentions = () if output_attentions else None
 
-            hidden_states = inputs_embeds
+            hidden_states = inputs_embeds.clone()
             for idx, encoder_layer in enumerate(self.layers):
                 if output_hidden_states:
                     encoder_states = encoder_states + (hidden_states,)

@@ -37,14 +37,11 @@ class Txt2Img(Generator):
                 unconditioned_embeddings=uc,
                 guidance_scale=cfg_scale,
                 callback=step_callback,
-                extra_conditioning_info=extra_conditioning_info,
+                extra_conditioning_info=extra_conditioning_info
                 # TODO: eta = ddim_eta,
                 # TODO: threshold = threshold,
-                # FIXME: Attention Maps Callback merged from main, but not hooked up
-                #     in diffusers branch yet. - keturn
-                # attention_maps_callback      = attention_maps_callback,
             )
-
+            attention_maps_callback(pipeline_output.attention_maps_image)
             return pipeline.numpy_to_pil(pipeline_output.images)[0]
 
         return make_image
