@@ -41,7 +41,7 @@ class Txt2Img(Generator):
                 # TODO: eta = ddim_eta,
                 # TODO: threshold = threshold,
             )
-            attention_maps_callback(pipeline_output.attention_maps_image)
+            attention_maps_callback(pipeline_output.attention_maps_saver)
             return pipeline.numpy_to_pil(pipeline_output.images)[0]
 
         return make_image

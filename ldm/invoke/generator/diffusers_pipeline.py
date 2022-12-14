@@ -7,6 +7,7 @@ from typing import List, Optional, Union, Callable, Type, TypeVar, Generic, Any,
 
 import PIL.Image
 import einops
+import numpy as np
 import torch
 import torchvision.transforms as T
 from diffusers.models import attention
@@ -42,7 +43,6 @@ class PipelineIntermediateState:
     timestep: int
     latents: torch.Tensor
     predicted_original: Optional[torch.Tensor] = None
-    attention_maps_image: PIL.Image = None
 
 
 # copied from configs/stable-diffusion/v1-inference.yaml
@@ -183,9 +183,11 @@ class GeneratorToCallbackinator(Generic[ParamType, ReturnType, CallbackType]):
         return result
 
 class InvokeAIStableDiffusionPipelineOutput(StableDiffusionPipelineOutput):
-    def __init__(self, attention_maps_image=None, **kwargs):
-        super().__init__(kwargs)
-        self.attention_maps_image = attention_maps_image
+    def __init__(self, images: Union[List[PIL.Image.Image], np.ndarray],
+                 nsfw_content_detected: Optional[List[bool]],
+                 attention_maps_saver: AttentionMapSaver):
+        super().__init__(images=images, nsfw_content_detected=nsfw_content_detected)
+        self.attention_maps_saver = attention_maps_saver
 
 
 class StableDiffusionGeneratorPipeline(StableDiffusionPipeline):
@@ -280,7 +282,7 @@ class StableDiffusionGeneratorPipeline(StableDiffusionPipeline):
         :param run_id:
         :param extra_step_kwargs:
         """
-        result_latents, result_attention_maps = self.latents_and_attention_maps_from_embeddings(
+        result_latents, result_attention_maps_saver = self.latents_and_attention_maps_from_embeddings(
             latents, num_inference_steps, text_embeddings, unconditioned_embeddings, guidance_scale,
             extra_conditioning_info=extra_conditioning_info,
             run_id=run_id, callback=callback, **extra_step_kwargs
@@ -290,7 +292,7 @@ class StableDiffusionGeneratorPipeline(StableDiffusionPipeline):
 
         with torch.inference_mode():
             image = self.decode_latents(result_latents)
-            output = InvokeAIStableDiffusionPipelineOutput(images=image, nsfw_content_detected=[], attention_maps_image=result_attention_maps)
+            output = InvokeAIStableDiffusionPipelineOutput(images=image, nsfw_content_detected=[], attention_maps_saver=result_attention_maps_saver)
             return self.check_for_safety(output, dtype=text_embeddings.dtype)
 
     def latents_and_attention_maps_from_embeddings(
@@ -316,7 +318,7 @@ class StableDiffusionGeneratorPipeline(StableDiffusionPipeline):
             run_id=run_id,
             callback=callback,
             **extra_step_kwargs)
-        return result.latents, result.attention_maps_image
+        return result.latents, result.attention_maps_saver
 
     def generate_latents_from_embeddings(self, latents: torch.Tensor, timesteps, text_embeddings: torch.Tensor,
                                          unconditioned_embeddings: torch.Tensor, guidance_scale: float, *,
@@ -353,15 +355,17 @@ class StableDiffusionGeneratorPipeline(StableDiffusionPipeline):
             latents = step_output.prev_sample
             predicted_original = getattr(step_output, 'pred_original_sample', None)
 
-            if i == len(timesteps)-1 and attention_maps_saver is not None:
+            if i == len(timesteps)-1 and extra_conditioning_info is not None:
+                eos_token_index = extra_conditioning_info.tokens_count_including_eos_bos - 1
+                attention_map_token_ids = range(1, eos_token_index)
+                attention_maps_saver = AttentionMapSaver(token_ids=attention_map_token_ids, latents_shape=latents.shape[-2:])
                 self.invokeai_diffuser.setup_attention_map_saving(attention_maps_saver)
 
-            attention_maps_image = None if attention_maps_saver is None else attention_maps_saver.get_stacked_maps_image()
             yield PipelineIntermediateState(run_id=run_id, step=i, timestep=int(t), latents=latents,
-                                            predicted_original=predicted_original, attention_maps_image=attention_maps_image)
+                                            predicted_original=predicted_original, attention_maps_saver=attention_maps_saver)
 
         self.invokeai_diffuser.remove_attention_map_saving()
-        return latents
+        return latents, attention_maps_saver
 
     @torch.inference_mode()
     def step(self, t: torch.Tensor, latents: torch.Tensor, guidance_scale: float,
@@ -540,7 +544,11 @@ class StableDiffusionGeneratorPipeline(StableDiffusionPipeline):
         with torch.inference_mode():
             screened_images, has_nsfw_concept = self.run_safety_checker(
                 output.images, device=self._execution_device, dtype=dtype)
-        return StableDiffusionPipelineOutput(screened_images, has_nsfw_concept)
+        return InvokeAIStableDiffusionPipelineOutput(screened_images,
+                                                     has_nsfw_concept,
+                                                     # block the attention maps if NSFW content is detected
+                                                     None if has_nsfw_concept is not None and not has_nsfw_concept
+                                                        else output.attention_maps_image)
 
     @torch.inference_mode()
     def get_learned_conditioning(self, c: List[List[str]], *, return_tokens=True, fragment_weights=None):
