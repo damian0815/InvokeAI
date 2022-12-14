@@ -460,7 +460,7 @@ class StableDiffusionGeneratorPipeline(StableDiffusionPipeline):
 
         with torch.inference_mode():
             image = self.decode_latents(result_latents)
-            output = InvokeAIStableDiffusionPipelineOutput(images=image, nsfw_content_detected=[], attention_maps_image=result_attention_maps)
+            output = InvokeAIStableDiffusionPipelineOutput(images=image, nsfw_content_detected=[], attention_map_saver=result_attention_maps)
             return self.check_for_safety(output, dtype=text_embeddings.dtype)
 
     def inpaint_from_embeddings(
