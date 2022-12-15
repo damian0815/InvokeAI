@@ -1147,9 +1147,18 @@ generated using the command-line client and the Stable Diffusion 1.5 model:</p>
 </table>
 <p>You can also combine styles and concepts:</p>
 <figure>
-<p><img alt="" src="../../assets/concepts/image5.png" />
-  </p>
-<figcaption>A portrait of &lt;alf&gt; in &lt;cartoona-animal&gt; style</figcaption>
+<table>
+<thead>
+<tr>
+<th align="center">A portrait of &lt;alf&gt; in &lt;cartoona-animal&gt; style</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><img alt="" src="../../assets/concepts/image5.png" /></td>
+</tr>
+</tbody>
+</table>
 </figure>
 <h2 id="using-a-hugging-face-concept">Using a Hugging Face Concept<a class="headerlink" href="#using-a-hugging-face-concept" title="Permanent link">#</a></h2>
 <p>Hugging Face TI concepts are downloaded and installed automatically as you
@@ -1158,28 +1167,31 @@ find out what each concept is for, you can browse the
 <a href="https://huggingface.co/sd-concepts-library">Hugging Face concepts library</a> and
 look at examples of what each concept produces.</p>
 <p>When you have an idea of a concept you wish to try, go to the command-line
-client (CLI) and type a "&lt;" character and the beginning of the Hugging Face
-concept name you wish to load. Press the Tab key, and the CLI will show you all
-matching concepts. You can also type "&lt;" and Tab to get a listing of all ~800
-concepts, but be prepared to scroll up to see them all! If there is more than
-one match you can continue to type and Tab until the concept is completed.</p>
-<p>For example if you type "&lt;x" and Tab, you'll be prompted with the
-completions:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>&lt;xatu2&gt;        &lt;xatu&gt;         &lt;xbh&gt;          &lt;xi&gt;           &lt;xidiversity&gt;  &lt;xioboma&gt;      &lt;xuna&gt;         &lt;xyz&gt;
+client (CLI) and type a <code>&lt;</code> character and the beginning of the Hugging Face
+concept name you wish to load. Press <span class="keys"><kbd class="key-tab">Tab</kbd></span>, and the CLI will show you all
+matching concepts. You can also type <code>&lt;</code> and hit <span class="keys"><kbd class="key-tab">Tab</kbd></span> to get a listing of all
+~800 concepts, but be prepared to scroll up to see them all! If there is more
+than one match you can continue to type and <span class="keys"><kbd class="key-tab">Tab</kbd></span> until the concept is
+completed.</p>
+<div class="admonition example">
+<p class="admonition-title">Example</p>
+<p>if you type in <code>&lt;x</code> and hit <span class="keys"><kbd class="key-tab">Tab</kbd></span>, you'll be prompted with the completions:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="o">&lt;</span><span class="n">xatu2</span><span class="o">&gt;</span>        <span class="o">&lt;</span><span class="n">xatu</span><span class="o">&gt;</span>         <span class="o">&lt;</span><span class="n">xbh</span><span class="o">&gt;</span>          <span class="o">&lt;</span><span class="n">xi</span><span class="o">&gt;</span>           <span class="o">&lt;</span><span class="n">xidiversity</span><span class="o">&gt;</span>  <span class="o">&lt;</span><span class="n">xioboma</span><span class="o">&gt;</span>      <span class="o">&lt;</span><span class="n">xuna</span><span class="o">&gt;</span>         <span class="o">&lt;</span><span class="n">xyz</span><span class="o">&gt;</span>
 </code></pre></div>
-<p>Now type "id" and press Tab. It will be autocompleted to "&lt;xidiversity&gt;"
+<p>Now type <code>id</code> and press <span class="keys"><kbd class="key-tab">Tab</kbd></span>. It will be autocompleted to <code>&lt;xidiversity&gt;</code>
 because this is a unique match.</p>
 <p>Finish your prompt and generate as usual. You may include multiple concept terms
 in the prompt.</p>
+</div>
 <p>If you have never used this concept before, you will see a message that the TI
 model is being downloaded and installed. After this, the concept will be saved
 locally (in the <code>models/sd-concepts-library</code> directory) for future use.</p>
 <p>Several steps happen during downloading and installation, including a scan of
 the file for malicious code. Should any errors occur, you will be warned and the
 concept will fail to load. Generation will then continue treating the trigger
-term as a normal string of characters (e.g. as literal "&lt;ghibli-face&gt;").</p>
-<p>Currently auto-installation of concepts is a feature only available on the
-command-line client. Support for the WebUI is a work in progress.</p>
+term as a normal string of characters (e.g. as literal <code>&lt;ghibli-face&gt;</code>).</p>
+<p>You can also use <code>&lt;concept-names&gt;</code> in the WebGUI's prompt textbox. There is no
+autocompletion at this time.</p>
 <h2 id="installing-your-own-ti-files">Installing your Own TI Files<a class="headerlink" href="#installing-your-own-ti-files" title="Permanent link">#</a></h2>
 <p>You may install any number of <code>.pt</code> and <code>.bin</code> files simply by copying them into
 the <code>embeddings</code> directory of the InvokeAI runtime directory (usually <code>invokeai</code>
@@ -1208,7 +1220,7 @@ associated paper for details and limitations.</p>
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">December 2, 2022</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">December 13, 2022</span>
       
         <br>
         Created:
