@@ -554,7 +554,7 @@ class WeightedFrozenCLIPEmbedder(FrozenCLIPEmbedder):
 
             #print(f"assembled tokens for '{fragments}' into tensor of shape {lerped_embeddings.shape}")
 
-            # append to batch 
+            # append to batch
             batch_z = lerped_embeddings.unsqueeze(0) if batch_z is None else torch.cat([batch_z, lerped_embeddings.unsqueeze(0)], dim=1)
             batch_tokens = tokens.unsqueeze(0) if batch_tokens is None else torch.cat([batch_tokens, tokens.unsqueeze(0)], dim=1)
 
@@ -675,10 +675,14 @@ class WeightedFrozenCLIPEmbedder(FrozenCLIPEmbedder):
         #print(f"building weighted embedding tensor for {tokens} with weights {per_token_weights}")
         if token_ids.shape[0] != self.max_length:
             raise ValueError(f"token_ids has shape {token_ids.shape} - expected [{self.max_length}]")
+        kwargs.pop('embedding_manager')
         z = self.transformer(input_ids=token_ids.unsqueeze(0), **kwargs)
         assert(z.shape[0] == 1)
+        #torch.save(z, "/tmp/textual-inversion-manager-uglysonic-pre-overwrite.pt")
         new_z0 = self.textual_inversion_manager.overwrite_textual_inversion_embeddings(token_ids, z[0])
         z[0] = new_z0
+        #torch.save(z, "/tmp/textual-inversion-manager-uglysonic-post-overwrite.pt")
+
 
         batch_weights_expanded = per_token_weights.reshape(per_token_weights.shape + (1,)).expand(z.shape)
 
