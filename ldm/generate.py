@@ -31,7 +31,7 @@ from pytorch_lightning import seed_everything, logging
 
 import ldm.invoke.conditioning
 from ldm.invoke.args import metadata_from_png
-from ldm.invoke.concepts_lib import Concepts
+from ldm.invoke.concepts_lib import HuggingFaceConceptsLibrary
 from ldm.invoke.conditioning import get_uc_and_c_and_ec
 from ldm.invoke.devices import choose_torch_device, choose_precision
 from ldm.invoke.globals import Globals
@@ -443,7 +443,7 @@ class Generate:
             self._set_sampler()
 
         # apply the concepts library to the prompt
-        prompt = self.concept_lib().replace_concepts_with_triggers(prompt, lambda concepts: self.load_concepts(concepts))
+        prompt = self.huggingface_concepts_library.replace_concepts_with_triggers(prompt, lambda concepts: self.load_huggingface_concepts(concepts))
 
         # bit of a hack to change the cached sampler's karras threshold to
         # whatever the user asked for
@@ -867,19 +867,22 @@ class Generate:
 
         seed_everything(random.randrange(0, np.iinfo(np.uint32).max))
         if self.embedding_path is not None:
-            self.model.embedding_manager.load(
-                self.embedding_path, self.precision == 'float32' or self.precision == 'autocast'
-            )
+            for root, _, files in os.walk(self.embedding_path):
+                for name in files:
+                    ti_path = os.path.join(root, name)
+                    self.model.textual_inversion_manager.load_textual_inversion(ti_path)
+            print(f'>> Textual inversions available: {", ".join(self.model.textual_inversion_manager.get_all_trigger_strings())}')
 
         self.model_name = model_name
         self._set_sampler()  # requires self.model_name to be set first
         return self.model
 
-    def load_concepts(self,concepts:list[str]):
-        self.model.embedding_manager.load_concepts(concepts, self.precision=='float32' or self.precision=='autocast')
+    def load_huggingface_concepts(self, concepts:list[str]):
+        self.model.textual_inversion_manager.load_huggingface_concepts(concepts)
 
-    def concept_lib(self)->Concepts:
-        return self.model.embedding_manager.concepts_library
+    @property
+    def huggingface_concepts_library(self) -> HuggingFaceConceptsLibrary:
+        return self.model.textual_inversion_manager.hf_concepts_library
 
     def correct_colors(self,
                        image_list,
