@@ -140,6 +140,8 @@ class EmbeddingManager(nn.Module):
         tokenized_text,
         embedded_text,
     ):
+        # torch.save(embedded_text, '/tmp/embedding-manager-uglysonic-pre-rewrite.pt')
+
         b, n, device = *tokenized_text.shape, tokenized_text.device
 
         for (
@@ -241,7 +243,7 @@ class EmbeddingManager(nn.Module):
         # both will be stored in this dictionary
         for term in self.string_to_param_dict.keys():
             term = term.strip('<').strip('>')
-            self.concepts_loaded[term] = True  
+            self.concepts_loaded[term] = True
         print(f'>> Current embedding manager terms: {", ".join(self.string_to_param_dict.keys())}')
 
     def _expand_directories(self, paths:list[str]):
@@ -262,7 +264,7 @@ class EmbeddingManager(nn.Module):
             print(f'\n### Security Issues Found in Model: {scan_result.issues_count}')
             print('### For your safety, InvokeAI will not load this embed.')
             return
-        
+
         ckpt = torch.load(ckpt_path, map_location='cpu')
 
         # Handle .pt textual inversion files
