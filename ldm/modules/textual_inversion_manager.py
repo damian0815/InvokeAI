@@ -94,8 +94,9 @@ class TextualInversionManager():
         pad_token_strings = [trigger_str + "-!pad-" + str(pad_index) for pad_index in range(1, embedding.shape[0])]
 
         try:
-            trigger_token_id = self._create_token_id_and_assign_embedding(trigger_str, embedding[0])
-            pad_token_ids = [self._create_token_id_and_assign_embedding(pad_token_str, embedding[1+i]) \
+            trigger_token_id = self._get_or_create_token_id_and_assign_embedding(trigger_str, embedding[0])
+            # todo: batched UI for faster loading when vector length >2
+            pad_token_ids = [self._get_or_create_token_id_and_assign_embedding(pad_token_str, embedding[1 + i]) \
                              for (i, pad_token_str) in enumerate(pad_token_strings)]
             self.textual_inversions.append(TextualInversion(
                 trigger_string=trigger_str,
@@ -111,7 +112,7 @@ class TextualInversionManager():
             raise
 
 
-    def _create_token_id_and_assign_embedding(self, token_str: str, embedding: torch.Tensor):
+    def _get_or_create_token_id_and_assign_embedding(self, token_str: str, embedding: torch.Tensor):
         if len(embedding.shape) != 1:
             raise ValueError("Embedding has incorrect shape - must be [token_dim] where token_dim is 768 for SD1 or 1280 for SD2")
         existing_token_id = get_clip_token_id_for_string(self.clip_embedder.tokenizer, token_str)
@@ -120,12 +121,10 @@ class TextualInversionManager():
             current_embeddings = self.clip_embedder.transformer.resize_token_embeddings(None)
             current_token_count = current_embeddings.num_embeddings
             new_token_count = current_token_count + num_tokens_added
+            # the following call is slow - todo make batched for better performance with vector length >1
             self.clip_embedder.transformer.resize_token_embeddings(new_token_count)
 
         token_id = get_clip_token_id_for_string(self.clip_embedder.tokenizer, token_str)
-        if token_id == self.clip_embedder.tokenizer.unk_token_id:
-            raise RuntimeError(f"Just-added token string {token_str} was not returned by the tokenizer.")
-
         self.clip_embedder.transformer.get_input_embeddings().weight.data[token_id] = embedding
 
         return token_id
