@@ -550,7 +550,7 @@ class Generate:
                 print('**Interrupted** Partial results will be returned.')
             else:
                 raise KeyboardInterrupt
-        except RuntimeError as e:
+        except (RuntimeError, Exception) as e:
             print(traceback.format_exc(), file=sys.stderr)
             print('>> Could not generate image.')
 
@@ -868,7 +868,12 @@ class Generate:
         seed_everything(random.randrange(0, np.iinfo(np.uint32).max))
         if self.embedding_path is not None:
             for root, _, files in os.walk(self.embedding_path):
+                # loading textual inversions is slow
+                # see note in TextualInversionManager._get_or_create_token_id_and_assign_embedding()
+                verbose = len(files)>4
                 for name in files:
+                    if verbose:
+                        print(f'>> Loading textual inversion from {name}')
                     ti_path = os.path.join(root, name)
                     self.model.textual_inversion_manager.load_textual_inversion(ti_path)
             print(f'>> Textual inversions available: {", ".join(self.model.textual_inversion_manager.get_all_trigger_strings())}')
