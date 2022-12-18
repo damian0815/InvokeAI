@@ -28,6 +28,9 @@ class TextualInversionManager():
         default_textual_inversions: list[TextualInversion] = []
         self.textual_inversions = default_textual_inversions
 
+    def get_position_embedding(self, indices: torch.Tensor) -> torch.Tensor:
+        return self.clip_embedder.transformer.text_model.embeddings.position_embedding(indices)
+
     def load_huggingface_concepts(self, concepts: list[str]):
         for concept_name in concepts:
             if concept_name in self.hf_concepts_library.concepts_loaded:
@@ -175,11 +178,18 @@ class TextualInversionManager():
         for i in indices_of_textual_inversion_tokens_in_prompt:
             token_id = prompt_token_ids[i]
             textual_inversion = next(ti for ti in self.textual_inversions if ti.token_id == token_id)
-            # don't overwrite the eos marker
+            # don't overwrite the final eos marker
             after_end_index = min(i + textual_inversion.embedding_vector_length, eos_marker_index)
             actual_count_to_overwrite = after_end_index - i
-            position_embeddings = self.clip_embedder.position_embedding(torch.arange(i, after_end_index, dtype=int))
-            embeddings_to_write = position_embeddings + textual_inversion.embedding[0:actual_count_to_overwrite]
+            # check that there's enough padding added afterwards
+            if actual_count_to_overwrite > 1 and \
+                torch.any(prompt_embeddings[i+1, i+actual_count_to_overwrite] != pad_token_id):
+                raise ValueError("prompt_token_ids has not been padded correctly. You must call expand_textual_inversion_token_ids() on the prompt_token_ids before calling this function.")
+
+            position_ids = torch.arange(i, after_end_index, dtype=int, device=prompt_embeddings.device)
+            position_embeddings = self.get_position_embedding(position_ids)
+            textual_inversion_embedding = textual_inversion.embedding[0:actual_count_to_overwrite].to(prompt_embeddings.device)
+            embeddings_to_write = position_embeddings + textual_inversion_embedding
             overwritten_prompt_embeddings[i:i+actual_count_to_overwrite] = embeddings_to_write
 
         return overwritten_prompt_embeddings
