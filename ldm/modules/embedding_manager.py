@@ -125,6 +125,8 @@ class EmbeddingManager(nn.Module):
         tokenized_text,
         embedded_text,
     ):
+        # torch.save(embedded_text, '/tmp/embedding-manager-uglysonic-pre-rewrite.pt')
+
         b, n, device = *tokenized_text.shape, tokenized_text.device
 
         for (
