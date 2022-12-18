@@ -673,15 +673,18 @@ class WeightedFrozenCLIPEmbedder(FrozenCLIPEmbedder):
         :return: A tensor of shape (1, 77, 768) representing the requested weighted embeddings.
         '''
         #print(f"building weighted embedding tensor for {tokens} with weights {per_token_weights}")
-        if token_ids.shape[0] != self.max_length:
+        if token_ids.shape != torch.Size([self.max_length]):
             raise ValueError(f"token_ids has shape {token_ids.shape} - expected [{self.max_length}]")
+
+        # use embedding manager to do textual inversions
+        #embedding_manager = kwargs['embedding_manager']
+        #embedding_manager_z =  self.transformer(input_ids=token_ids.unsqueeze(0), embedding_manager=embedding_manager, **kwargs)
+        #z = em_z
+
+        # rely on embedding manager injecting the tokens
         kwargs.pop('embedding_manager')
-        z = self.transformer(input_ids=token_ids.unsqueeze(0), **kwargs)
-        assert(z.shape[0] == 1)
-        #torch.save(z, "/tmp/textual-inversion-manager-uglysonic-pre-overwrite.pt")
-        new_z0 = self.textual_inversion_manager.overwrite_textual_inversion_embeddings(token_ids, z[0])
-        z[0] = new_z0
-        #torch.save(z, "/tmp/textual-inversion-manager-uglysonic-post-overwrite.pt")
+        tim_z = self.transformer(input_ids=token_ids.unsqueeze(0), **kwargs)
+        z = tim_z
 
 
         batch_weights_expanded = per_token_weights.reshape(per_token_weights.shape + (1,)).expand(z.shape)

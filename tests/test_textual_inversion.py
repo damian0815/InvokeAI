@@ -93,7 +93,7 @@ class TextualInversionManagerTestCase(unittest.TestCase):
         self.assertIsNotNone(textual_inversion)
         self.assertTrue(torch.equal(textual_inversion.embedding, test_embedding))
         self.assertEqual(textual_inversion.trigger_string, test_embedding_name)
-        self.assertEqual(textual_inversion.token_id, token_id)
+        self.assertEqual(textual_inversion.trigger_token_id, token_id)
 
     def test_add_embedding_for_unknown_token(self):
         tim = TextualInversionManager(DummyClipEmbedder())
@@ -112,11 +112,11 @@ class TextualInversionManagerTestCase(unittest.TestCase):
 
         # check it was added
         self.assertTrue(tim.has_textual_inversion_for_trigger_string(test_embedding_name_1))
-        textual_inversion = next(ti for ti in tim.textual_inversions if ti.token_id == added_token_id_1)
+        textual_inversion = next(ti for ti in tim.textual_inversions if ti.trigger_token_id == added_token_id_1)
         self.assertIsNotNone(textual_inversion)
         self.assertTrue(torch.equal(textual_inversion.embedding, test_embedding_1))
         self.assertEqual(textual_inversion.trigger_string, test_embedding_name_1)
-        self.assertEqual(textual_inversion.token_id, added_token_id_1)
+        self.assertEqual(textual_inversion.trigger_token_id, added_token_id_1)
 
         # add another one
         test_embedding_2 = torch.randn([1, 768])
@@ -133,19 +133,19 @@ class TextualInversionManagerTestCase(unittest.TestCase):
 
         # check it was added
         self.assertTrue(tim.has_textual_inversion_for_trigger_string(test_embedding_name_2))
-        textual_inversion = next(ti for ti in tim.textual_inversions if ti.token_id == added_token_id_2)
+        textual_inversion = next(ti for ti in tim.textual_inversions if ti.trigger_token_id == added_token_id_2)
         self.assertIsNotNone(textual_inversion)
         self.assertTrue(torch.equal(textual_inversion.embedding, test_embedding_2))
         self.assertEqual(textual_inversion.trigger_string, test_embedding_name_2)
-        self.assertEqual(textual_inversion.token_id, added_token_id_2)
+        self.assertEqual(textual_inversion.trigger_token_id, added_token_id_2)
 
         # check the old one is still there
         self.assertTrue(tim.has_textual_inversion_for_trigger_string(test_embedding_name_1))
-        textual_inversion = next(ti for ti in tim.textual_inversions if ti.token_id == added_token_id_1)
+        textual_inversion = next(ti for ti in tim.textual_inversions if ti.trigger_token_id == added_token_id_1)
         self.assertIsNotNone(textual_inversion)
         self.assertTrue(torch.equal(textual_inversion.embedding, test_embedding_1))
         self.assertEqual(textual_inversion.trigger_string, test_embedding_name_1)
-        self.assertEqual(textual_inversion.token_id, added_token_id_1)
+        self.assertEqual(textual_inversion.trigger_token_id, added_token_id_1)
 
 
     def test_pad_raises_on_eos_bos(self):

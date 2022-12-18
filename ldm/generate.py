@@ -866,6 +866,7 @@ class Generate:
                 for name in files:
                     ti_path = os.path.join(root, name)
                     self.model.textual_inversion_manager.load_textual_inversion(ti_path)
+                    self.model.embedding_manager._load(ti_path)
             print(f'>> Textual inversions available: {", ".join(self.model.textual_inversion_manager.get_all_trigger_strings())}')
 
         self._set_sampler()

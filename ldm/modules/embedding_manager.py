@@ -151,7 +151,7 @@ class EmbeddingManager(nn.Module):
             )
 
             placeholder_rows, placeholder_cols = torch.where(
-                tokenized_text == placeholder_token.to(tokenized_text.device)
+                tokenized_text == placeholder_token
             )
 
             if placeholder_rows.nelement() == 0:
@@ -169,9 +169,7 @@ class EmbeddingManager(nn.Module):
                 new_token_row = torch.cat(
                     [
                         tokenized_text[row][:col],
-                        placeholder_token.repeat(num_vectors_for_token).to(
-                            device
-                        ),
+                        torch.tensor([placeholder_token] * num_vectors_for_token, device=device),
                         tokenized_text[row][col + 1 :],
                     ],
                     axis=0,

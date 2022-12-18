@@ -13,7 +13,8 @@ from ldm.modules.encoders.modules import FrozenCLIPEmbedder
 @dataclass
 class TextualInversion:
     trigger_string: str
-    token_id: int
+    trigger_token_id: int
+    pad_token_ids: list[int]
     embedding: torch.Tensor
 
     @property
@@ -86,23 +87,46 @@ class TextualInversionManager():
         if len(embedding.shape) == 1:
             embedding = embedding.unsqueeze(0)
         elif len(embedding.shape) > 2:
-            raise ValueError(f"embedding shape {embedding.shape} is incorrect - must have shape [token_dim] or [V, token_dim] where V is vector length and token_dim is 768 for SD1 or 1280 for SD2")
+            raise ValueError(f"TextualInversionManager cannot add {trigger_str} because the embedding shape {embedding.shape} is incorrect. The embedding must have shape [token_dim] or [V, token_dim] where V is vector length and token_dim is 768 for SD1 or 1280 for SD2.")
 
-        existing_token_id = get_clip_token_id_for_string(self.clip_embedder.tokenizer, trigger_str)
-        if existing_token_id == self.clip_embedder.tokenizer.unk_token_id:
-            num_tokens_added = self.clip_embedder.tokenizer.add_tokens(trigger_str)
-            current_embeddings = self.clip_embedder.transformer.resize_token_embeddings(None)
-            current_token_count = current_embeddings.num_embeddings
-            new_token_count = current_token_count + num_tokens_added
-            self.clip_embedder.transformer.resize_token_embeddings(new_token_count)
+        # for embeddings with vector length > 1
+        pad_token_strings = [trigger_str + "-!pad-" + str(pad_index) for pad_index in range(1, embedding.shape[0])]
 
-        token_id = get_clip_token_id_for_string(self.clip_embedder.tokenizer, trigger_str)
+        try:
+            trigger_token_id = self._create_token_id_and_assign_embedding(trigger_str, embedding[0])
+            pad_token_ids = [self._create_token_id_and_assign_embedding(pad_token_str, embedding[1+i]) \
+                             for (i, pad_token_str) in enumerate(pad_token_strings)]
+        except ValueError:
+            print(f">> TextualInversionManager was unable to add a textual inversion with trigger string {trigger_str} due to a duplicate token string.")
+
         self.textual_inversions.append(TextualInversion(
             trigger_string=trigger_str,
-            token_id=token_id,
+            trigger_token_id=trigger_token_id,
+            pad_token_ids=pad_token_ids,
             embedding=embedding
         ))
-        return token_id
+        return trigger_token_id
+
+    def _create_token_id_and_assign_embedding(self, token_str: str, embedding: torch.Tensor):
+        if len(embedding.shape) != 1:
+            raise ValueError("Embedding has incorrect shape - must be [token_dim] where token_dim is 768 for SD1 or 1280 for SD2")
+        existing_token_id = get_clip_token_id_for_string(self.clip_embedder.tokenizer, token_str)
+        if existing_token_id != self.clip_embedder.tokenizer.unk_token_id:
+            raise ValueError(f"Token already exists: {token_str}")
+
+        num_tokens_added = self.clip_embedder.tokenizer.add_tokens(token_str)
+        current_embeddings = self.clip_embedder.transformer.resize_token_embeddings(None)
+        current_token_count = current_embeddings.num_embeddings
+        new_token_count = current_token_count + num_tokens_added
+        self.clip_embedder.transformer.resize_token_embeddings(new_token_count)
+
+        created_token_id = get_clip_token_id_for_string(self.clip_embedder.tokenizer, token_str)
+        if created_token_id == self.clip_embedder.tokenizer.unk_token_id:
+            raise RuntimeError(f"Just-added token string {token_str} was not returned by the tokenizer.")
+
+        self.clip_embedder.transformer.get_input_embeddings().weight.data[created_token_id] = embedding
+
+        return created_token_id
 
     def has_textual_inversion_for_trigger_string(self, trigger_string: str) -> bool:
         try:
@@ -116,7 +140,7 @@ class TextualInversionManager():
 
 
     def get_textual_inversion_for_token_id(self, token_id: int) -> TextualInversion:
-        return next(ti for ti in self.textual_inversions if ti.token_id == token_id)
+        return next(ti for ti in self.textual_inversions if ti.trigger_token_id == token_id)
 
     def expand_textual_inversion_token_ids(self, prompt_token_ids: list[int]) -> list[int]:
         """
@@ -134,13 +158,13 @@ class TextualInversionManager():
             raise ValueError("prompt_token_ids must not start with bos_token_id")
         if prompt_token_ids[-1] == self.clip_embedder.tokenizer.eos_token_id:
             raise ValueError("prompt_token_ids must not end with eos_token_id")
-        textual_inversion_token_ids = [ti.token_id for ti in self.textual_inversions]
+        textual_inversion_trigger_token_ids = [ti.trigger_token_id for ti in self.textual_inversions]
         prompt_token_ids = prompt_token_ids[:]
         for i, token_id in reversed(list(enumerate(prompt_token_ids))):
-            if token_id in textual_inversion_token_ids:
-                textual_inversion = next(ti for ti in self.textual_inversions if ti.token_id == token_id)
-                for pad_idx in range(1, textual_inversion.embedding_vector_length):
-                    prompt_token_ids.insert(i+1, self.clip_embedder.tokenizer.pad_token_id)
+            if token_id in textual_inversion_trigger_token_ids:
+                textual_inversion = next(ti for ti in self.textual_inversions if ti.trigger_token_id == token_id)
+                for expansion_idx in range(1, textual_inversion.embedding_vector_length):
+                    prompt_token_ids.insert(i+expansion_idx, textual_inversion.pad_token_ids[expansion_idx])
 
         return prompt_token_ids
 
@@ -169,7 +193,7 @@ class TextualInversionManager():
         if prompt_token_ids[0] != self.clip_embedder.tokenizer.bos_token_id or prompt_token_ids[-1] != self.clip_embedder.tokenizer.eos_token_id:
             raise ValueError("prompt_token_ids must start with with bos token id and end with the eos token id")
 
-        textual_inversion_token_ids = [ti.token_id for ti in self.textual_inversions]
+        textual_inversion_token_ids = [ti.trigger_token_id for ti in self.textual_inversions]
         pad_token_id = self.clip_embedder.tokenizer.pad_token_id
         overwritten_prompt_embeddings = prompt_embeddings.clone()
 
@@ -177,7 +201,7 @@ class TextualInversionManager():
         eos_marker_index = self.clip_embedder.max_length-1
         for i in indices_of_textual_inversion_tokens_in_prompt:
             token_id = prompt_token_ids[i]
-            textual_inversion = next(ti for ti in self.textual_inversions if ti.token_id == token_id)
+            textual_inversion = next(ti for ti in self.textual_inversions if ti.trigger_token_id == token_id)
             # don't overwrite the final eos marker
             after_end_index = min(i + textual_inversion.embedding_vector_length, eos_marker_index)
             actual_count_to_overwrite = after_end_index - i
