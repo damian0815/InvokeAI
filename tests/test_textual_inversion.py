@@ -85,7 +85,7 @@ class TextualInversionManagerTestCase(unittest.TestCase):
 
         pre_embeddings_count = len(tim.clip_embedder.transformer.resize_token_embeddings(None))
 
-        token_id = tim.add_textual_inversion(test_embedding_name, test_embedding)
+        token_id = tim._add_textual_inversion(test_embedding_name, test_embedding)
         self.assertEqual(token_id, 0)
 
 
@@ -108,7 +108,7 @@ class TextualInversionManagerTestCase(unittest.TestCase):
 
         pre_embeddings_count = len(tim.clip_embedder.transformer.resize_token_embeddings(None))
 
-        added_token_id_1 = tim.add_textual_inversion(test_embedding_name_1, test_embedding_1)
+        added_token_id_1 = tim._add_textual_inversion(test_embedding_name_1, test_embedding_1)
         # new token id should get added on the end
         self.assertEqual(added_token_id_1, len(KNOWN_WORDS))
 
@@ -130,7 +130,7 @@ class TextualInversionManagerTestCase(unittest.TestCase):
 
         pre_embeddings_count = len(tim.clip_embedder.transformer.resize_token_embeddings(None))
 
-        added_token_id_2 = tim.add_textual_inversion(test_embedding_name_2, test_embedding_2)
+        added_token_id_2 = tim._add_textual_inversion(test_embedding_name_2, test_embedding_2)
         self.assertEqual(added_token_id_2, len(KNOWN_WORDS)+1)
 
         # check adding did create a new word
@@ -171,7 +171,7 @@ class TextualInversionManagerTestCase(unittest.TestCase):
 
         test_embedding_1v = torch.randn([1, 768])
         test_embedding_1v_token = "<inversion-trigger-vector-length-1>"
-        test_embedding_1v_token_id = tim.add_textual_inversion(test_embedding_1v_token, test_embedding_1v)
+        test_embedding_1v_token_id = tim._add_textual_inversion(test_embedding_1v_token, test_embedding_1v)
         self.assertEqual(test_embedding_1v_token_id, len(KNOWN_WORDS))
 
         # at the end
@@ -198,7 +198,7 @@ class TextualInversionManagerTestCase(unittest.TestCase):
 
         test_embedding_2v = torch.randn([2, 768])
         test_embedding_2v_token = "<inversion-trigger-vector-length-2>"
-        test_embedding_2v_token_id = tim.add_textual_inversion(test_embedding_2v_token, test_embedding_2v)
+        test_embedding_2v_token_id = tim._add_textual_inversion(test_embedding_2v_token, test_embedding_2v)
         test_embedding_2v_pad_token_ids = tim.get_textual_inversion_for_token_id(test_embedding_2v_token_id).pad_token_ids
         self.assertEqual(test_embedding_2v_token_id, len(KNOWN_WORDS))
 
@@ -229,7 +229,7 @@ class TextualInversionManagerTestCase(unittest.TestCase):
 
         test_embedding_8v = torch.randn([8, 768])
         test_embedding_8v_token = "<inversion-trigger-vector-length-8>"
-        test_embedding_8v_token_id = tim.add_textual_inversion(test_embedding_8v_token, test_embedding_8v)
+        test_embedding_8v_token_id = tim._add_textual_inversion(test_embedding_8v_token, test_embedding_8v)
         test_embedding_8v_pad_token_ids = tim.get_textual_inversion_for_token_id(test_embedding_8v_token_id).pad_token_ids
         self.assertEqual(test_embedding_8v_token_id, len(KNOWN_WORDS))
 

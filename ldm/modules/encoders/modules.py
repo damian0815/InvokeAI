@@ -688,16 +688,7 @@ class WeightedFrozenCLIPEmbedder(FrozenCLIPEmbedder):
         if token_ids.shape != torch.Size([self.max_length]):
             raise ValueError(f"token_ids has shape {token_ids.shape} - expected [{self.max_length}]")
 
-        # use embedding manager to do textual inversions
-        #embedding_manager = kwargs['embedding_manager']
-        #embedding_manager_z =  self.transformer(input_ids=token_ids.unsqueeze(0), embedding_manager=embedding_manager, **kwargs)
-        #z = em_z
-
-        # rely on embedding manager injecting the tokens
-        kwargs.pop('embedding_manager')
-        tim_z = self.transformer(input_ids=token_ids.unsqueeze(0), **kwargs)
-        z = tim_z
-
+        z = self.transformer(input_ids=token_ids.unsqueeze(0), **kwargs)
 
         batch_weights_expanded = per_token_weights.reshape(per_token_weights.shape + (1,)).expand(z.shape)
 
