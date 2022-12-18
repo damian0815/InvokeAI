@@ -1,9 +1,10 @@
 
 import unittest
+from typing import Union
 
 import torch
 
-from ldm.modules.embedding_manager import TextualInversionManager
+from ldm.modules.textual_inversion_manager import TextualInversionManager
 
 
 KNOWN_WORDS = ['a', 'b', 'c']
@@ -53,7 +54,16 @@ class DummyClipEmbedder:
         self.max_length = 77
         self.transformer = DummyTransformer()
         self.tokenizer = DummyTokenizer()
+        self.position_embeddings_tensor = torch.randn([77,768], dtype=torch.float32)
 
+    def position_embedding(self, indices: Union[list,torch.Tensor]):
+        if type(indices) is list:
+            indices = torch.tensor(indices, dtype=int)
+        return torch.index_select(self.position_embeddings_tensor, 0, indices)
+
+
+def was_embedding_overwritten_correctly(tim: TextualInversionManager, overwritten_embedding: torch.Tensor, ti_indices: list, ti_embedding: torch.Tensor) -> bool:
+    return torch.allclose(overwritten_embedding[ti_indices], ti_embedding + tim.clip_embedder.position_embedding(ti_indices))
 
 class TextualInversionManagerTestCase(unittest.TestCase):
 
@@ -270,7 +280,7 @@ class TextualInversionManagerTestCase(unittest.TestCase):
         overwritten_prompt_embeddings = tim.overwrite_textual_inversion_embeddings(padded_prompt_token_ids, default_prompt_embeddings)
         self.assertFalse(torch.equal(default_prompt_embeddings, overwritten_prompt_embeddings))
         self.assertTrue(torch.equal(overwritten_prompt_embeddings[0:4], default_prompt_embeddings[0:4]))
-        self.assertTrue(torch.equal(overwritten_prompt_embeddings[4], test_embedding_1v[0]))
+        self.assertTrue(was_embedding_overwritten_correctly(tim, overwritten_prompt_embeddings, [4], test_embedding_1v))
         self.assertTrue(torch.equal(overwritten_prompt_embeddings[5:77], default_prompt_embeddings[5:77]))
 
         # at the start
@@ -283,7 +293,7 @@ class TextualInversionManagerTestCase(unittest.TestCase):
         overwritten_prompt_embeddings = tim.overwrite_textual_inversion_embeddings(padded_prompt_token_ids, default_prompt_embeddings)
         self.assertFalse(torch.equal(default_prompt_embeddings, overwritten_prompt_embeddings))
         self.assertTrue(torch.equal(overwritten_prompt_embeddings[0:1], default_prompt_embeddings[0:1]))
-        self.assertTrue(torch.equal(overwritten_prompt_embeddings[1], test_embedding_1v[0]))
+        self.assertTrue(was_embedding_overwritten_correctly(tim, overwritten_prompt_embeddings, [1], test_embedding_1v))
         self.assertTrue(torch.equal(overwritten_prompt_embeddings[2:77], default_prompt_embeddings[2:77]))
 
         # in the middle
@@ -296,7 +306,7 @@ class TextualInversionManagerTestCase(unittest.TestCase):
         overwritten_prompt_embeddings = tim.overwrite_textual_inversion_embeddings(padded_prompt_token_ids, default_prompt_embeddings)
         self.assertFalse(torch.equal(default_prompt_embeddings, overwritten_prompt_embeddings))
         self.assertTrue(torch.equal(overwritten_prompt_embeddings[0:2], default_prompt_embeddings[0:2]))
-        self.assertTrue(torch.equal(overwritten_prompt_embeddings[2], test_embedding_1v[0]))
+        self.assertTrue(was_embedding_overwritten_correctly(tim, overwritten_prompt_embeddings, [2], test_embedding_1v))
         self.assertTrue(torch.equal(overwritten_prompt_embeddings[3:77], default_prompt_embeddings[3:77]))
 
 
@@ -326,8 +336,8 @@ class TextualInversionManagerTestCase(unittest.TestCase):
         overwritten_prompt_embeddings = tim.overwrite_textual_inversion_embeddings(padded_prompt_token_ids, default_prompt_embeddings)
         self.assertFalse(torch.equal(default_prompt_embeddings, overwritten_prompt_embeddings))
         self.assertTrue(torch.equal(overwritten_prompt_embeddings[0:4], default_prompt_embeddings[0:4]))
-        self.assertTrue(torch.equal(overwritten_prompt_embeddings[4], test_embedding_1v_1[0]))
-        self.assertTrue(torch.equal(overwritten_prompt_embeddings[5], test_embedding_1v_2[0]))
+        self.assertTrue(was_embedding_overwritten_correctly(tim, overwritten_prompt_embeddings, [4], test_embedding_1v_1))
+        self.assertTrue(was_embedding_overwritten_correctly(tim, overwritten_prompt_embeddings, [5], test_embedding_1v_2))
         self.assertTrue(torch.equal(overwritten_prompt_embeddings[6:77], default_prompt_embeddings[6:77]))
 
         # at the start
@@ -340,8 +350,10 @@ class TextualInversionManagerTestCase(unittest.TestCase):
         overwritten_prompt_embeddings = tim.overwrite_textual_inversion_embeddings(padded_prompt_token_ids, default_prompt_embeddings)
         self.assertFalse(torch.equal(default_prompt_embeddings, overwritten_prompt_embeddings))
         self.assertTrue(torch.equal(overwritten_prompt_embeddings[0:1], default_prompt_embeddings[0:1]))
-        self.assertTrue(torch.equal(overwritten_prompt_embeddings[1], test_embedding_1v_1[0]))
-        self.assertTrue(torch.equal(overwritten_prompt_embeddings[2], test_embedding_1v_2[0]))
+        self.assertTrue(
+            was_embedding_overwritten_correctly(tim, overwritten_prompt_embeddings, [1], test_embedding_1v_1))
+        self.assertTrue(
+            was_embedding_overwritten_correctly(tim, overwritten_prompt_embeddings, [2], test_embedding_1v_2))
         self.assertTrue(torch.equal(overwritten_prompt_embeddings[3:77], default_prompt_embeddings[3:77]))
 
         # clumped in the middle
@@ -354,8 +366,10 @@ class TextualInversionManagerTestCase(unittest.TestCase):
         overwritten_prompt_embeddings = tim.overwrite_textual_inversion_embeddings(padded_prompt_token_ids, default_prompt_embeddings)
         self.assertFalse(torch.equal(default_prompt_embeddings, overwritten_prompt_embeddings))
         self.assertTrue(torch.equal(overwritten_prompt_embeddings[0:2], default_prompt_embeddings[0:2]))
-        self.assertTrue(torch.equal(overwritten_prompt_embeddings[2], test_embedding_1v_1[0]))
-        self.assertTrue(torch.equal(overwritten_prompt_embeddings[3], test_embedding_1v_2[0]))
+        self.assertTrue(
+            was_embedding_overwritten_correctly(tim, overwritten_prompt_embeddings, [2], test_embedding_1v_1))
+        self.assertTrue(
+            was_embedding_overwritten_correctly(tim, overwritten_prompt_embeddings, [3], test_embedding_1v_2))
         self.assertTrue(torch.equal(overwritten_prompt_embeddings[4:77], default_prompt_embeddings[4:77]))
 
         # scattered
@@ -368,9 +382,11 @@ class TextualInversionManagerTestCase(unittest.TestCase):
         overwritten_prompt_embeddings = tim.overwrite_textual_inversion_embeddings(padded_prompt_token_ids, default_prompt_embeddings)
         self.assertFalse(torch.equal(default_prompt_embeddings, overwritten_prompt_embeddings))
         self.assertTrue(torch.equal(overwritten_prompt_embeddings[0:2], default_prompt_embeddings[0:2]))
-        self.assertTrue(torch.equal(overwritten_prompt_embeddings[2], test_embedding_1v_1[0]))
+        self.assertTrue(
+            was_embedding_overwritten_correctly(tim, overwritten_prompt_embeddings, [2], test_embedding_1v_1))
         self.assertTrue(torch.equal(overwritten_prompt_embeddings[3], default_prompt_embeddings[3]))
-        self.assertTrue(torch.equal(overwritten_prompt_embeddings[4], test_embedding_1v_2[0]))
+        self.assertTrue(
+            was_embedding_overwritten_correctly(tim, overwritten_prompt_embeddings, [4], test_embedding_1v_2))
         self.assertTrue(torch.equal(overwritten_prompt_embeddings[5:77], default_prompt_embeddings[5:77]))
 
     def test_overwrite_textual_inversion_4v_single(self):
@@ -393,7 +409,9 @@ class TextualInversionManagerTestCase(unittest.TestCase):
         overwritten_prompt_embeddings = tim.overwrite_textual_inversion_embeddings(padded_prompt_token_ids, default_prompt_embeddings)
         self.assertFalse(torch.equal(default_prompt_embeddings, overwritten_prompt_embeddings))
         self.assertTrue(torch.equal(overwritten_prompt_embeddings[0:4], default_prompt_embeddings[0:4]))
-        self.assertTrue(torch.equal(overwritten_prompt_embeddings[4:8], test_embedding_4v))
+        self.assertTrue(was_embedding_overwritten_correctly(tim, overwritten_prompt_embeddings,
+                                                            list(range(4,8)),
+                                                            test_embedding_4v))
         self.assertTrue(torch.equal(overwritten_prompt_embeddings[8:77], default_prompt_embeddings[8:77]))
 
         # at the start
@@ -406,7 +424,9 @@ class TextualInversionManagerTestCase(unittest.TestCase):
         overwritten_prompt_embeddings = tim.overwrite_textual_inversion_embeddings(padded_prompt_token_ids, default_prompt_embeddings)
         self.assertFalse(torch.equal(default_prompt_embeddings, overwritten_prompt_embeddings))
         self.assertTrue(torch.equal(overwritten_prompt_embeddings[0:1], default_prompt_embeddings[0:1]))
-        self.assertTrue(torch.equal(overwritten_prompt_embeddings[1:5], test_embedding_4v))
+        self.assertTrue(was_embedding_overwritten_correctly(tim, overwritten_prompt_embeddings,
+                                                            list(range(1,5)),
+                                                            test_embedding_4v))
         self.assertTrue(torch.equal(overwritten_prompt_embeddings[5:77], default_prompt_embeddings[5:77]))
 
         # in the middle
@@ -419,7 +439,9 @@ class TextualInversionManagerTestCase(unittest.TestCase):
         overwritten_prompt_embeddings = tim.overwrite_textual_inversion_embeddings(padded_prompt_token_ids, default_prompt_embeddings)
         self.assertFalse(torch.equal(default_prompt_embeddings, overwritten_prompt_embeddings))
         self.assertTrue(torch.equal(overwritten_prompt_embeddings[0:2], default_prompt_embeddings[0:2]))
-        self.assertTrue(torch.equal(overwritten_prompt_embeddings[2:6], test_embedding_4v))
+        self.assertTrue(was_embedding_overwritten_correctly(tim, overwritten_prompt_embeddings,
+                                                            list(range(2,6)),
+                                                            test_embedding_4v))
         self.assertTrue(torch.equal(overwritten_prompt_embeddings[6:77], default_prompt_embeddings[6:77]))
 
     def test_overwrite_textual_inversion_4v_overflow(self):
@@ -445,8 +467,11 @@ class TextualInversionManagerTestCase(unittest.TestCase):
         self.assertFalse(torch.equal(default_prompt_embeddings, overwritten_prompt_embeddings))
         base_prompt_length = len(base_prompt)
         self.assertTrue(torch.equal(overwritten_prompt_embeddings[0:base_prompt_length+1], default_prompt_embeddings[0:base_prompt_length+1]))
-        self.assertTrue(torch.equal(overwritten_prompt_embeddings[base_prompt_length+1:base_prompt_length+1+3], test_embedding_4v[0:3]))
-        self.assertTrue(torch.equal(overwritten_prompt_embeddings[base_prompt_length+1+3:77], default_prompt_embeddings[base_prompt_length+1+3:77]))
+        truncated_overflowed_overwrite_count = min(75 - len(base_prompt), test_embedding_4v.shape[0])
+        self.assertTrue(was_embedding_overwritten_correctly(tim, overwritten_prompt_embeddings,
+                                                            list(range(base_prompt_length+1,base_prompt_length+1+truncated_overflowed_overwrite_count)),
+                                                            test_embedding_4v[0:truncated_overflowed_overwrite_count]))
+        self.assertTrue(torch.equal(overwritten_prompt_embeddings[base_prompt_length+1+4:77], default_prompt_embeddings[base_prompt_length+1+4:77]))
 
         # at the start
         prompt_token_ids = [test_embedding_4v_token_id] + base_prompt
@@ -459,7 +484,9 @@ class TextualInversionManagerTestCase(unittest.TestCase):
         overwritten_prompt_embeddings = tim.overwrite_textual_inversion_embeddings(padded_prompt_token_ids, default_prompt_embeddings)
         self.assertFalse(torch.equal(default_prompt_embeddings, overwritten_prompt_embeddings))
         self.assertTrue(torch.equal(overwritten_prompt_embeddings[0:1], default_prompt_embeddings[0:1]))
-        self.assertTrue(torch.equal(overwritten_prompt_embeddings[1:5], test_embedding_4v))
+        self.assertTrue(was_embedding_overwritten_correctly(tim, overwritten_prompt_embeddings,
+                                                            list(range(1,5)),
+                                                            test_embedding_4v))
         self.assertTrue(torch.equal(overwritten_prompt_embeddings[5:77], default_prompt_embeddings[5:77]))
 
         # in the middle
@@ -472,7 +499,9 @@ class TextualInversionManagerTestCase(unittest.TestCase):
         overwritten_prompt_embeddings = tim.overwrite_textual_inversion_embeddings(padded_prompt_token_ids, default_prompt_embeddings)
         self.assertFalse(torch.equal(default_prompt_embeddings, overwritten_prompt_embeddings))
         self.assertTrue(torch.equal(overwritten_prompt_embeddings[0:21], default_prompt_embeddings[0:21]))
-        self.assertTrue(torch.equal(overwritten_prompt_embeddings[21:25], test_embedding_4v))
+        self.assertTrue(was_embedding_overwritten_correctly(tim, overwritten_prompt_embeddings,
+                                                            list(range(21,25)),
+                                                            test_embedding_4v))
         self.assertTrue(torch.equal(overwritten_prompt_embeddings[25:77], default_prompt_embeddings[25:77]))
 
 
@@ -504,8 +533,12 @@ class TextualInversionManagerTestCase(unittest.TestCase):
         self.assertFalse(torch.equal(default_prompt_embeddings, overwritten_prompt_embeddings))
         base_prompt_length = len(base_prompt)
         self.assertTrue(torch.equal(overwritten_prompt_embeddings[0:base_prompt_length+1], default_prompt_embeddings[0:base_prompt_length+1]))
-        self.assertTrue(torch.equal(overwritten_prompt_embeddings[base_prompt_length+1:base_prompt_length+1+4], test_embedding_4v_1))
-        self.assertTrue(torch.equal(overwritten_prompt_embeddings[base_prompt_length+1+4:base_prompt_length+1+4+4], test_embedding_4v_2))
+        self.assertTrue(was_embedding_overwritten_correctly(tim, overwritten_prompt_embeddings,
+                                                            list(range(base_prompt_length+1, base_prompt_length+1+4)),
+                                                            test_embedding_4v_1))
+        self.assertTrue(was_embedding_overwritten_correctly(tim, overwritten_prompt_embeddings,
+                                                            list(range(base_prompt_length+1+4, base_prompt_length+1+4+4)),
+                                                            test_embedding_4v_2))
         self.assertTrue(torch.equal(overwritten_prompt_embeddings[base_prompt_length+1+4+4:77], default_prompt_embeddings[base_prompt_length+1+4+4:77]))
 
         # at the start
@@ -519,8 +552,12 @@ class TextualInversionManagerTestCase(unittest.TestCase):
         overwritten_prompt_embeddings = tim.overwrite_textual_inversion_embeddings(padded_prompt_token_ids, default_prompt_embeddings)
         self.assertFalse(torch.equal(default_prompt_embeddings, overwritten_prompt_embeddings))
         self.assertTrue(torch.equal(overwritten_prompt_embeddings[0:1], default_prompt_embeddings[0:1]))
-        self.assertTrue(torch.equal(overwritten_prompt_embeddings[1:5], test_embedding_4v_1))
-        self.assertTrue(torch.equal(overwritten_prompt_embeddings[5:9], test_embedding_4v_2))
+        self.assertTrue(was_embedding_overwritten_correctly(tim, overwritten_prompt_embeddings,
+                                                            list(range(1,5)),
+                                                            test_embedding_4v_1))
+        self.assertTrue(was_embedding_overwritten_correctly(tim, overwritten_prompt_embeddings,
+                                                            list(range(5,9)),
+                                                            test_embedding_4v_2))
         self.assertTrue(torch.equal(overwritten_prompt_embeddings[9:77], default_prompt_embeddings[9:77]))
 
         # in the middle
@@ -533,7 +570,11 @@ class TextualInversionManagerTestCase(unittest.TestCase):
         overwritten_prompt_embeddings = tim.overwrite_textual_inversion_embeddings(padded_prompt_token_ids, default_prompt_embeddings)
         self.assertFalse(torch.equal(default_prompt_embeddings, overwritten_prompt_embeddings))
         self.assertTrue(torch.equal(overwritten_prompt_embeddings[0:11], default_prompt_embeddings[0:11]))
-        self.assertTrue(torch.equal(overwritten_prompt_embeddings[11:15], test_embedding_4v_1))
+        self.assertTrue(was_embedding_overwritten_correctly(tim, overwritten_prompt_embeddings,
+                                                            list(range(11,15)),
+                                                            test_embedding_4v_1))
         self.assertTrue(torch.equal(overwritten_prompt_embeddings[15:25], default_prompt_embeddings[15:25]))
-        self.assertTrue(torch.equal(overwritten_prompt_embeddings[25:29], test_embedding_4v_2))
+        self.assertTrue(was_embedding_overwritten_correctly(tim, overwritten_prompt_embeddings,
+                                                            list(range(25,29)),
+                                                            test_embedding_4v_2))
         self.assertTrue(torch.equal(overwritten_prompt_embeddings[29:77], default_prompt_embeddings[29:77]))

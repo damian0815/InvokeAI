@@ -21,7 +21,7 @@ class TextualInversion:
         return self.embedding.shape[0]
 
 class TextualInversionManager():
-    def __init__(self, clip_embedder: FrozenCLIPEmbedder, full_precision: bool):
+    def __init__(self, clip_embedder: FrozenCLIPEmbedder, full_precision: bool=True):
         self.clip_embedder = clip_embedder
         self.full_precision = full_precision
         self.hf_concepts_library = HuggingFaceConceptsLibrary()
@@ -169,17 +169,17 @@ class TextualInversionManager():
         textual_inversion_token_ids = [ti.token_id for ti in self.textual_inversions]
         pad_token_id = self.clip_embedder.tokenizer.pad_token_id
         overwritten_prompt_embeddings = prompt_embeddings.clone()
-        for i, token_id in enumerate(prompt_token_ids):
-            if token_id == pad_token_id:
-                continue
-            if token_id in textual_inversion_token_ids:
-                textual_inversion = next(ti for ti in self.textual_inversions if ti.token_id == token_id)
-                end_index = min(i + textual_inversion.embedding_vector_length, self.clip_embedder.max_length-1)
-                count_to_overwrite = end_index - i
-                for j in range(0, count_to_overwrite):
-                    # only overwrite the textual inversion token id or the padding token id
-                    if prompt_token_ids[i+j] != pad_token_id and prompt_token_ids[i+j] != token_id:
-                        break
-                    overwritten_prompt_embeddings[i+j] = textual_inversion.embedding[j]
+
+        indices_of_textual_inversion_tokens_in_prompt = [index for index in range(0, len(prompt_token_ids)) if prompt_token_ids[index] in textual_inversion_token_ids]
+        eos_marker_index = self.clip_embedder.max_length-1
+        for i in indices_of_textual_inversion_tokens_in_prompt:
+            token_id = prompt_token_ids[i]
+            textual_inversion = next(ti for ti in self.textual_inversions if ti.token_id == token_id)
+            # don't overwrite the eos marker
+            after_end_index = min(i + textual_inversion.embedding_vector_length, eos_marker_index)
+            actual_count_to_overwrite = after_end_index - i
+            position_embeddings = self.clip_embedder.position_embedding(torch.arange(i, after_end_index, dtype=int))
+            embeddings_to_write = position_embeddings + textual_inversion.embedding[0:actual_count_to_overwrite]
+            overwritten_prompt_embeddings[i:i+actual_count_to_overwrite] = embeddings_to_write
 
         return overwritten_prompt_embeddings
