@@ -10,14 +10,14 @@
         <meta name="author" content="mauwii">
       
       
-        <link rel="canonical" href="https://invoke-ai.github.io/InvokeAI/installation/INSTALL_JUPYTER/">
+        <link rel="canonical" href="https://invoke-ai.github.io/InvokeAI/installation/060_INSTALL_PATCHMATCH/">
       
       <link rel="icon" href="../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-8.5.10">
     
     
       
-        <title>Running InvokeAI on Google Colab using a Jupyter Notebook - Stable Diffusion Toolkit Docs</title>
+        <title>Installing PyPatchMatch - InvokeAI Stable Diffusion Toolkit Docs</title>
       
     
     
@@ -70,7 +70,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#introduction" class="md-skip">
+        <a href="#installing-pypatchmatch" class="md-skip">
           Skip to content
         </a>
       
@@ -84,7 +84,7 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Stable Diffusion Toolkit Docs" class="md-header__button md-logo" aria-label="Stable Diffusion Toolkit Docs" data-md-component="logo">
+    <a href="../.." title="InvokeAI Stable Diffusion Toolkit Docs" class="md-header__button md-logo" aria-label="InvokeAI Stable Diffusion Toolkit Docs" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
@@ -97,13 +97,13 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Stable Diffusion Toolkit Docs
+            InvokeAI Stable Diffusion Toolkit Docs
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Running InvokeAI on Google Colab using a Jupyter Notebook
+              Installing PyPatchMatch
             
           </span>
         </div>
@@ -311,13 +311,13 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Stable Diffusion Toolkit Docs" class="md-nav__button md-logo" aria-label="Stable Diffusion Toolkit Docs" data-md-component="logo">
+    <a href="../.." title="InvokeAI Stable Diffusion Toolkit Docs" class="md-nav__button md-logo" aria-label="InvokeAI Stable Diffusion Toolkit Docs" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
 
     </a>
-    Stable Diffusion Toolkit Docs
+    InvokeAI Stable Diffusion Toolkit Docs
   </label>
   
     <div class="md-nav__source">
@@ -734,8 +734,8 @@
   
   
     <li class="md-nav__item">
-      <a href="../BUILDING_BINARY_INSTALLERS/" class="md-nav__link">
-        build binary installers
+      <a href="../010_INSTALL_AUTOMATED/" class="md-nav__link">
+        Installing with the Automated Installer
       </a>
     </li>
   
@@ -748,50 +748,36 @@
   
   
     <li class="md-nav__item">
-      <a href="../INSTALLING_MODELS/" class="md-nav__link">
+      <a href="../020_INSTALL_MANUAL/" class="md-nav__link">
+        Installing Manually
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../040_INSTALL_DOCKER/" class="md-nav__link">
+        Installing with Docker
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../050_INSTALLING_MODELS/" class="md-nav__link">
         Installing Models
-      </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../INSTALL_AUTOMATED/" class="md-nav__link">
-        InvokeAI Automated Installation
-      </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../INSTALL_DOCKER/" class="md-nav__link">
-        Docker
-      </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../INSTALL_INVOKE/" class="md-nav__link">
-        InvokeAI Binary Installer
       </a>
     </li>
   
@@ -810,14 +796,16 @@
       <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
       
       
+        
+      
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
-          Running InvokeAI on Google Colab using a Jupyter Notebook
+          Installing PyPatchMatch
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <a href="./" class="md-nav__link md-nav__link--active">
-        Running InvokeAI on Google Colab using a Jupyter Notebook
+        Installing PyPatchMatch
       </a>
       
         
@@ -825,6 +813,8 @@
 <nav class="md-nav md-nav--secondary" aria-label="Table of contents">
   
   
+  
+    
   
   
     <label class="md-nav__title" for="__toc">
@@ -834,23 +824,43 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#introduction" class="md-nav__link">
-    Introduction
+  <a href="#windows" class="md-nav__link">
+    Windows
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#running-online-on-google-colabotary" class="md-nav__link">
-    Running Online On Google Colabotary
+  <a href="#macintosh" class="md-nav__link">
+    Macintosh
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#running-locally-cloning" class="md-nav__link">
-    Running Locally (Cloning)
+  <a href="#linux" class="md-nav__link">
+    Linux
   </a>
+  
+    <nav class="md-nav" aria-label="Linux">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#debian-based-distros" class="md-nav__link">
+    Debian Based Distros
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#arch-based-distros" class="md-nav__link">
+    Arch Based Distros
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -858,6 +868,20 @@
   
 </nav>
       
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../INSTALL_AUTOMATED/" class="md-nav__link">
+        Installing with the Automated Installer
+      </a>
     </li>
   
 
@@ -882,14 +906,26 @@
   
   
   
-    <li class="md-nav__item">
-      <a href="../INSTALL_PATCHMATCH/" class="md-nav__link">
-        Installing PyPatchMatch
-      </a>
-    </li>
-  
-
-            
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_9" type="checkbox" id="__nav_5_9" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_5_9">
+          Developers documentation
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Developers documentation" data-md-level="2">
+        <label class="md-nav__title" for="__nav_5_9">
+          <span class="md-nav__icon md-icon"></span>
+          Developers documentation
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
           
             
               
@@ -897,23 +933,16 @@
   
   
     <li class="md-nav__item">
-      <a href="../INSTALL_PCP/" class="md-nav__link">
-        Installing InvokeAI with the Pre-Compiled PIP Installer
+      <a href="../Developers_documentation/BUILDING_BINARY_INSTALLERS/" class="md-nav__link">
+        build binary installers
       </a>
     </li>
   
 
             
           
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../INSTALL_SOURCE/" class="md-nav__link">
-        Source Installer
-      </a>
+        </ul>
+      </nav>
     </li>
   
 
@@ -928,20 +957,20 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_12" type="checkbox" id="__nav_5_12" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_10" type="checkbox" id="__nav_5_10" >
       
       
       
       
-        <label class="md-nav__link" for="__nav_5_12">
-          Older docs to be removed
+        <label class="md-nav__link" for="__nav_5_10">
+          Deprecated documentation
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <nav class="md-nav" aria-label="Older docs to be removed" data-md-level="2">
-        <label class="md-nav__title" for="__nav_5_12">
+      <nav class="md-nav" aria-label="Deprecated documentation" data-md-level="2">
+        <label class="md-nav__title" for="__nav_5_10">
           <span class="md-nav__icon md-icon"></span>
-          Older docs to be removed
+          Deprecated documentation
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
           
@@ -951,7 +980,35 @@
   
   
     <li class="md-nav__item">
-      <a href="../older_docs_to_be_removed/INSTALL_LINUX/" class="md-nav__link">
+      <a href="../deprecated_documentation/INSTALL_BINARY/" class="md-nav__link">
+        InvokeAI Binary Installer
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deprecated_documentation/INSTALL_JUPYTER/" class="md-nav__link">
+        Running InvokeAI on Google Colab using a Jupyter Notebook
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deprecated_documentation/INSTALL_LINUX/" class="md-nav__link">
         Manual Installation, Linux
       </a>
     </li>
@@ -965,7 +1022,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../older_docs_to_be_removed/INSTALL_MAC/" class="md-nav__link">
+      <a href="../deprecated_documentation/INSTALL_MAC/" class="md-nav__link">
         Manual Installation, macOS
       </a>
     </li>
@@ -979,7 +1036,35 @@
   
   
     <li class="md-nav__item">
-      <a href="../older_docs_to_be_removed/INSTALL_WINDOWS/" class="md-nav__link">
+      <a href="../deprecated_documentation/INSTALL_PCP/" class="md-nav__link">
+        Installing InvokeAI with the Pre-Compiled PIP Installer
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deprecated_documentation/INSTALL_SOURCE/" class="md-nav__link">
+        Source Installer
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deprecated_documentation/INSTALL_WINDOWS/" class="md-nav__link">
         Manual Installation, Windows
       </a>
     </li>
@@ -1076,55 +1161,116 @@
                 
                   
 
-  <a href="https://github.com/invoke-ai/InvokeAI/edit/main/docs/installation/INSTALL_JUPYTER.md" title="Edit this page" class="md-content__button md-icon">
+  <a href="https://github.com/invoke-ai/InvokeAI/edit/main/docs/installation/060_INSTALL_PATCHMATCH.md" title="Edit this page" class="md-content__button md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8 12h8v2H8v-2m2 8H6V4h7v5h5v3.1l2-2V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4v-2m-2-2h4.1l.9-.9V16H8v2m12.2-5c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1 2.1 2.1Z"/></svg>
   </a>
 
 
-  <h1>Running InvokeAI on Google Colab using a Jupyter Notebook</h1>
-
-<h2 id="introduction">Introduction<a class="headerlink" href="#introduction" title="Permanent link">#</a></h2>
-<p>We have a <a href="https://github.com/invoke-ai/InvokeAI/blob/main/notebooks/Stable_Diffusion_AI_Notebook.ipynb">Jupyter
-notebook</a>
-with cell-by-cell installation steps. It will download the code in
-this repo as one of the steps, so instead of cloning this repo, simply
-download the notebook from the link above and load it up in VSCode
-(with the appropriate extensions installed)/Jupyter/JupyterLab and
-start running the cells one-by-one.</p>
-<div class="admonition note">
-<p class="admonition-title">you will need NVIDIA drivers, Python 3.10, and Git installed beforehand</p>
-</div>
-<h2 id="running-online-on-google-colabotary">Running Online On Google Colabotary<a class="headerlink" href="#running-online-on-google-colabotary" title="Permanent link">#</a></h2>
-<p><a href="https://colab.research.google.com/github/invoke-ai/InvokeAI/blob/main/notebooks/Stable_Diffusion_AI_Notebook.ipynb"><img alt="Open in Colab" src="https://colab.research.google.com/assets/colab-badge.svg" /></a></p>
-<h2 id="running-locally-cloning">Running Locally (Cloning)<a class="headerlink" href="#running-locally-cloning" title="Permanent link">#</a></h2>
+<h1 id="installing-pypatchmatch"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M11.134 1.535C9.722 2.562 8.16 4.057 6.889 5.312 5.8 6.387 5.041 7.401 4.575 8.294a3.745 3.745 0 0 0-3.227 1.054c-.43.431-.69 1.066-.86 1.657a11.982 11.982 0 0 0-.358 1.914A21.263 21.263 0 0 0 0 15.203v.054l.75-.007-.007.75h.054a14.404 14.404 0 0 0 .654-.012 21.243 21.243 0 0 0 1.63-.118c.62-.07 1.3-.18 1.914-.357.592-.17 1.226-.43 1.657-.861a3.745 3.745 0 0 0 1.055-3.217c.908-.461 1.942-1.216 3.04-2.3 1.279-1.262 2.764-2.825 3.775-4.249.501-.706.923-1.428 1.125-2.096.2-.659.235-1.469-.368-2.07-.606-.607-1.42-.55-2.069-.34-.66.213-1.376.646-2.076 1.155zm-3.95 8.48a3.76 3.76 0 0 0-1.19-1.192 9.758 9.758 0 0 1 1.161-1.607l1.658 1.658a9.853 9.853 0 0 1-1.63 1.142zM.742 16l.007-.75-.75.008A.75.75 0 0 0 .743 16zM12.016 2.749c-1.224.89-2.605 2.189-3.822 3.384l1.718 1.718c1.21-1.205 2.51-2.597 3.387-3.833.47-.662.78-1.227.912-1.662.134-.444.032-.551.009-.575h-.001V1.78c-.014-.014-.112-.113-.548.027-.432.14-.995.462-1.655.942zM1.62 13.089a19.56 19.56 0 0 0-.104 1.395 19.55 19.55 0 0 0 1.396-.104 10.528 10.528 0 0 0 1.668-.309c.526-.151.856-.325 1.011-.48a2.25 2.25 0 0 0-3.182-3.182c-.155.155-.329.485-.48 1.01a10.515 10.515 0 0 0-.309 1.67z"/></svg></span> Installing PyPatchMatch<a class="headerlink" href="#installing-pypatchmatch" title="Permanent link">#</a></h1>
+<p>pypatchmatch is a Python module for inpainting images. It is not
+needed to run InvokeAI, but it greatly improves the quality of
+inpainting and outpainting and is recommended.</p>
+<p>Unfortunately, it is a C++ optimized module and installation
+can be somewhat challenging. This guide leads you through the steps.</p>
+<h2 id="windows">Windows<a class="headerlink" href="#windows" title="Permanent link">#</a></h2>
+<p>You're in luck! On Windows platforms PyPatchMatch will install
+automatically on Windows systems with no extra intervention.</p>
+<h2 id="macintosh">Macintosh<a class="headerlink" href="#macintosh" title="Permanent link">#</a></h2>
+<p>PyPatchMatch is not currently supported, but the team is working on
+it.</p>
+<h2 id="linux">Linux<a class="headerlink" href="#linux" title="Permanent link">#</a></h2>
+<p>Prior to installing PyPatchMatch, you need to take the following
+steps:</p>
+<h3 id="debian-based-distros">Debian Based Distros<a class="headerlink" href="#debian-based-distros" title="Permanent link">#</a></h3>
+<ol>
+<li>Install the <code>build-essential</code> tools:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>sudo apt update
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>sudo apt install build-essential
+</code></pre></div>
+<ol>
+<li>Install <code>opencv</code>:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>sudo apt install python3-opencv libopencv-dev
+</code></pre></div>
+<ol>
+<li>Fix the naming of the <code>opencv</code> package configuration file:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>cd /usr/lib/x86_64-linux-gnu/pkgconfig/
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>ln -sf opencv4.pc opencv.pc
+</code></pre></div>
 <ol>
 <li>
-<p>Install the Jupyter Notebook python library (one-time):
-pip install jupyter</p>
+<p>Activate the environment you use for invokeai, either with
+<code>conda</code> or with a virtual environment.</p>
 </li>
 <li>
-<p>Clone the InvokeAI repository:
-git clone <a href="https://github.com/invoke-ai/InvokeAI.git">https://github.com/invoke-ai/InvokeAI.git</a>
-cd invoke-ai</p>
+<p>Do a "develop" install of pypatchmatch:</p>
 </li>
-<li>Create a virtual environment using conda:
-conda create -n invoke jupyter</li>
-<li>Activate the environment and start the Jupyter notebook:
-conda activate invoke
-jupyter notebook</li>
 </ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>pip install &quot;git+https://github.com/invoke-ai/PyPatchMatch@0.1.3#egg=pypatchmatch&quot;
+</code></pre></div>
+<ol>
+<li>Confirm that pypatchmatch is installed.
+   At the command-line prompt enter <code>python</code>, and
+   then at the <code>&gt;&gt;&gt;</code> line type <code>from patchmatch import patch_match</code>:
+   It should look like the follwing:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>Python 3.9.5 (default, Nov 23 2021, 15:27:38)
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>[GCC 9.3.0] on linux
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>Type &quot;help&quot;, &quot;copyright&quot;, &quot;credits&quot; or &quot;license&quot; for more information.
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>&gt;&gt;&gt; from patchmatch import patch_match
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>Compiling and loading c extensions from &quot;/home/lstein/Projects/InvokeAI/.invokeai-env/src/pypatchmatch/patchmatch&quot;.
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>rm -rf build/obj libpatchmatch.so
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>mkdir: created directory &#39;build/obj&#39;
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>mkdir: created directory &#39;build/obj/csrc/&#39;
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>[dep] csrc/masked_image.cpp ...
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>[dep] csrc/nnf.cpp ...
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>[dep] csrc/inpaint.cpp ...
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>[dep] csrc/pyinterface.cpp ...
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>[CC] csrc/pyinterface.cpp ...
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>[CC] csrc/inpaint.cpp ...
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>[CC] csrc/nnf.cpp ...
+<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>[CC] csrc/masked_image.cpp ...
+<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a>[link] libpatchmatch.so ...
+</code></pre></div>
+<h3 id="arch-based-distros">Arch Based Distros<a class="headerlink" href="#arch-based-distros" title="Permanent link">#</a></h3>
+<ol>
+<li>
+<p>Install the <code>base-devel</code> package:
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>sudo pacman -Syu
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>sudo pacman -S --needed base-devel
+</code></pre></div></p>
+</li>
+<li>
+<p>Install <code>opencv</code>:
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>sudo pacman -S opencv
+</code></pre></div>
+   or for CUDA support
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>sudo pacman -S opencv-cuda
+</code></pre></div></p>
+</li>
+<li>
+<p>Fix the naming of the <code>opencv</code> package configuration file:
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>cd /usr/lib/pkgconfig/
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>ln -sf opencv4.pc opencv.pc
+</code></pre></div></p>
+</li>
+</ol>
+<p><strong>Next, Follow Steps 4-6 from the Debian Section above</strong></p>
+<p>If you see no errors, then you're ready to go!</p>
 
   <hr>
 <div class="md-source-file">
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">December 6, 2022</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">December 19, 2022</span>
       
         <br>
         Created:
-        <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">November 12, 2022</span>
+        <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">December 1, 2022</span>
       
     
   </small>
@@ -1154,7 +1300,7 @@ jupyter notebook</li>
     <nav class="md-footer__inner md-grid" aria-label="Footer" >
       
         
-        <a href="../INSTALL_INVOKE/" class="md-footer__link md-footer__link--prev" aria-label="Previous: InvokeAI Binary Installer" rel="prev">
+        <a href="../050_INSTALLING_MODELS/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Installing Models" rel="prev">
           <div class="md-footer__button md-icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
           </div>
@@ -1163,20 +1309,20 @@ jupyter notebook</li>
               <span class="md-footer__direction">
                 Previous
               </span>
-              InvokeAI Binary Installer
+              Installing Models
             </div>
           </div>
         </a>
       
       
         
-        <a href="../INSTALL_MANUAL/" class="md-footer__link md-footer__link--next" aria-label="Next: Manual Installation" rel="next">
+        <a href="../INSTALL_AUTOMATED/" class="md-footer__link md-footer__link--next" aria-label="Next: Installing with the Automated Installer" rel="next">
           <div class="md-footer__title">
             <div class="md-ellipsis">
               <span class="md-footer__direction">
                 Next
               </span>
-              Manual Installation
+              Installing with the Automated Installer
             </div>
           </div>
           <div class="md-footer__button md-icon">

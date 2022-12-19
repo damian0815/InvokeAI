@@ -10,21 +10,21 @@
         <meta name="author" content="mauwii">
       
       
-        <link rel="canonical" href="https://invoke-ai.github.io/InvokeAI/installation/BUILDING_BINARY_INSTALLERS/">
+        <link rel="canonical" href="https://invoke-ai.github.io/InvokeAI/installation/deprecated_documentation/INSTALL_JUPYTER/">
       
-      <link rel="icon" href="../../assets/images/favicon.png">
+      <link rel="icon" href="../../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-8.5.10">
     
     
       
-        <title>build binary installers - Stable Diffusion Toolkit Docs</title>
+        <title>Running InvokeAI on Google Colab using a Jupyter Notebook - InvokeAI Stable Diffusion Toolkit Docs</title>
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.975780f9.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.975780f9.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.2505c338.min.css">
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.2505c338.min.css">
         
       
       
@@ -41,7 +41,7 @@
       
     
     
-    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -70,7 +70,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#how-to-build-binary-installers-invokeai-macwindowslinux_on_zip" class="md-skip">
+        <a href="#introduction" class="md-skip">
           Skip to content
         </a>
       
@@ -84,7 +84,7 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Stable Diffusion Toolkit Docs" class="md-header__button md-logo" aria-label="Stable Diffusion Toolkit Docs" data-md-component="logo">
+    <a href="../../.." title="InvokeAI Stable Diffusion Toolkit Docs" class="md-header__button md-logo" aria-label="InvokeAI Stable Diffusion Toolkit Docs" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
@@ -97,13 +97,13 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Stable Diffusion Toolkit Docs
+            InvokeAI Stable Diffusion Toolkit Docs
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              build binary installers
+              Running InvokeAI on Google Colab using a Jupyter Notebook
             
           </span>
         </div>
@@ -204,7 +204,7 @@
 
 
   <li class="md-tabs__item">
-    <a href="../.." class="md-tabs__link">
+    <a href="../../.." class="md-tabs__link">
       Home
     </a>
   </li>
@@ -216,7 +216,7 @@
 
 
   <li class="md-tabs__item">
-    <a href="../../CHANGELOG/" class="md-tabs__link">
+    <a href="../../../CHANGELOG/" class="md-tabs__link">
       Changelog
     </a>
   </li>
@@ -231,7 +231,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../features/" class="md-tabs__link">
+      <a href="../../../features/" class="md-tabs__link">
         Features
       </a>
     </li>
@@ -247,7 +247,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../help/SAMPLER_CONVERGENCE/" class="md-tabs__link">
+      <a href="../../../help/SAMPLER_CONVERGENCE/" class="md-tabs__link">
         Help
       </a>
     </li>
@@ -265,7 +265,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../" class="md-tabs__link md-tabs__link--active">
+      <a href="../../" class="md-tabs__link md-tabs__link--active">
         Installation
       </a>
     </li>
@@ -281,7 +281,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../other/CONTRIBUTORS/" class="md-tabs__link">
+      <a href="../../../other/CONTRIBUTORS/" class="md-tabs__link">
         Other
       </a>
     </li>
@@ -311,13 +311,13 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Stable Diffusion Toolkit Docs" class="md-nav__button md-logo" aria-label="Stable Diffusion Toolkit Docs" data-md-component="logo">
+    <a href="../../.." title="InvokeAI Stable Diffusion Toolkit Docs" class="md-nav__button md-logo" aria-label="InvokeAI Stable Diffusion Toolkit Docs" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
 
     </a>
-    Stable Diffusion Toolkit Docs
+    InvokeAI Stable Diffusion Toolkit Docs
   </label>
   
     <div class="md-nav__source">
@@ -342,7 +342,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../.." class="md-nav__link">
+      <a href="../../.." class="md-nav__link">
         Home
       </a>
     </li>
@@ -357,7 +357,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../CHANGELOG/" class="md-nav__link">
+      <a href="../../../CHANGELOG/" class="md-nav__link">
         Changelog
       </a>
     </li>
@@ -398,7 +398,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../features/" class="md-nav__link">
+      <a href="../../../features/" class="md-nav__link">
         Overview
       </a>
     </li>
@@ -412,7 +412,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../features/CLI/" class="md-nav__link">
+      <a href="../../../features/CLI/" class="md-nav__link">
         CLI
       </a>
     </li>
@@ -426,7 +426,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../features/CONCEPTS/" class="md-nav__link">
+      <a href="../../../features/CONCEPTS/" class="md-nav__link">
         Concepts Library
       </a>
     </li>
@@ -440,7 +440,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../features/EMBIGGEN/" class="md-nav__link">
+      <a href="../../../features/EMBIGGEN/" class="md-nav__link">
         Embiggen
       </a>
     </li>
@@ -454,7 +454,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../features/IMG2IMG/" class="md-nav__link">
+      <a href="../../../features/IMG2IMG/" class="md-nav__link">
         Image-to-Image
       </a>
     </li>
@@ -468,7 +468,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../features/INPAINTING/" class="md-nav__link">
+      <a href="../../../features/INPAINTING/" class="md-nav__link">
         Inpainting
       </a>
     </li>
@@ -482,7 +482,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../features/NSFW/" class="md-nav__link">
+      <a href="../../../features/NSFW/" class="md-nav__link">
         The NSFW Checker
       </a>
     </li>
@@ -496,7 +496,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../features/OTHER/" class="md-nav__link">
+      <a href="../../../features/OTHER/" class="md-nav__link">
         Others
       </a>
     </li>
@@ -510,7 +510,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../features/OUTPAINTING/" class="md-nav__link">
+      <a href="../../../features/OUTPAINTING/" class="md-nav__link">
         Outpainting
       </a>
     </li>
@@ -524,7 +524,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../features/POSTPROCESS/" class="md-nav__link">
+      <a href="../../../features/POSTPROCESS/" class="md-nav__link">
         Postprocessing
       </a>
     </li>
@@ -538,7 +538,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../features/PROMPTS/" class="md-nav__link">
+      <a href="../../../features/PROMPTS/" class="md-nav__link">
         Prompting-Features
       </a>
     </li>
@@ -552,7 +552,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../features/TEXTUAL_INVERSION/" class="md-nav__link">
+      <a href="../../../features/TEXTUAL_INVERSION/" class="md-nav__link">
         Textual-Inversion
       </a>
     </li>
@@ -566,7 +566,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../features/UNIFIED_CANVAS/" class="md-nav__link">
+      <a href="../../../features/UNIFIED_CANVAS/" class="md-nav__link">
         UNIFIED CANVAS
       </a>
     </li>
@@ -580,7 +580,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../features/VARIATIONS/" class="md-nav__link">
+      <a href="../../../features/VARIATIONS/" class="md-nav__link">
         Variations
       </a>
     </li>
@@ -594,7 +594,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../features/WEB/" class="md-nav__link">
+      <a href="../../../features/WEB/" class="md-nav__link">
         InvokeAI Web Server
       </a>
     </li>
@@ -608,7 +608,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../features/WEBUIHOTKEYS/" class="md-nav__link">
+      <a href="../../../features/WEBUIHOTKEYS/" class="md-nav__link">
         WebUI Hotkey List
       </a>
     </li>
@@ -656,7 +656,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../help/SAMPLER_CONVERGENCE/" class="md-nav__link">
+      <a href="../../../help/SAMPLER_CONVERGENCE/" class="md-nav__link">
         Sampler Convergence
       </a>
     </li>
@@ -670,7 +670,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../help/TROUBLESHOOT/" class="md-nav__link">
+      <a href="../../../help/TROUBLESHOOT/" class="md-nav__link">
         F.A.Q.
       </a>
     </li>
@@ -720,8 +720,195 @@
   
   
     <li class="md-nav__item">
-      <a href="../" class="md-nav__link">
+      <a href="../../" class="md-nav__link">
         Overview
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../010_INSTALL_AUTOMATED/" class="md-nav__link">
+        Installing with the Automated Installer
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../020_INSTALL_MANUAL/" class="md-nav__link">
+        Installing Manually
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../040_INSTALL_DOCKER/" class="md-nav__link">
+        Installing with Docker
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../050_INSTALLING_MODELS/" class="md-nav__link">
+        Installing Models
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../060_INSTALL_PATCHMATCH/" class="md-nav__link">
+        Installing PyPatchMatch
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../INSTALL_AUTOMATED/" class="md-nav__link">
+        Installing with the Automated Installer
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../INSTALL_MANUAL/" class="md-nav__link">
+        Manual Installation
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_9" type="checkbox" id="__nav_5_9" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_5_9">
+          Developers documentation
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Developers documentation" data-md-level="2">
+        <label class="md-nav__title" for="__nav_5_9">
+          <span class="md-nav__icon md-icon"></span>
+          Developers documentation
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Developers_documentation/BUILDING_BINARY_INSTALLERS/" class="md-nav__link">
+        build binary installers
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_10" type="checkbox" id="__nav_5_10" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_5_10">
+          Deprecated documentation
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Deprecated documentation" data-md-level="2">
+        <label class="md-nav__title" for="__nav_5_10">
+          <span class="md-nav__icon md-icon"></span>
+          Deprecated documentation
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../INSTALL_BINARY/" class="md-nav__link">
+        InvokeAI Binary Installer
       </a>
     </li>
   
@@ -740,16 +927,14 @@
       <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
       
       
-        
-      
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
-          build binary installers
+          Running InvokeAI on Google Colab using a Jupyter Notebook
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <a href="./" class="md-nav__link md-nav__link--active">
-        build binary installers
+        Running InvokeAI on Google Colab using a Jupyter Notebook
       </a>
       
         
@@ -757,8 +942,6 @@
 <nav class="md-nav md-nav--secondary" aria-label="Table of contents">
   
   
-  
-    
   
   
     <label class="md-nav__title" for="__toc">
@@ -768,29 +951,22 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#1-ensure-installersrequirementsin-is-correct" class="md-nav__link">
-    1. Ensure installers/requirements.in is correct
+  <a href="#introduction" class="md-nav__link">
+    Introduction
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#2-run-pip-compile-on-each-platform" class="md-nav__link">
-     2. Run pip-compile on each platform.
+  <a href="#running-online-on-google-colabotary" class="md-nav__link">
+    Running Online On Google Colabotary
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#3-set-github-repository-and-branch" class="md-nav__link">
-     3. Set github repository and branch
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#4-create-zip-files" class="md-nav__link">
-    4. Create zip files.
+  <a href="#running-locally-cloning" class="md-nav__link">
+    Running Locally (Cloning)
   </a>
   
 </li>
@@ -810,8 +986,8 @@
   
   
     <li class="md-nav__item">
-      <a href="../INSTALLING_MODELS/" class="md-nav__link">
-        Installing Models
+      <a href="../INSTALL_LINUX/" class="md-nav__link">
+        Manual Installation, Linux
       </a>
     </li>
   
@@ -824,78 +1000,8 @@
   
   
     <li class="md-nav__item">
-      <a href="../INSTALL_AUTOMATED/" class="md-nav__link">
-        InvokeAI Automated Installation
-      </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../INSTALL_DOCKER/" class="md-nav__link">
-        Docker
-      </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../INSTALL_INVOKE/" class="md-nav__link">
-        InvokeAI Binary Installer
-      </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../INSTALL_JUPYTER/" class="md-nav__link">
-        Running InvokeAI on Google Colab using a Jupyter Notebook
-      </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../INSTALL_MANUAL/" class="md-nav__link">
-        Manual Installation
-      </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../INSTALL_PATCHMATCH/" class="md-nav__link">
-        Installing PyPatchMatch
+      <a href="../INSTALL_MAC/" class="md-nav__link">
+        Manual Installation, macOS
       </a>
     </li>
   
@@ -935,62 +1041,8 @@
   
   
   
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-      
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_12" type="checkbox" id="__nav_5_12" >
-      
-      
-      
-      
-        <label class="md-nav__link" for="__nav_5_12">
-          Older docs to be removed
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <nav class="md-nav" aria-label="Older docs to be removed" data-md-level="2">
-        <label class="md-nav__title" for="__nav_5_12">
-          <span class="md-nav__icon md-icon"></span>
-          Older docs to be removed
-        </label>
-        <ul class="md-nav__list" data-md-scrollfix>
-          
-            
-              
-  
-  
-  
     <li class="md-nav__item">
-      <a href="../older_docs_to_be_removed/INSTALL_LINUX/" class="md-nav__link">
-        Manual Installation, Linux
-      </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../older_docs_to_be_removed/INSTALL_MAC/" class="md-nav__link">
-        Manual Installation, macOS
-      </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../older_docs_to_be_removed/INSTALL_WINDOWS/" class="md-nav__link">
+      <a href="../INSTALL_WINDOWS/" class="md-nav__link">
         Manual Installation, Windows
       </a>
     </li>
@@ -1045,7 +1097,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../other/CONTRIBUTORS/" class="md-nav__link">
+      <a href="../../../other/CONTRIBUTORS/" class="md-nav__link">
         Contributors
       </a>
     </li>
@@ -1059,7 +1111,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../other/README-CompViz/" class="md-nav__link">
+      <a href="../../../other/README-CompViz/" class="md-nav__link">
         CompViz-Readme
       </a>
     </li>
@@ -1087,86 +1139,55 @@
                 
                   
 
-  <a href="https://github.com/invoke-ai/InvokeAI/edit/main/docs/installation/BUILDING_BINARY_INSTALLERS.md" title="Edit this page" class="md-content__button md-icon">
+  <a href="https://github.com/invoke-ai/InvokeAI/edit/main/docs/installation/deprecated_documentation/INSTALL_JUPYTER.md" title="Edit this page" class="md-content__button md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8 12h8v2H8v-2m2 8H6V4h7v5h5v3.1l2-2V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4v-2m-2-2h4.1l.9-.9V16H8v2m12.2-5c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1 2.1 2.1Z"/></svg>
   </a>
 
 
-<h1 id="how-to-build-binary-installers-invokeai-macwindowslinux_on_zip"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m23.613 8.143-7.668-3.856v7.712l7.668-3.855zM8.166 15.857V8.143L.387 4.287V12l7.78 3.857zM.183 3.958a.382.382 0 0 1 .377-.017l7.606 3.771 7.607-3.771a.386.386 0 0 1 .346 0l7.668 3.857a.386.386 0 0 1 .213.345v7.71a.388.388 0 0 1-.213.346l-7.668 3.86a.389.389 0 0 1-.562-.345v-7.09l-7.219 3.58a.392.392 0 0 1-.344 0L.215 12.346A.387.387 0 0 1 0 12V4.287a.385.385 0 0 1 .183-.329z"/></svg></span> How to build "binary" installers (InvokeAI-mac/windows/linux_on_*.zip)<a class="headerlink" href="#how-to-build-binary-installers-invokeai-macwindowslinux_on_zip" title="Permanent link">#</a></h1>
-<h2 id="1-ensure-installersrequirementsin-is-correct">1. Ensure <code>installers/requirements.in</code> is correct<a class="headerlink" href="#1-ensure-installersrequirementsin-is-correct" title="Permanent link">#</a></h2>
-<p>and up to date on the branch to be installed.</p>
-<h2 id="2-run-pip-compile-on-each-platform"><a name="step-2"></a> 2. Run <code>pip-compile</code> on each platform.<a class="headerlink" href="#2-run-pip-compile-on-each-platform" title="Permanent link">#</a></h2>
-<p>On each target platform, in the branch that is to be installed, and
-inside the InvokeAI git root folder, run the following commands:</p>
-<p><div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>conda activate invokeai # or however you activate python
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>pip install pip-tools
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>pip-compile --allow-unsafe --generate-hashes --output-file=binary_installer/&lt;reqsfile&gt;.txt binary_installer/requirements.in
-</code></pre></div>
-where <code>&lt;reqsfile&gt;.txt</code> is whichever of
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>py3.10-darwin-arm64-mps-reqs.txt
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>py3.10-darwin-x86_64-reqs.txt
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>py3.10-linux-x86_64-cuda-reqs.txt
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>py3.10-windows-x86_64-cuda-reqs.txt
-</code></pre></div>
-matches the current OS and architecture.</p>
-<blockquote>
-<p>There is no way to cross-compile these. They must be done on a system matching the target OS and arch.</p>
-</blockquote>
-<h2 id="3-set-github-repository-and-branch"><a name="step-3"></a> 3. Set github repository and branch<a class="headerlink" href="#3-set-github-repository-and-branch" title="Permanent link">#</a></h2>
-<p>Once all reqs files have been collected and committed <strong>to the branch
-to be installed</strong>, edit <code>binary_installer/install.sh.in</code> and <code>binary_installer/install.bat.in</code> so that <code>RELEASE_URL</code>
-and <code>RELEASE_SOURCEBALL</code> point to the github repo and branch that is
-to be installed.</p>
-<p>For example, to install <code>main</code> branch of <code>InvokeAI</code>, they should be
-set as follows:</p>
-<p><code>install.sh.in</code>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>RELEASE_URL=https://github.com/invoke-ai/InvokeAI
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>RELEASE_SOURCEBALL=/archive/refs/heads/main.tar.gz
-</code></pre></div></p>
-<p><code>install.bat.in</code>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>set RELEASE_URL=https://github.com/invoke-ai/InvokeAI
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>set RELEASE_SOURCEBALL=/archive/refs/heads/main.tar.gz
-</code></pre></div></p>
-<p>Or, to install <code>damians-cool-feature</code> branch of <code>damian0815</code>, set them
-as follows:</p>
-<p><code>install.sh.in</code>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>RELEASE_URL=https://github.com/damian0815/InvokeAI
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>RELEASE_SOURCEBALL=/archive/refs/heads/damians-cool-feature.tar.gz
-</code></pre></div></p>
-<p><code>install.bat.in</code>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>set RELEASE_URL=https://github.com/damian0815/InvokeAI
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>set RELEASE_SOURCEBALL=/archive/refs/heads/damians-cool-feature.tar.gz
-</code></pre></div></p>
-<p>The branch and repo specified here <strong>must</strong> contain the correct reqs
-files. The installer zip files <strong>do not</strong> contain requirements files,
-they are pulled from the specified branch during the installation
-process.</p>
-<h2 id="4-create-zip-files">4. Create zip files.<a class="headerlink" href="#4-create-zip-files" title="Permanent link">#</a></h2>
-<p>cd into the <code>installers/</code> folder and run
-<code>./create_installers.sh</code>. This will create
-<code>InvokeAI-mac_on_&lt;branch&gt;.zip</code>,
-<code>InvokeAI-windows_on_&lt;branch&gt;.zip</code> and
-<code>InvokeAI-linux_on_&lt;branch&gt;.zip</code>. These files can be distributed to end users.</p>
-<p>These zips will continue to function as installers for all future
-pushes to those branches, as long as necessary changes to
-<code>requirements.in</code> are propagated in a timely manner to the
-<code>py3.10-*-reqs.txt</code> files using pip-compile as outlined in <a href="#step-2">step
-2</a>.</p>
-<p>To actually install, users should unzip the appropriate zip file into an empty
-folder and run <code>install.sh</code> on macOS/Linux or <code>install.bat</code> on
-Windows.</p>
+  <h1>Running InvokeAI on Google Colab using a Jupyter Notebook</h1>
+
+<h2 id="introduction">Introduction<a class="headerlink" href="#introduction" title="Permanent link">#</a></h2>
+<p>We have a <a href="https://github.com/invoke-ai/InvokeAI/blob/main/notebooks/Stable_Diffusion_AI_Notebook.ipynb">Jupyter
+notebook</a>
+with cell-by-cell installation steps. It will download the code in
+this repo as one of the steps, so instead of cloning this repo, simply
+download the notebook from the link above and load it up in VSCode
+(with the appropriate extensions installed)/Jupyter/JupyterLab and
+start running the cells one-by-one.</p>
+<div class="admonition note">
+<p class="admonition-title">you will need NVIDIA drivers, Python 3.10, and Git installed beforehand</p>
+</div>
+<h2 id="running-online-on-google-colabotary">Running Online On Google Colabotary<a class="headerlink" href="#running-online-on-google-colabotary" title="Permanent link">#</a></h2>
+<p><a href="https://colab.research.google.com/github/invoke-ai/InvokeAI/blob/main/notebooks/Stable_Diffusion_AI_Notebook.ipynb"><img alt="Open in Colab" src="https://colab.research.google.com/assets/colab-badge.svg" /></a></p>
+<h2 id="running-locally-cloning">Running Locally (Cloning)<a class="headerlink" href="#running-locally-cloning" title="Permanent link">#</a></h2>
+<ol>
+<li>
+<p>Install the Jupyter Notebook python library (one-time):
+pip install jupyter</p>
+</li>
+<li>
+<p>Clone the InvokeAI repository:
+git clone <a href="https://github.com/invoke-ai/InvokeAI.git">https://github.com/invoke-ai/InvokeAI.git</a>
+cd invoke-ai</p>
+</li>
+<li>Create a virtual environment using conda:
+conda create -n invoke jupyter</li>
+<li>Activate the environment and start the Jupyter notebook:
+conda activate invoke
+jupyter notebook</li>
+</ol>
 
   <hr>
 <div class="md-source-file">
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">December 2, 2022</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">December 15, 2022</span>
       
         <br>
         Created:
-        <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">December 1, 2022</span>
+        <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">November 12, 2022</span>
       
     
   </small>
@@ -1196,7 +1217,7 @@ Windows.</p>
     <nav class="md-footer__inner md-grid" aria-label="Footer" >
       
         
-        <a href="../" class="md-footer__link md-footer__link--prev" aria-label="Previous: Overview" rel="prev">
+        <a href="../INSTALL_BINARY/" class="md-footer__link md-footer__link--prev" aria-label="Previous: InvokeAI Binary Installer" rel="prev">
           <div class="md-footer__button md-icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
           </div>
@@ -1205,20 +1226,20 @@ Windows.</p>
               <span class="md-footer__direction">
                 Previous
               </span>
-              Overview
+              InvokeAI Binary Installer
             </div>
           </div>
         </a>
       
       
         
-        <a href="../INSTALLING_MODELS/" class="md-footer__link md-footer__link--next" aria-label="Next: Installing Models" rel="next">
+        <a href="../INSTALL_LINUX/" class="md-footer__link md-footer__link--next" aria-label="Next: Manual Installation, Linux" rel="next">
           <div class="md-footer__title">
             <div class="md-ellipsis">
               <span class="md-footer__direction">
                 Next
               </span>
-              Installing Models
+              Manual Installation, Linux
             </div>
           </div>
           <div class="md-footer__button md-icon">
@@ -1253,10 +1274,10 @@ Windows.</p>
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
-    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.instant", "navigation.tabs", "navigation.top", "navigation.tracking", "search.highlight", "search.suggest", "toc.integrate"], "search": "../../assets/javascripts/workers/search.16e2a7d4.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.instant", "navigation.tabs", "navigation.top", "navigation.tracking", "search.highlight", "search.suggest", "toc.integrate"], "search": "../../../assets/javascripts/workers/search.16e2a7d4.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.5a2dcb6a.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.5a2dcb6a.min.js"></script>
       
     
     
