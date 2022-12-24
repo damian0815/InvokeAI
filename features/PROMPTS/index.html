@@ -415,7 +415,7 @@
   
     <li class="md-nav__item">
       <a href="../CLI/" class="md-nav__link">
-        CLI
+        Command-Line Interface
       </a>
     </li>
   
@@ -706,7 +706,7 @@
   
     <li class="md-nav__item">
       <a href="../UNIFIED_CANVAS/" class="md-nav__link">
-        UNIFIED CANVAS
+        Unified Canvas
       </a>
     </li>
   
@@ -1240,17 +1240,48 @@ would type at the invoke&gt; prompt:</p>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="s2">&quot;innovative packaging for a squid&#39;s dinner&quot;</span> -S137038382
 </code></pre></div>
 <p>Then pass this file's name to <code>invoke.py</code> when you invoke it:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="o">(</span>invokeai<span class="o">)</span> ~/stable-diffusion$ python3 scripts/invoke.py --from_file <span class="s2">&quot;path/to/prompts.txt&quot;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>python scripts/invoke.py --from_file <span class="s2">&quot;/path/to/prompts.txt&quot;</span>
 </code></pre></div>
-<p>You may read a series of prompts from standard input by providing a filename of
-<code>-</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="o">(</span>invokeai<span class="o">)</span> ~/stable-diffusion$ <span class="nb">echo</span> <span class="s2">&quot;a beautiful day&quot;</span> <span class="p">|</span> python3 scripts/invoke.py --from_file -
+<p>You may also read a series of prompts from standard input by providing
+a filename of <code>-</code>. For example, here is a python script that creates a
+matrix of prompts, each one varying slightly:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="ch">#!/usr/bin/env python</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="nv">adjectives</span> <span class="o">=</span> <span class="o">[</span><span class="s1">&#39;sunny&#39;</span>,<span class="s1">&#39;rainy&#39;</span>,<span class="s1">&#39;overcast&#39;</span><span class="o">]</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="nv">samplers</span> <span class="o">=</span> <span class="o">[</span><span class="s1">&#39;k_lms&#39;</span>,<span class="s1">&#39;k_euler_a&#39;</span>,<span class="s1">&#39;k_heun&#39;</span><span class="o">]</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="nv">cfg</span> <span class="o">=</span> <span class="o">[</span><span class="m">7</span>.5, <span class="m">9</span>, <span class="m">11</span><span class="o">]</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="k">for</span> adj <span class="k">in</span> adjectives:
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    <span class="k">for</span> samp <span class="k">in</span> samplers:
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>        <span class="k">for</span> cg <span class="k">in</span> cfg:
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>            print<span class="o">(</span>f<span class="s1">&#39;a {adj} day -A{samp} -C{cg}&#39;</span><span class="o">)</span>
 </code></pre></div>
+<p>It's output looks like this (abbreviated):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>a sunny day -Aklms -C7.5
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>a sunny day -Aklms -C9
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>a sunny day -Aklms -C11
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>a sunny day -Ak_euler_a -C7.5
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>a sunny day -Ak_euler_a -C9
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>...
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>a overcast day -Ak_heun -C9
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>a overcast day -Ak_heun -C11
+</code></pre></div>
+<p>To feed it to invoke.py, pass the filename of "-"</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>python matrix.py <span class="p">|</span> python scripts/invoke.py --from_file -
+</code></pre></div>
+<p>When the script is finished, each of the 27 combinations
+of adjective, sampler and CFG will be executed.</p>
+<p>The command-line interface provides <code>!fetch</code> and <code>!replay</code> commands
+which allow you to read the prompts from a single previously-generated
+image or a whole directory of them, write the prompts to a file, and
+then replay them. Or you can create your own file of prompts and feed
+them to the command-line client from within an interactive session.
+See <a href="../CLI/">Command-Line Interface</a> for details.</p>
 <hr />
 <h2 id="negative-and-unconditioned-prompts"><strong>Negative and Unconditioned Prompts</strong><a class="headerlink" href="#negative-and-unconditioned-prompts" title="Permanent link">#</a></h2>
 <p>Any words between a pair of square brackets will instruct Stable Diffusion to
 attempt to ban the concept from the generated image.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>this is a test prompt [not really] to make you understand [cool] how this works.
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>this is a test prompt [not really] to make you understand [cool] how this works.
 </code></pre></div>
 <p>In the above statement, the words 'not really cool` will be ignored by Stable
 Diffusion.</p>
@@ -1317,7 +1348,9 @@ term).</p>
 this prompt of <code>a man picking apricots from a tree</code>, let's see what happens if
 we increase and decrease how much attention we want Stable Diffusion to pay to
 the word <code>apricots</code>:</p>
+<figure>
 <p><img alt="an AI generated image of a man picking apricots from a tree" src="../../assets/prompt_syntax/apricots-0.png" /></p>
+</figure>
 <p>Using <code>-</code> to reduce apricot-ness:</p>
 <table>
 <thead>
@@ -1358,7 +1391,9 @@ the word <code>apricots</code>:</p>
 </table>
 <p>You can also change the balance between different parts of a prompt. For
 example, below is a <code>mountain man</code>:</p>
+<figure>
 <p><img alt="an AI generated image of a mountain man" src="../../assets/prompt_syntax/mountain-man.png" /></p>
+</figure>
 <p>And here he is with more mountain:</p>
 <table>
 <thead>
@@ -1421,30 +1456,36 @@ handy.</p>
 use the <code>prompt2prompt</code> syntax to substitute words in the original prompt for
 words in a new prompt. This works for <code>img2img</code> as well.</p>
 <ul>
-<li><code>a ("fluffy cat").swap("smiling dog") eating a hotdog</code>.</li>
+<li><code>a ("fluffy cat").swap("smiling dog") eating a hotdog</code>.<ul>
 <li>quotes optional: <code>a (fluffy cat).swap(smiling dog) eating a hotdog</code>.</li>
 <li>for single word substitutions parentheses are also optional:
-    <code>a cat.swap(dog) eating a hotdog</code>.</li>
+  <code>a cat.swap(dog) eating a hotdog</code>.</li>
+</ul>
+</li>
 <li>Supports options <code>s_start</code>, <code>s_end</code>, <code>t_start</code>, <code>t_end</code> (each 0-1) loosely
   corresponding to bloc97's <code>prompt_edit_spatial_start/_end</code> and
   <code>prompt_edit_tokens_start/_end</code> but with the math swapped to make it easier to
-  intuitively understand.</li>
+  intuitively understand.<ul>
 <li>Example usage:<code>a (cat).swap(dog, s_end=0.3) eating a hotdog</code> - the <code>s_end</code>
-    argument means that the "spatial" (self-attention) edit will stop having any
-    effect after 30% (=0.3) of the steps have been done, leaving Stable
-    Diffusion with 70% of the steps where it is free to decide for itself how to
-    reshape the cat-form into a dog form.</li>
+  argument means that the "spatial" (self-attention) edit will stop having any
+  effect after 30% (=0.3) of the steps have been done, leaving Stable
+  Diffusion with 70% of the steps where it is free to decide for itself how to
+  reshape the cat-form into a dog form.</li>
 <li>The numbers represent a percentage through the step sequence where the edits
-    should happen. 0 means the start (noisy starting image), 1 is the end (final
-    image).<ul>
+  should happen. 0 means the start (noisy starting image), 1 is the end (final
+  image).<ul>
 <li>For img2img, the step sequence does not start at 0 but instead at
   (1-strength) - so if strength is 0.7, s_start and s_end must both be
   greater than 0.3 (1-0.7) to have any effect.</li>
 </ul>
 </li>
+</ul>
+</li>
 <li>Convenience option <code>shape_freedom</code> (0-1) to specify how much "freedom" Stable
-  Diffusion should have to change the shape of the subject being swapped.</li>
+  Diffusion should have to change the shape of the subject being swapped.<ul>
 <li><code>a (cat).swap(dog, shape_freedom=0.5) eating a hotdog</code>.</li>
+</ul>
+</li>
 </ul>
 <p>The <code>prompt2prompt</code> code is based off
 <a href="https://github.com/bloc97/CrossAttentionControl">bloc97's colab</a>.</p>
@@ -1453,10 +1494,10 @@ model, and may never work due to the way this model is set up. If you attempt to
 use <code>prompt2prompt</code> you will get the original image back. However, since this
 model is so good at inpainting, a good substitute is to use the <code>clipseg</code> text
 masking option:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>invoke&gt; a fluffy cat eating a hotdot
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>Outputs:
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="o">[</span><span class="m">1010</span><span class="o">]</span> outputs/000025.2182095108.png: a fluffy cat eating a hotdog
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>invoke&gt; a smiling dog eating a hotdog -I <span class="m">000025</span>.2182095108.png -tm cat
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>invoke&gt; a fluffy cat eating a hotdot
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>Outputs:
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="o">[</span><span class="m">1010</span><span class="o">]</span> outputs/000025.2182095108.png: a fluffy cat eating a hotdog
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>invoke&gt; a smiling dog eating a hotdog -I <span class="m">000025</span>.2182095108.png -tm cat
 </code></pre></div>
 <h3 id="escaping-parantheses-and-speech-marks">Escaping parantheses () and speech marks ""<a class="headerlink" href="#escaping-parantheses-and-speech-marks" title="Permanent link">#</a></h3>
 <p>If the model you are using has parentheses () or speech marks "" as part of its
@@ -1468,14 +1509,14 @@ the parentheses as part of the prompt syntax and it will get confused.</p>
 <p>You may blend together different sections of the prompt to explore the AI's
 latent semantic space and generate interesting (and often surprising!)
 variations. The syntax is:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>blue sphere:0.25 red cube:0.75 hybrid
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>blue sphere:0.25 red cube:0.75 hybrid
 </code></pre></div>
 <p>This will tell the sampler to blend 25% of the concept of a blue sphere with 75%
 of the concept of a red cube. The blend weights can use any combination of
 integers and floating point numbers, and they do not need to add up to 1.
 Everything to the left of the <code>:XX</code> up to the previous <code>:XX</code> is used for
 merging, so the overall effect is:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="m">0</span>.25 * <span class="s2">&quot;blue sphere&quot;</span> + <span class="m">0</span>.75 * <span class="s2">&quot;white duck&quot;</span> + hybrid
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="m">0</span>.25 * <span class="s2">&quot;blue sphere&quot;</span> + <span class="m">0</span>.75 * <span class="s2">&quot;white duck&quot;</span> + hybrid
 </code></pre></div>
 <p>Because you are exploring the "mind" of the AI, the AI's way of mixing two
 concepts may not match yours, leading to surprising effects. To illustrate, here
@@ -1528,7 +1569,7 @@ deterministic prompt weighting.</p>
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">November 12, 2022</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">December 23, 2022</span>
       
         <br>
         Created:
