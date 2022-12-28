@@ -1,25 +1,9 @@
 import math
 
 import torch
-from transformers import CLIPTokenizer, CLIPTextModel
-
-from ldm.modules.textual_inversion_manager import TextualInversionManager
 
 
-class WeightedPromptFragmentsToEmbeddingsConverter():
-
-    def __init__(self,
-                tokenizer: CLIPTokenizer, # converts strings to lists of int token ids
-                text_encoder: CLIPTextModel, # convert a list of int token ids to a tensor of embeddings
-                textual_inversion_manager: TextualInversionManager = None
-                ):
-        self.tokenizer = tokenizer
-        self.text_encoder = text_encoder
-        self.textual_inversion_manager = textual_inversion_manager
-
-    @property
-    def max_length(self):
-        return self.tokenizer.model_max_length
+class PromptToEmbeddingsConverter:
 
     def get_embeddings_for_weighted_prompt_fragments(self,
                                                      text: list[str],

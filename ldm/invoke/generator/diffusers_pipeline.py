@@ -5,6 +5,9 @@ import warnings
 from dataclasses import dataclass
 import sys
 from typing import List, Optional, Union, Callable, Type, TypeVar, Generic, Any
+
+from ..conditioning import ConditioningSchedulerFactory
+
 if sys.version_info < (3, 10):
     from typing_extensions import ParamSpec
 else:
@@ -20,7 +23,6 @@ from diffusers.utils.import_utils import is_xformers_available
 
 from ...models.diffusion import cross_attention_control
 from ...models.diffusion.cross_attention_map_saving import AttentionMapSaver
-from ...modules.prompt_to_embeddings_converter import WeightedPromptFragmentsToEmbeddingsConverter
 
 # monkeypatch diffusers CrossAttention 🙈
 # this is to make prompt2prompt and (future) attention maps work
@@ -265,7 +267,7 @@ class StableDiffusionGeneratorPipeline(StableDiffusionPipeline):
                                                                  text_encoder=self.text_encoder,
                                                                  full_precision=use_full_precision)
         # InvokeAI's interface for text embeddings and whatnot
-        self.prompt_fragments_to_embeddings_converter = WeightedPromptFragmentsToEmbeddingsConverter(
+        self.prompt_fragments_to_embeddings_converter = ConditioningSchedulerFactory(
             tokenizer=self.tokenizer,
             text_encoder=self.text_encoder,
             textual_inversion_manager=self.textual_inversion_manager

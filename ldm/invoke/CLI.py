@@ -377,6 +377,9 @@ def main_loop(gen, opt):
                 except (PromptParser.ParsingException, pyparsing.ParseException) as e:
                     print('** An error occurred while processing your prompt **')
                     print(f'** {str(e)} **')
+                except Exception as e:
+                    traceback.print_exc()
+                    print('** Caught exception while generating, future operation may be unpredictable')
             elif operation == 'postprocess':
                 print(f'>> fixing {opt.prompt}')
                 opt.last_operation = do_postprocess(gen,opt,image_writer)

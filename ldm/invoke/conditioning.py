@@ -7,21 +7,24 @@ get_uc_and_c_and_ec()           get the conditioned and unconditioned latent, an
 
 '''
 import re
-from typing import Union
+from dataclasses import dataclass
+from typing import Union, Optional
 
 import torch
+from transformers import CLIPTokenizer, CLIPTextModel
 
 from .prompt_parser import PromptParser, Blend, FlattenedPrompt, \
-    CrossAttentionControlledFragment, CrossAttentionControlSubstitute, Fragment
+    CrossAttentionControlSubstitute, Fragment
 from ..models.diffusion import cross_attention_control
 from ..models.diffusion.shared_invokeai_diffusion import InvokeAIDiffuserComponent
-from ..modules.encoders.modules import WeightedFrozenCLIPEmbedder
-from ..modules.prompt_to_embeddings_converter import WeightedPromptFragmentsToEmbeddingsConverter
+from ..modules.prompt_to_embeddings_converter import PromptToEmbeddingsConverter
+from ..modules.textual_inversion_manager import TextualInversionManager
 
 
 def get_uc_and_c_and_ec(prompt_string, model, log_tokens=False, skip_normalize_legacy_blend=False):
     prompt, negative_prompt = get_prompt_structure(prompt_string,
                                                    skip_normalize_legacy_blend=skip_normalize_legacy_blend)
+
     conditioning = _get_conditioning_for_prompt(prompt, negative_prompt, model, log_tokens)
 
     return conditioning
@@ -217,19 +220,24 @@ def _get_conditioning_for_blend(model, blend: Blend, log_tokens: bool = False):
                                                                   log_display_label=f"(blend part {i + 1}, weight={blend.weights[i]})")
         embeddings_to_blend = this_embedding if embeddings_to_blend is None else torch.cat(
             (embeddings_to_blend, this_embedding))
-    conditioning = WeightedPromptFragmentsToEmbeddingsConverter.apply_embedding_weights(embeddings_to_blend.unsqueeze(0),
-                                                                      blend.weights,
-                                                                      normalize=blend.normalize_weights)
+    conditioning = ConditioningSchedulerFactory.apply_embedding_weights(embeddings_to_blend.unsqueeze(0),
+                                                                        blend.weights,
+                                                                        normalize=blend.normalize_weights)
     return conditioning
 
 
-def _get_embeddings_and_tokens_for_prompt(model, flattened_prompt: FlattenedPrompt, log_tokens: bool = False,
+def _get_embeddings_and_tokens_for_prompt(model,
+                                          flattened_prompt: FlattenedPrompt,
+                                          log_tokens: bool = False,
                                           log_display_label: str = None):
     if type(flattened_prompt) is not FlattenedPrompt:
         raise Exception(f"embeddings can only be made from FlattenedPrompts, got {type(flattened_prompt)} instead")
     fragments = [x.text for x in flattened_prompt.children]
     weights = [x.weight for x in flattened_prompt.children]
-    embeddings, tokens = model.get_learned_conditioning([fragments], return_tokens=True, fragment_weights=[weights])
+    embeddings, tokens = get_embeddings_for_weighted_prompt_fragments(
+            text=fragments,
+            fragment_weights=weights,
+            should_return_tokens=True)
     if log_tokens:
         text = " ".join(fragments)
         log_tokenization(text, model, display_label=log_display_label)
@@ -288,3 +296,70 @@ def log_tokenization(text, model, display_label=None):
         print(
             f">> Tokens Discarded ({totalTokens - usedTokens}):\n{discarded}\x1b[0m"
         )
+
+
+
+@dataclass
+class Conditioning():
+    """
+    Conditioning. In all examples `B` is batch size, `77` is the text encoder's max token length,
+    and `token_dim` is 768 for SD1 and 1280 for SD2.
+    """
+    negative_conditioning: torch.Tensor # shape [B x 77 x token_dim]
+    positive_conditioning: torch.Tensor # shape [B x 77 x token_dim]
+    cfg_scale: float # conditioner-free guidance scale
+
+    cross_attention_control_types_to_do: Optional[list[cross_attention_control.CrossAttentionType]]
+    cross_attention_token_weights_map: Optional[torch.Tensor]
+
+
+class ConditioningScheduler():
+    """
+    Provides a mechanism to control which processes to apply for any given step of a Stable Diffusion generation.
+    """
+    def __init__(self, positive_conditioning: torch.Tensor,
+                 negative_conditioning: torch.Tensor,
+                 cfg_scale: float,
+                 cross_attention_control_args: Optional[cross_attention_control.Arguments]):
+        self.positive_conditioning = positive_conditioning
+        self.negative_conditioning = negative_conditioning
+        self.cfg_scale = cfg_scale
+        self.cross_attention_control_args = cross_attention_control_args
+
+    def get_conditioning_for_step_pct(self, step_pct: float):
+        """
+        Return the conditioning to apply at the given step.
+        :param step_pct: The step as a float `0..1`, where `0.0` is immediately before the start of image generation
+        process (when the latent vector is 100% noise), and `1.0` is immediately after the end of the final step
+        (when the latent vector represents the final noise-free generated image).
+        :return: The Conditioning to apply.
+        """
+        return Conditioning(negative_conditioning=self.negative_conditioning,
+                            positive_conditioning=self.standard_positive_conditioning,
+                            cfg_scale=self.cfg)
+
+
+class ConditioningSchedulerFactory():
+
+    def __init__(self,
+                tokenizer: CLIPTokenizer, # converts strings to lists of int token ids
+                text_encoder: CLIPTextModel, # convert a list of int token ids to a tensor of embeddings
+                textual_inversion_manager: TextualInversionManager = None
+                ):
+        self.tokenizer = tokenizer
+        self.text_encoder = text_encoder
+        self.textual_inversion_manager = textual_inversion_manager
+
+    @property
+    def max_length(self):
+        return self.tokenizer.model_max_length
+
+
+
+    def make_conditioning_scheduler(self, prompt_string: str, cfg_scale: float) -> ConditioningScheduler:
+        c, uc, ec = get_uc_and_c_and_ec(prompt_string)
+        extra_conditioning_info: InvokeAIDiffuserComponent.ExtraConditioningInfo = ec
+        return ConditioningScheduler(positive_conditioning=c,
+                                     negative_conditioning=uc,
+                                     cfg_scale=cfg_scale,
+                                     cross_attention_control_args=extra_conditioning_info.cross_attention_control_args)

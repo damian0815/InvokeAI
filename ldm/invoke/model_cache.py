@@ -341,6 +341,7 @@ class ModelCache(object):
             #     How do we find out what that is?
             print('   | Using more accurate float32 precision')
         try:
+            print(f'loading pipey {name_or_path} from {cache_dir}')
             pipeline = StableDiffusionGeneratorPipeline.from_pretrained(
                 name_or_path,
                 safety_checker=None,
@@ -370,7 +371,7 @@ class ModelCache(object):
         if isinstance(model_name,DictConfig):
             mconfig = model_name
         elif model_name in self.config:
-            mconfig = self.config[model_name]            
+            mconfig = self.config[model_name]
         else:
             raise ValueError(f'"{model_name}" is not a known model name. Please check your models.yaml file')
 
@@ -488,7 +489,7 @@ class ModelCache(object):
     def _model_from_cpu(self,model):
         if self.device == 'cpu':
             return model
-        
+
         model.to(self.device)
         model.cond_stage_model.device = self.device
 
@@ -546,7 +547,7 @@ class ModelCache(object):
     def _load_vae(self, vae_config):
         vae_args = {}
         name_or_path = self.model_name_or_path(vae_config)
-        using_fp16 = False        
+        using_fp16 = False
 
         print(f'>> Loading diffusers VAE from {name_or_path}')
         if self.precision == 'float16':
