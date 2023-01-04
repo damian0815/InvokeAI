@@ -3,9 +3,11 @@ ldm.invoke.generator.img2img descends from ldm.invoke.generator
 '''
 
 import torch
+from diffusers import logging
 
 from ldm.invoke.generator.base import Generator
-from ldm.invoke.generator.diffusers_pipeline import StableDiffusionGeneratorPipeline
+from ldm.invoke.generator.diffusers_pipeline import StableDiffusionGeneratorPipeline, ConditioningData
+from ldm.models.diffusion.shared_invokeai_diffusion import ThresholdSettings
 
 
 class Img2Img(Generator):
@@ -23,17 +25,25 @@ class Img2Img(Generator):
         """
         self.perlin = perlin
 
-        uc, c, extra_conditioning_info   = conditioning
-
         # noinspection PyTypeChecker
         pipeline: StableDiffusionGeneratorPipeline = self.model
         pipeline.scheduler = sampler
 
+        uc, c, extra_conditioning_info   = conditioning
+        conditioning_data = (
+            ConditioningData(
+                uc, c, cfg_scale, extra_conditioning_info,
+                threshold = ThresholdSettings(threshold, warmup=0.2) if threshold else None)
+            .add_scheduler_args_if_applicable(pipeline.scheduler, eta=ddim_eta))
+
+
         def make_image(x_T):
             # FIXME: use x_T for initial seeded noise
+            # We're not at the moment because the pipeline automatically resizes init_image if
+            # necessary, which the x_T input might not match.
+            logging.set_verbosity_error()   # quench safety check warnings
             pipeline_output = pipeline.img2img_from_embeddings(
-                init_image, strength, steps, c, uc, cfg_scale,
-                extra_conditioning_info=extra_conditioning_info,
+                init_image, strength, steps, conditioning_data,
                 noise_func=self.get_noise_like,
                 callback=step_callback
             )

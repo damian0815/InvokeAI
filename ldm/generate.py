@@ -4,6 +4,7 @@
 # Copyright (c) 2022 Robin Rombach and Patrick Esser and contributors
 
 import gc
+import importlib
 import os
 import random
 import re
@@ -34,17 +35,17 @@ from ldm.invoke.args import metadata_from_png
 from ldm.invoke.concepts_lib import HuggingFaceConceptsLibrary
 from ldm.invoke.conditioning import get_uc_and_c_and_ec
 from ldm.invoke.devices import choose_torch_device, choose_precision
+from ldm.invoke.generator.inpaint import infill_methods
 from ldm.invoke.globals import Globals
 from ldm.invoke.image_util import InitImageResizer
-from ldm.invoke.model_cache import ModelCache
+from ldm.invoke.model_manager import ModelManager
 from ldm.invoke.pngwriter import PngWriter
 from ldm.invoke.seamless import configure_model_padding
-from ldm.invoke.txt2mask import Txt2Mask, SegmentedGrayscale
-from ldm.invoke.generator.inpaint import infill_methods
-
+from ldm.invoke.txt2mask import Txt2Mask
 from ldm.models.diffusion.ddim import DDIMSampler
 from ldm.models.diffusion.ksampler import KSampler
 from ldm.models.diffusion.plms import PLMSSampler
+
 
 def fix_func(orig):
     if hasattr(torch.backends, 'mps') and torch.backends.mps.is_available():
@@ -162,12 +163,12 @@ class Generate:
         mconfig             = OmegaConf.load(conf)
         self.height         = None
         self.width          = None
-        self.model_cache    = None
+        self.model_manager    = None
         self.iterations     = 1
         self.steps          = 50
         self.cfg_scale      = 7.5
         self.sampler_name   = sampler_name
-        self.ddim_eta       = 0.0    # same seed always produces same image
+        self.ddim_eta       = ddim_eta    # same seed always produces same image
         self.precision      = precision
         self.strength       = 0.75
         self.seamless       = False
@@ -179,7 +180,6 @@ class Generate:
         self.sampler        = None
         self.device         = None
         self.session_peakmem = None
-        self.generators     = {}
         self.base_generator = None
         self.seed           = None
         self.outdir = outdir
@@ -192,6 +192,7 @@ class Generate:
         self.txt2mask = None
         self.safety_checker = None
         self.karras_max = None
+        self.infill_method = None
 
         # Note that in previous versions, there was an option to pass the
         # device to Generate(). However the device was then ignored, so
@@ -209,8 +210,8 @@ class Generate:
             self.precision = choose_precision(self.device)
 
         # model caching system for fast switching
-        self.model_cache = ModelCache(mconfig,self.device,self.precision,max_loaded_models=max_loaded_models)
-        self.model_name  = model or self.model_cache.default_model() or FALLBACK_MODEL_NAME
+        self.model_manager = ModelManager(mconfig,self.device,self.precision,max_loaded_models=max_loaded_models)
+        self.model_name  = model or self.model_manager.default_model() or FALLBACK_MODEL_NAME
 
         # for VRAM usage statistics
         self.session_peakmem = torch.cuda.max_memory_allocated() if self._has_cuda else None
@@ -328,7 +329,7 @@ class Generate:
             seam_strength: float = 0.7,
             seam_steps: int  = 10,
             tile_size: int   = 32,
-            infill_method = infill_methods[0], # The infill method to use
+            infill_method = None,
             force_outpaint: bool = False,
             enable_image_debugging = False,
 
@@ -394,6 +395,7 @@ class Generate:
         self.log_tokenization = log_tokenization
         self.step_callback = step_callback
         self.karras_max = karras_max
+        self.infill_method = infill_method or infill_methods()[0], # The infill method to use
         with_variations = [] if with_variations is None else with_variations
 
         # will instantiate the model or return it from cache
@@ -406,6 +408,7 @@ class Generate:
 
         if isinstance(model, DiffusionPipeline):
             configure_model_padding(model.unet, seamless, seamless_axes)
+            configure_model_padding(model.vae, seamless, seamless_axes)
         else:
             configure_model_padding(model, seamless, seamless_axes)
 
@@ -772,55 +775,37 @@ class Generate:
 
         return init_image,init_mask
 
-    # lots o' repeated code here! Turn into a make_func()
     def _make_base(self):
-        if not self.generators.get('base'):
-            from ldm.invoke.generator import Generator
-            self.generators['base'] = Generator(self.model, self.precision)
-        return self.generators['base']
-
-    def _make_img2img(self):
-        if not self.generators.get('img2img'):
-            from ldm.invoke.generator.img2img import Img2Img
-            self.generators['img2img'] = Img2Img(self.model, self.precision)
-            self.generators['img2img'].free_gpu_mem = self.free_gpu_mem
-        return self.generators['img2img']
-
-    def _make_embiggen(self):
-        if not self.generators.get('embiggen'):
-            from ldm.invoke.generator.embiggen import Embiggen
-            self.generators['embiggen'] = Embiggen(self.model, self.precision)
-        return self.generators['embiggen']
+        return self._load_generator('','Generator')
 
     def _make_txt2img(self):
-        if not self.generators.get('txt2img'):
-            from ldm.invoke.generator.txt2img import Txt2Img
-            self.generators['txt2img'] = Txt2Img(self.model, self.precision)
-            self.generators['txt2img'].free_gpu_mem = self.free_gpu_mem
-        return self.generators['txt2img']
+        return self._load_generator('.txt2img','Txt2Img')
+
+    def _make_img2img(self):
+        return self._load_generator('.img2img','Img2Img')
+
+    def _make_embiggen(self):
+        return self._load_generator('.embiggen','Embiggen')
 
     def _make_txt2img2img(self):
-        if not self.generators.get('txt2img2'):
-            from ldm.invoke.generator.txt2img2img import Txt2Img2Img
-            self.generators['txt2img2'] = Txt2Img2Img(self.model, self.precision)
-            self.generators['txt2img2'].free_gpu_mem = self.free_gpu_mem
-        return self.generators['txt2img2']
+        return self._load_generator('.txt2img2img','Txt2Img2Img')
 
     def _make_inpaint(self):
-        if not self.generators.get('inpaint'):
-            from ldm.invoke.generator.inpaint import Inpaint
-            self.generators['inpaint'] = Inpaint(self.model, self.precision)
-            self.generators['inpaint'].free_gpu_mem = self.free_gpu_mem
-        return self.generators['inpaint']
+        return self._load_generator('.inpaint','Inpaint')
 
-    # "omnibus" supports the runwayML custom inpainting model, which does
-    # txt2img, img2img and inpainting using slight variations on the same code
     def _make_omnibus(self):
-        if not self.generators.get('omnibus'):
-            from ldm.invoke.generator.omnibus import Omnibus
-            self.generators['omnibus'] = Omnibus(self.model, self.precision)
-            self.generators['omnibus'].free_gpu_mem = self.free_gpu_mem
-        return self.generators['omnibus']
+        return self._load_generator('.omnibus','Omnibus')
+
+    def _load_generator(self, module, class_name):
+        if self.is_legacy_model(self.model_name):
+            mn = f'ldm.invoke.ckpt_generator{module}'
+            cn = f'Ckpt{class_name}'
+        else:
+            mn = f'ldm.invoke.generator{module}'
+            cn = class_name
+        module = importlib.import_module(mn)
+        constructor = getattr(module,cn)
+        return constructor(self.model, self.precision)
 
     def load_model(self):
         '''
@@ -837,7 +822,7 @@ class Generate:
             return self.model
 
         # the model cache does the loading and offloading
-        cache = self.model_cache
+        cache = self.model_manager
         if not cache.valid_model(model_name):
             print(f'** "{model_name}" is not a known model name. Please check your models.yaml file')
             return self.model
@@ -981,6 +966,9 @@ class Generate:
     def sample_to_lowres_estimated_image(self, samples):
         return self._make_base().sample_to_lowres_estimated_image(samples)
 
+    def is_legacy_model(self,model_name)->bool:
+        return self.model_manager.is_legacy(model_name)
+
     def _set_sampler(self):
         if isinstance(self.model, DiffusionPipeline):
             return self._set_scheduler()
@@ -1039,7 +1027,7 @@ class Generate:
             sampler_class = scheduler_map[self.sampler_name]
             msg = f'>> Setting Sampler to {self.sampler_name} ({sampler_class.__name__})'
             self.sampler = sampler_class.from_pretrained(
-                self.model_cache.model_name_or_path(self.model_name),
+                self.model_manager.model_name_or_path(self.model_name),
                 subfolder="scheduler"
             )
         else:

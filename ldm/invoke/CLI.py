@@ -16,10 +16,10 @@ from ldm.invoke.args import Args, metadata_dumps, metadata_from_png, dream_cmd_f
 from ldm.invoke.pngwriter import PngWriter, retrieve_metadata, write_metadata
 from ldm.invoke.image_util import make_grid
 from ldm.invoke.log import write_log
-from ldm.invoke.concepts_lib import HuggingFaceConceptsLibrary
 from omegaconf import OmegaConf
 from pathlib import Path
 import pyparsing
+import ldm.invoke
 
 # global used in multiple functions (fix)
 infile = None
@@ -47,6 +47,8 @@ def main():
     # alert - setting a global here
     Globals.try_patchmatch = args.patchmatch
     Globals.always_use_cpu = args.always_use_cpu
+    Globals.internet_available = args.internet_available and check_internet()
+    print(f'>> Internet connectivity is {Globals.internet_available}')
 
     if not args.conf:
         if not os.path.exists(os.path.join(Globals.root,'configs','models.yaml')):
@@ -55,6 +57,7 @@ def main():
             print(f'** This script will now exit.')
             sys.exit(-1)
 
+    print(f'>> {ldm.invoke.__app_name__} {ldm.invoke.__version__}')
     print(f'>> InvokeAI runtime directory is "{Globals.root}"')
 
     # loading here to avoid long delays on startup
@@ -126,6 +129,14 @@ def main():
         emergency_model_reconfigure(opt)
         sys.exit(-1)
 
+    # try to autoconvert new models
+    # autoimport new .ckpt files
+    if path := opt.autoconvert:
+        gen.model_manager.autoconvert_weights(
+            conf_path=opt.conf,
+            weights_directory=path,
+        )
+
     # web server loops forever
     if opt.web or opt.gui:
         invoke_ai_web_server_loop(gen, gfpgan, codeformer, esrgan)
@@ -139,11 +150,10 @@ def main():
     try:
         main_loop(gen, opt)
     except KeyboardInterrupt:
-        print("\ngoodbye!")
+        print(f'\nGoodbye!\nYou can start InvokeAI again by running the "invoke.bat" (or "invoke.sh") script from {Globals.root}')
     except Exception:
         print(">> An error occurred:")
         traceback.print_exc()
-
 
 # TODO: main_loop() has gotten busy. Needs to be refactored.
 def main_loop(gen, opt):
@@ -421,7 +431,8 @@ def main_loop(gen, opt):
         output_cntr = write_log(results, log_path ,('txt', 'md'), output_cntr)
         print()
 
-    print('goodbye!')
+
+    print(f'\nGoodbye!\nYou can start InvokeAI again by running the "invoke.bat" (or "invoke.sh") script from {Globals.root}')
 
 # TO DO: remove repetitive code and the awkward command.replace() trope
 # Just do a simple parse of the command!
@@ -448,7 +459,7 @@ def do_command(command:str, gen, opt:Args, completer) -> tuple:
         operation = None
 
     elif command.startswith('!models'):
-        gen.model_cache.print_models()
+        gen.model_manager.print_models()
         completer.add_history(command)
         operation = None
 
@@ -460,6 +471,17 @@ def do_command(command:str, gen, opt:Args, completer) -> tuple:
             print(f'** {path[1]}: file not found')
         else:
             add_weights_to_config(path[1], gen, opt, completer)
+        completer.add_history(command)
+        operation = None
+
+    elif command.startswith('!optimize'):
+        path = shlex.split(command)
+        if len(path) < 2:
+            print('** please provide a path to a .ckpt file')
+        elif not os.path.exists(path[1]):
+            print(f'** {path[1]}: file not found')
+        else:
+            optimize_model(path[1], gen, opt, completer)
         completer.add_history(command)
         operation = None
 
@@ -535,6 +557,7 @@ def add_weights_to_config(model_path:str, gen, opt, completer):
 
     new_config = {}
     new_config['weights'] = model_path
+    new_config['format'] = 'ckpt'
 
     done = False
     while not done:
@@ -582,18 +605,29 @@ def add_weights_to_config(model_path:str, gen, opt, completer):
     if write_config_file(opt.conf, gen, model_name, new_config, make_default=make_default):
         completer.add_model(model_name)
 
+def optimize_model(ckpt_path:str, gen, opt, completer):
+    ckpt_path = Path(ckpt_path)
+    basename = ckpt_path.stem
+    diffuser_path = Path(Globals.root, 'models','optimized-ckpts',basename)
+    if diffuser_path.exists():
+        print(f'** {basename} is already optimized. Will not overwrite.')
+        return
+    new_config = gen.model_manager.convert_and_import(ckpt_path, diffuser_path)
+    if new_config and write_config_file(opt.conf, gen, basename, new_config, clobber=False):
+        completer.add_model(basename)
+
 def del_config(model_name:str, gen, opt, completer):
     current_model = gen.model_name
     if model_name == current_model:
         print("** Can't delete active model. !switch to another model first. **")
         return
-    gen.model_cache.del_model(model_name)
-    gen.model_cache.commit(opt.conf)
+    gen.model_manager.del_model(model_name)
+    gen.model_manager.commit(opt.conf)
     print(f'** {model_name} deleted')
     completer.del_model(model_name)
 
 def edit_config(model_name:str, gen, opt, completer):
-    config = gen.model_cache.config
+    config = gen.model_manager.config
 
     if model_name not in config:
         print(f'** Unknown model {model_name}')
@@ -604,7 +638,7 @@ def edit_config(model_name:str, gen, opt, completer):
     conf = config[model_name]
     new_config = {}
     completer.complete_extensions(('.yaml','.yml','.ckpt','.vae.pt'))
-    for field in ('description', 'weights', 'vae', 'config', 'width','height'):
+    for field in ('description', 'weights', 'vae', 'config', 'width', 'height', 'format'):
         completer.linebuffer = str(conf[field]) if field in conf else ''
         new_value = input(f'{field}: ')
         new_config[field] = int(new_value) if field in ('width','height') else new_value
@@ -625,18 +659,22 @@ def write_config_file(conf_path, gen, model_name, new_config, clobber=False, mak
 
     try:
         print('>> Verifying that new model loads...')
-        gen.model_cache.add_model(model_name, new_config, clobber)
+        gen.model_manager.add_model(model_name, new_config, clobber)
         assert gen.set_model(model_name) is not None, 'model failed to load'
     except AssertionError as e:
+        traceback.print_exc()
         print(f'** aborting **')
-        gen.model_cache.del_model(model_name)
+        try:
+            gen.model_manager.del_model(model_name)
+        except Exception:
+            pass
         return False
 
     if make_default:
         print('making this default')
-        gen.model_cache.set_default_model(model_name)
+        gen.model_manager.set_default_model(model_name)
 
-    gen.model_cache.commit(conf_path)
+    gen.model_manager.commit(conf_path)
 
     do_switch = input(f'Keep model loaded? [y]')
     if len(do_switch)==0 or do_switch[0] in ('y','Y'):
@@ -970,3 +1008,16 @@ def emergency_model_reconfigure(opt):
 
     import configure_invokeai
     configure_invokeai.main()
+
+def check_internet()->bool:
+    '''
+    Return true if the internet is reachable.
+    It does this by pinging huggingface.co.
+    '''
+    import urllib.request
+    host = 'http://huggingface.co'
+    try:
+        urllib.request.urlopen(host,timeout=1)
+        return True
+    except:
+        return False

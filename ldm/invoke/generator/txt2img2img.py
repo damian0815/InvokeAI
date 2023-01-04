@@ -8,7 +8,9 @@ from typing import Callable, Optional
 import torch
 
 from ldm.invoke.generator.base import Generator
-from ldm.invoke.generator.diffusers_pipeline import trim_to_multiple_of, StableDiffusionGeneratorPipeline
+from ldm.invoke.generator.diffusers_pipeline import trim_to_multiple_of, StableDiffusionGeneratorPipeline, \
+    ConditioningData
+from ldm.models.diffusion.shared_invokeai_diffusion import ThresholdSettings
 
 
 class Txt2Img2Img(Generator):
@@ -18,33 +20,36 @@ class Txt2Img2Img(Generator):
 
     def get_make_image(self, prompt:str, sampler, steps:int, cfg_scale:float, ddim_eta,
                        conditioning, width:int, height:int, strength:float,
-                       step_callback:Optional[Callable]=None, **kwargs):
+                       step_callback:Optional[Callable]=None, threshold=0.0, **kwargs):
         """
         Returns a function returning an image derived from the prompt and the initial image
         Return value depends on the seed at the time you call it
         kwargs are 'width' and 'height'
         """
-        uc, c, extra_conditioning_info = conditioning
-        scale_dim = min(width, height)
-        scale = 512 / scale_dim
-
-        init_width, init_height = trim_to_multiple_of(scale * width, scale * height)
 
         # noinspection PyTypeChecker
         pipeline: StableDiffusionGeneratorPipeline = self.model
         pipeline.scheduler = sampler
 
+        uc, c, extra_conditioning_info = conditioning
+        conditioning_data = (
+            ConditioningData(
+                uc, c, cfg_scale, extra_conditioning_info,
+                threshold = ThresholdSettings(threshold, warmup=0.2) if threshold else None)
+            .add_scheduler_args_if_applicable(pipeline.scheduler, eta=ddim_eta))
+        scale_dim = min(width, height)
+        scale = 512 / scale_dim
+
+        init_width, init_height = trim_to_multiple_of(scale * width, scale * height)
+
         def make_image(x_T):
 
             first_pass_latent_output, _ = pipeline.latents_from_embeddings(
-                latents=x_T,
+                latents=torch.zeros_like(x_T),
                 num_inference_steps=steps,
-                text_embeddings=c,
-                unconditioned_embeddings=uc,
-                guidance_scale=cfg_scale,
+                conditioning_data=conditioning_data,
+                noise=x_T,
                 callback=step_callback,
-                extra_conditioning_info=extra_conditioning_info,
-                # TODO: eta = ddim_eta,
                 # TODO: threshold = threshold,
             )
 
@@ -59,14 +64,14 @@ class Txt2Img2Img(Generator):
                 mode="bilinear"
             )
 
+            second_pass_noise = self.get_noise_like(resized_latents)
+
             pipeline_output = pipeline.img2img_from_latents_and_embeddings(
                 resized_latents,
                 num_inference_steps=steps,
-                text_embeddings=c,
-                unconditioned_embeddings=uc,
-                guidance_scale=cfg_scale, strength=strength,
-                extra_conditioning_info=extra_conditioning_info,
-                noise_func=self.get_noise_like,
+                conditioning_data=conditioning_data,
+                strength=strength,
+                noise=second_pass_noise,
                 callback=step_callback)
 
             return pipeline.numpy_to_pil(pipeline_output.images)[0]

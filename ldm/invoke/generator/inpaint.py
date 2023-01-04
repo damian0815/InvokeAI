@@ -11,25 +11,19 @@ import numpy as np
 import torch
 from PIL import Image, ImageFilter, ImageOps, ImageChops
 
-from ldm.invoke.generator.diffusers_pipeline import image_resized_to_grid_as_tensor, StableDiffusionGeneratorPipeline
+from ldm.invoke.generator.diffusers_pipeline import image_resized_to_grid_as_tensor, StableDiffusionGeneratorPipeline, \
+    ConditioningData
 from ldm.invoke.generator.img2img import Img2Img
-from ldm.invoke.globals import Globals
+from ldm.invoke.patchmatch import PatchMatch
 from ldm.util import debug_image
 
-infill_methods: list[str] = list()
 
-if Globals.try_patchmatch:
-    from patchmatch import patch_match
-    if patch_match.patchmatch_available:
-        print('>> Patchmatch initialized')
-        infill_methods.append('patchmatch')
-    else:
-        print('>> Patchmatch not loaded (nonfatal)')
-else:
-    print('>> Patchmatch loading disabled')
-
-infill_methods.append('tile')
-
+def infill_methods()->list[str]:
+    methods = list()
+    if PatchMatch.patchmatch_available():
+        methods.append('patchmatch')
+    methods.append('tile')
+    return methods
 
 class Inpaint(Img2Img):
     def __init__(self, model, precision):
@@ -40,6 +34,7 @@ class Inpaint(Img2Img):
         self.pil_image = None
         self.pil_mask = None
         self.mask_blur_radius = 0
+        self.infill_method = None
         super().__init__(model, precision)
 
     # Outpaint support code
@@ -64,11 +59,11 @@ class Inpaint(Img2Img):
             return im
 
         # Skip patchmatch if patchmatch isn't available
-        if not patch_match.patchmatch_available:
+        if not PatchMatch.patchmatch_available():
             return im
 
         # Patchmatch (note, we may want to expose patch_size? Increasing it significantly impacts performance though)
-        im_patched_np = patch_match.inpaint(im.convert('RGB'), ImageOps.invert(im.split()[-1]), patch_size = 3)
+        im_patched_np = PatchMatch.inpaint(im.convert('RGB'), ImageOps.invert(im.split()[-1]), patch_size = 3)
         im_patched = Image.fromarray(im_patched_np, mode = 'RGB')
         return im_patched
 
@@ -184,9 +179,10 @@ class Inpaint(Img2Img):
                        tile_size: int = 32,
                        step_callback=None,
                        inpaint_replace=False, enable_image_debugging=False,
-                       infill_method = infill_methods[0], # The infill method to use
+                       infill_method = None,
                        inpaint_width=None,
                        inpaint_height=None,
+                       attention_maps_callback=None,
                        **kwargs):
         """
         Returns a function returning an image derived from the prompt and
@@ -195,6 +191,7 @@ class Inpaint(Img2Img):
         """
 
         self.enable_image_debugging = enable_image_debugging
+        self.infill_method = infill_method or infill_methods()[0], # The infill method to use
 
         self.inpaint_width = inpaint_width
         self.inpaint_height = inpaint_height
@@ -203,7 +200,7 @@ class Inpaint(Img2Img):
             self.pil_image = init_image.copy()
 
             # Do infill
-            if infill_method == 'patchmatch' and patch_match.patchmatch_available:
+            if infill_method == 'patchmatch' and PatchMatch.patchmatch_available():
                 init_filled = self.infill_patchmatch(self.pil_image.copy())
             else: # if infill_method == 'tile': # Only two methods right now, so always use 'tile' if not patchmatch
                 init_filled = self.tile_fill_missing(
@@ -244,38 +241,31 @@ class Inpaint(Img2Img):
 
         self.mask_blur_radius = mask_blur_radius
 
-        # todo: support cross-attention control
-        uc, c, _ = conditioning
-
         # noinspection PyTypeChecker
         pipeline: StableDiffusionGeneratorPipeline = self.model
         pipeline.scheduler = sampler
 
-        def make_image(x_T):
-            # FIXME: some of this z_enc and inpaint_replace stuff was probably important
-            # # to replace masked area with latent noise, weighted by inpaint_replace strength
-            # if inpaint_replace > 0.0:
-            #     print(f'>> inpaint will replace what was under the mask with a strength of {inpaint_replace}')
-            #     l_noise = self.get_noise(kwargs['width'],kwargs['height'])
-            #     inverted_mask = 1.0-mask  # there will be 1s where the mask is
-            #     masked_region = (1.0-inpaint_replace) * inverted_mask * z_enc + inpaint_replace * inverted_mask * l_noise
-            #     z_enc   = z_enc * mask + masked_region
+        # todo: support cross-attention control
+        uc, c, _ = conditioning
+        conditioning_data = (ConditioningData(uc, c, cfg_scale)
+                             .add_scheduler_args_if_applicable(pipeline.scheduler, eta=ddim_eta))
 
+
+        def make_image(x_T):
             pipeline_output = pipeline.inpaint_from_embeddings(
                 init_image=init_image,
                 mask=1 - mask,  # expects white means "paint here."
                 strength=strength,
                 num_inference_steps=steps,
-                text_embeddings=c,
-                unconditioned_embeddings=uc,
-                guidance_scale=cfg_scale,
+                conditioning_data=conditioning_data,
                 noise_func=self.get_noise_like,
                 callback=step_callback,
             )
 
             if pipeline_output.attention_map_saver is not None and attention_maps_callback is not None:
                 attention_maps_callback(pipeline_output.attention_map_saver)
-            result = pipeline.numpy_to_pil(pipeline_output.images)[0]
+
+            result = self.postprocess_size_and_mask(pipeline.numpy_to_pil(pipeline_output.images)[0])
 
             # Seam paint if this is our first pass (seam_size set to 0 during seam painting)
             if seam_size > 0:
@@ -306,6 +296,10 @@ class Inpaint(Img2Img):
 
     def sample_to_image(self, samples)->Image.Image:
         gen_result = super().sample_to_image(samples).convert('RGB')
+        return self.postprocess_size_and_mask(gen_result)
+
+
+    def postprocess_size_and_mask(self, gen_result: Image.Image) -> Image.Image:
         debug_image(gen_result, "gen_result", debug_status=self.enable_image_debugging)
 
         # Resize if necessary
@@ -315,7 +309,7 @@ class Inpaint(Img2Img):
         if self.pil_image is None or self.pil_mask is None:
             return gen_result
 
-        corrected_result = super().repaste_and_color_correct(gen_result, self.pil_image, self.pil_mask, self.mask_blur_radius)
+        corrected_result = self.repaste_and_color_correct(gen_result, self.pil_image, self.pil_mask, self.mask_blur_radius)
         debug_image(corrected_result, "corrected_result", debug_status=self.enable_image_debugging)
 
         return corrected_result

@@ -5,7 +5,8 @@ import PIL.Image
 import torch
 
 from .base import Generator
-from .diffusers_pipeline import StableDiffusionGeneratorPipeline
+from .diffusers_pipeline import StableDiffusionGeneratorPipeline, ConditioningData
+from ...models.diffusion.shared_invokeai_diffusion import ThresholdSettings
 
 
 class Txt2Img(Generator):
@@ -23,23 +24,26 @@ class Txt2Img(Generator):
         kwargs are 'width' and 'height'
         """
         self.perlin = perlin
-        uc, c, extra_conditioning_info   = conditioning
 
         # noinspection PyTypeChecker
         pipeline: StableDiffusionGeneratorPipeline = self.model
         pipeline.scheduler = sampler
 
+        uc, c, extra_conditioning_info   = conditioning
+        conditioning_data = (
+            ConditioningData(
+                uc, c, cfg_scale, extra_conditioning_info,
+                threshold = ThresholdSettings(threshold, warmup=0.2) if threshold else None)
+            .add_scheduler_args_if_applicable(pipeline.scheduler, eta=ddim_eta))
+
+
         def make_image(x_T) -> PIL.Image.Image:
             pipeline_output = pipeline.image_from_embeddings(
-                latents=x_T,
+                latents=torch.zeros_like(x_T),
+                noise=x_T,
                 num_inference_steps=steps,
-                text_embeddings=c,
-                unconditioned_embeddings=uc,
-                guidance_scale=cfg_scale,
+                conditioning_data=conditioning_data,
                 callback=step_callback,
-                extra_conditioning_info=extra_conditioning_info
-                # TODO: eta = ddim_eta,
-                # TODO: threshold = threshold,
             )
             if pipeline_output.attention_map_saver is not None and attention_maps_callback is not None:
                 attention_maps_callback(pipeline_output.attention_map_saver)
@@ -51,15 +55,17 @@ class Txt2Img(Generator):
     # returns a tensor filled with random numbers from a normal distribution
     def get_noise(self,width,height):
         device         = self.model.device
+        # limit noise to only the diffusion image channels, not the mask channels
+        input_channels = min(self.latent_channels, 4)
         if self.use_mps_noise or device.type == 'mps':
             x = torch.randn([1,
-                                self.latent_channels,
+                                input_channels,
                                 height // self.downsampling_factor,
                                 width  // self.downsampling_factor],
                                device='cpu').to(device)
         else:
             x = torch.randn([1,
-                                self.latent_channels,
+                                input_channels,
                                 height // self.downsampling_factor,
                                 width  // self.downsampling_factor],
                                device=device)

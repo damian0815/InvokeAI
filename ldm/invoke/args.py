@@ -501,12 +501,25 @@ class Args(object):
             default='auto',
         )
         model_group.add_argument(
+            '--internet',
+            action=argparse.BooleanOptionalAction,
+            dest='internet_available',
+            default=True,
+            help='Indicate whether internet is available for just-in-time model downloading (default: probe automatically).',
+        )
+        model_group.add_argument(
             '--nsfw_checker',
             '--safety_checker',
             action=argparse.BooleanOptionalAction,
             dest='safety_checker',
             default=False,
             help='Check for and blur potentially NSFW images. Use --no-nsfw_checker to disable.',
+        )
+        model_group.add_argument(
+            '--autoconvert',
+            default=None,
+            type=str,
+            help='Check the indicated directory for .ckpt weights files at startup and import as optimized diffuser models',
         )
         model_group.add_argument(
             '--patchmatch',
@@ -715,20 +728,27 @@ class Args(object):
                 invoke> !fix 0000045.4829112.png -G1 -U4 -ft codeformer
 
             *History manipulation*
-            !fetch retrieves the command used to generate an earlier image.
+            !fetch retrieves the command used to generate an earlier image. Provide
+            a directory wildcard and the name of a file to write and all the commands
+            used to generate the images in the directory will be written to that file.
                 invoke> !fetch 0000015.8929913.png
                 invoke> a fantastic alien landscape -W 576 -H 512 -s 60 -A plms -C 7.5
+                invoke> !fetch /path/to/images/*.png prompts.txt
+ 
+            !replay /path/to/prompts.txt
+            Replays all the prompts contained in the file prompts.txt.
 
             !history lists all the commands issued during the current session.
 
             !NN retrieves the NNth command from the history
 
             *Model manipulation*
-            !models                                 -- list models in configs/models.yaml
-            !switch <model_name>                    -- switch to model named <model_name>
-            !import_model path/to/weights/file.ckpt -- adds a model to your config
-            !edit_model <model_name>                -- edit a model's description
-            !del_model <model_name>                 -- delete a model
+            !models                                   -- list models in configs/models.yaml
+            !switch <model_name>                      -- switch to model named <model_name>
+            !import_model path/to/weights/file.ckpt   -- adds a .ckpt model to your config
+            !optimize_model path/to/weights/file.ckpt -- converts a .ckpt file model a diffusers model
+            !edit_model <model_name>                  -- edit a model's description
+            !del_model <model_name>                   -- delete a model
             """
         )
         render_group     = parser.add_argument_group('General rendering')
