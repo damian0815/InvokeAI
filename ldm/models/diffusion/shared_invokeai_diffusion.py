@@ -1,6 +1,7 @@
 import math
 from dataclasses import dataclass
 from math import ceil
+from time import sleep
 from typing import Callable, Optional, Union
 
 import numpy as np
@@ -136,7 +137,31 @@ class InvokeAIDiffuserComponent:
         both_results = self.model_forward_callback(x_twice, sigma_twice, both_conditionings)
         unconditioned_next_x, conditioned_next_x = both_results.chunk(2)
         if conditioned_next_x.device.type == 'mps':
-            # prevent a result filled with zeros. seems to be a torch bug.
+            # prevent a result filled with zeros. seems to be a torch MPS bug.
+            # specifically:
+            #   (unconditioned_next_x - conditioned_next_x)
+            # and
+            #   (unconditioned_next_x.clone() - conditioned_next_x)
+            # produce 0's, whereas
+            #   (unconditioned_next_x - conditioned_next_x.clone())
+            # or
+            #   (unconditioned_next_x.cpu() - conditioned_next_x.cpu())
+            # produces what looks like good output.
+            #
+            # The call that messes this up is `layer_norm`, called internally by `self.norm1()` in the opening lines of
+            # diffusers' BasicTransformerBlock.forward() - this is line 483 in diffusers v0.11.1, in file
+            # `diffusers/models/attention.py`.
+            #
+            # `layer_norm()` itself is in `torch/nn/functional.py`.
+            print("we will print subtracting non-clones then clones.")
+            print(" - non-clones:")
+            non_cloned = torch.sub(unconditioned_next_x, conditioned_next_x)
+            print(non_cloned)
+            print(" - cloning the second to fix:")
+            fixed = torch.sub(unconditioned_next_x, conditioned_next_x.clone())
+            print(fixed)
+            print("done printing subtracting clones.")
+
             conditioned_next_x = conditioned_next_x.clone()
         return unconditioned_next_x, conditioned_next_x
 
