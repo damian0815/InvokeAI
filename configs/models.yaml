@@ -1,0 +1,12 @@
+# This file describes the alternative machine learning models
+# available to InvokeAI script.
+#
+# To add a new model, follow the examples below. Each
+# model requires a model config file, a weights file,
+# and the width and height of the images it
+# was trained on.
+diffusers-1.5:
+  description: Diffusers version of Stable Diffusion version 1.5
+  format: diffusers
+  repo_id: runwayml/stable-diffusion-v1-5
+  default: true
