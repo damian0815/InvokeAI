@@ -33,7 +33,6 @@ from pytorch_lightning import seed_everything, logging
 import ldm.invoke.conditioning
 from ldm.invoke.args import metadata_from_png
 from ldm.invoke.concepts_lib import HuggingFaceConceptsLibrary
-from ldm.invoke.conditioning import get_uc_and_c_and_ec
 from ldm.invoke.devices import choose_torch_device, choose_precision
 from ldm.invoke.generator.inpaint import infill_methods
 from ldm.invoke.globals import Globals

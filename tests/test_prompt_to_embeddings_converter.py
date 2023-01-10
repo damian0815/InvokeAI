@@ -17,14 +17,14 @@ def make_dummy_conditioning_scheduler_factor():
 class TestPromptToEmbeddings(unittest.TestCase):
 
     def test_basic_prompt_to_conditioning(self):
-        cdf = make_dummy_conditioning_scheduler_factor()
+        csf = make_dummy_conditioning_scheduler_factor()
 
         # test "a b c" makes it to the Conditioning intact for t=0, t=0.5, t=1
         prompt_string = " ".join(KNOWN_WORDS[:3])
         cfg_scale = 7.5
-        conditioning_scheduler = cdf.make_conditioning_scheduler(prompt_string, cfg_scale=cfg_scale)
-        expected_positive_conditioning = cdf.text_encoder(torch.Tensor([]))
-        expected_negative_conditioning = cdf.text_encoder(torch.Tensor(KNOWN_WORDS_TOKEN_IDS[:3]))
+        conditioning_scheduler = csf.make_conditioning_scheduler(prompt_string, cfg_scale=cfg_scale)
+        expected_positive_conditioning = csf.text_encoder(torch.Tensor([]))
+        expected_negative_conditioning = csf.text_encoder(torch.Tensor(KNOWN_WORDS_TOKEN_IDS[:3]))
         self.assert_constant_scheduling_matches_expected(conditioning_scheduler,
                                                          expected_positive_conditioning,
                                                          expected_negative_conditioning,

@@ -301,7 +301,7 @@ class StableDiffusionGeneratorPipeline(StableDiffusionPipeline):
                                                                  text_encoder=self.text_encoder,
                                                                  full_precision=use_full_precision)
         # InvokeAI's interface for text embeddings and whatnot
-        self.prompt_fragments_to_embeddings_converter = ConditioningSchedulerFactory(
+        self.conditioning_scheduler_factory = ConditioningSchedulerFactory(
             tokenizer=self.tokenizer,
             text_encoder=self.text_encoder,
             textual_inversion_manager=self.textual_inversion_manager
@@ -599,7 +599,7 @@ class StableDiffusionGeneratorPipeline(StableDiffusionPipeline):
         """
         Compatibility function for ldm.models.diffusion.ddpm.LatentDiffusion.
         """
-        return self.prompt_fragments_to_embeddings_converter.get_embeddings_for_weighted_prompt_fragments(
+        return self.conditioning_scheduler_factory.get_embeddings_for_weighted_prompt_fragments(
             text=c,
             fragment_weights=fragment_weights,
             should_return_tokens=return_tokens,
@@ -608,7 +608,7 @@ class StableDiffusionGeneratorPipeline(StableDiffusionPipeline):
     @property
     def cond_stage_model(self):
         warnings.warn("legacy compatibility layer", DeprecationWarning)
-        return self.prompt_fragments_to_embeddings_converter
+        return self.conditioning_scheduler_factory
 
     @torch.inference_mode()
     def _tokenize(self, prompt: Union[str, List[str]]):
