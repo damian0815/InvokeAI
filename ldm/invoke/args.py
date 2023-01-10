@@ -91,10 +91,6 @@ import pydoc
 import re
 import shlex
 import sys
-import copy
-import base64
-import functools
-import warnings
 import ldm.invoke
 import ldm.invoke.pngwriter
 
@@ -279,7 +275,7 @@ class Args(object):
             switches.append(f'-I {a["init_img"]}')
             switches.append(f'-A {a["sampler_name"]}')
             if a['fit']:
-                switches.append(f'--fit')
+                switches.append('--fit')
             if a['init_mask'] and len(a['init_mask'])>0:
                 switches.append(f'-M {a["init_mask"]}')
             if a['init_color'] and len(a['init_color'])>0:
@@ -287,7 +283,7 @@ class Args(object):
             if a['strength'] and a['strength']>0:
                 switches.append(f'-f {a["strength"]}')
             if a['inpaint_replace']:
-                switches.append(f'--inpaint_replace')
+                switches.append('--inpaint_replace')
             if a['text_mask']:
                 switches.append(f'-tm {" ".join([str(u) for u in a["text_mask"]])}')
         else:
@@ -745,8 +741,11 @@ class Args(object):
             *Model manipulation*
             !models                                   -- list models in configs/models.yaml
             !switch <model_name>                      -- switch to model named <model_name>
-            !import_model path/to/weights/file.ckpt   -- adds a .ckpt model to your config
-            !optimize_model path/to/weights/file.ckpt -- converts a .ckpt file model a diffusers model
+            !import_model /path/to/weights/file.ckpt  -- adds a .ckpt model to your config
+            !import_model http://path_to_model.ckpt   -- downloads and adds a .ckpt model to your config
+            !import_model hakurei/waifu-diffusion     -- downloads and adds a diffusers model to your config
+            !optimize_model <model_name>              -- converts a .ckpt model to a diffusers model
+            !convert_model /path/to/weights/file.ckpt -- converts a .ckpt file path to a diffusers model
             !edit_model <model_name>                  -- edit a model's description
             !del_model <model_name>                   -- delete a model
             """
@@ -1087,7 +1086,7 @@ class Args(object):
         return parser
 
 def format_metadata(**kwargs):
-    print(f'format_metadata() is deprecated. Please use metadata_dumps()')
+    print('format_metadata() is deprecated. Please use metadata_dumps()')
     return metadata_dumps(kwargs)
 
 def metadata_dumps(opt,
@@ -1154,7 +1153,7 @@ def metadata_dumps(opt,
         rfc_dict.pop('strength')
 
     if len(seeds)==0 and opt.seed:
-        seeds=[seed]
+        seeds=[opt.seed]
 
     if opt.grid:
         images = []
@@ -1225,7 +1224,7 @@ def metadata_loads(metadata) -> list:
             opt = Args()
             opt._cmd_switches = Namespace(**image)
             results.append(opt)
-    except Exception as e:
+    except Exception:
         import sys, traceback
         print('>> could not read metadata',file=sys.stderr)
         print(traceback.format_exc(), file=sys.stderr)

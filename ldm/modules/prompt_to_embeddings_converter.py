@@ -119,7 +119,7 @@ class PromptToEmbeddingsConverter:
             # trim eos/bos
             token_ids = token_ids[1:-1]
             # pad for textual inversions with vector length >1
-            token_ids = self.textual_inversion_manager.expand_textual_inversion_token_ids(token_ids)
+            token_ids = self.textual_inversion_manager.expand_textual_inversion_token_ids_if_necessary(token_ids)
             # restrict length to max_length-2 (leaving room for bos/eos)
             token_ids = token_ids[0:self.max_length - 2]
             # add back eos/bos if requested

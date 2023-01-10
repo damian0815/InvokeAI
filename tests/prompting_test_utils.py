@@ -15,9 +15,14 @@ class DummyEmbeddingsList(list):
         elif name == 'data':
             return self
 
+def make_dummy_embedding():
+    return torch.randn([768])
+
 class DummyTransformer:
+
+
     def __init__(self):
-        self.embeddings = DummyEmbeddingsList([0] * len(KNOWN_WORDS))
+        self.embeddings = DummyEmbeddingsList([make_dummy_embedding() for _ in range(len(KNOWN_WORDS))])
 
     def resize_token_embeddings(self, new_size=None):
         if new_size is None:
@@ -26,7 +31,7 @@ class DummyTransformer:
             while len(self.embeddings) > new_size:
                 self.embeddings.pop(-1)
             while len(self.embeddings) < new_size:
-                self.embeddings.append(0)
+                self.embeddings.append(make_dummy_embedding())
 
     def get_input_embeddings(self):
         return self.embeddings
@@ -63,4 +68,3 @@ class DummyClipEmbedder:
         if type(indices) is list:
             indices = torch.tensor(indices, dtype=int)
         return torch.index_select(self.position_embeddings_tensor, 0, indices)
-

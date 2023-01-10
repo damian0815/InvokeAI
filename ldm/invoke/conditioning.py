@@ -22,6 +22,11 @@ from ..modules.textual_inversion_manager import TextualInversionManager
 
 
 def get_uc_and_c_and_ec(prompt_string, model, log_tokens=False, skip_normalize_legacy_blend=False):
+
+    # lazy-load any deferred textual inversions.
+    # this might take a couple of seconds the first time a textual inversion is used.
+    model.textual_inversion_manager.create_deferred_token_ids_for_any_trigger_terms(prompt_string)
+
     prompt, negative_prompt = get_prompt_structure(prompt_string,
                                                    skip_normalize_legacy_blend=skip_normalize_legacy_blend)
 

@@ -16,11 +16,13 @@ import textwrap
 import time
 import traceback
 import warnings
+import safetensors.torch
 from pathlib import Path
 from typing import Union, Any
 from ldm.util import download_with_progress_bar
 
 import torch
+import safetensors
 import transformers
 from diffusers import AutoencoderKL, logging as dlogging
 from omegaconf import OmegaConf
@@ -83,22 +85,13 @@ class ModelManager(object):
             hash = self.models[model_name]['hash']
 
         else: # we're about to load a new model, so potentially offload the least recently used one
-            try:
-                requested_model, width, height, hash = self._load_model(model_name)
-                self.models[model_name] = {
-                    'model': requested_model,
-                    'width': width,
-                    'height': height,
-                    'hash': hash,
-                }
-
-            except Exception as e:
-                print(f'** model {model_name} could not be loaded: {str(e)}')
-                traceback.print_exc()
-                assert self.current_model,'** FATAL: no current model to restore to'
-                print(f'** restoring {self.current_model}')
-                self.get_model(self.current_model)
-                return
+            requested_model, width, height, hash = self._load_model(model_name)
+            self.models[model_name] = {
+                'model': requested_model,
+                'width': width,
+                'height': height,
+                'hash': hash,
+            }
 
         self.current_model = model_name
         self._push_newest_model(model_name)
@@ -149,13 +142,16 @@ class ModelManager(object):
         Return true if this is a legacy (.ckpt) model
         '''
         info = self.model_info(model_name)
-        return info['format']=='ckpt' if info else False
+        if 'weights' in info and info['weights'].endswith('.ckpt'):
+            return True
+        return False
 
     def list_models(self) -> dict:
         '''
         Return a dict of models in the format:
         { model_name1: {'status': ('active'|'cached'|'not loaded'),
                         'description': description,
+                        'format': ('ckpt'|'diffusers'|'vae'),
                        },
           model_name2: { etc }
         Please use model_manager.models() to get all the model names,
@@ -166,14 +162,49 @@ class ModelManager(object):
         models = {}
         for name in self.config:
             stanza = self.config[name]
-            format = stanza.get('format','diffusers')
-            config = stanza.get('config','no config')
-            models[name] = dict(
-                description = stanza.get('description',None),
-                format = 'vae' if 'VAE/default' in config else format,
-                status = 'active' if self.current_model == name else 'cached' if name is self.models else 'not loaded',
-            )
+            models[name] = dict()
+            format = stanza.get('format','ckpt') # Determine Format
 
+            # Common Attribs
+            description = stanza.get('description', None)
+            if self.current_model == name:
+                status = 'active'
+            elif name in self.models:
+                status = 'cached'
+            else:
+                status = 'not loaded'
+            
+            # Checkpoint Config Parse
+            if format == 'ckpt':
+                models[name].update(
+                    description = description,
+                    format = format,
+                    config = str(stanza.get('config', None)),
+                    weights = str(stanza.get('weights', None)),
+                    vae = str(stanza.get('vae', None)),
+                    width = str(stanza.get('width', 512)),
+                    height = str(stanza.get('height', 512)),
+                    status = status,
+                )
+                
+            # Diffusers Config Parse
+            if (vae := stanza.get('vae',None)):
+                if isinstance(vae,DictConfig):
+                    vae = dict(
+                        repo_id = str(vae.get('repo_id',None)),
+                        path = str(vae.get('path',None)),
+                    )
+                    
+            if format == 'diffusers':
+                models[name].update(
+                    description = description,
+                    format = format,
+                    vae = vae,
+                    repo_id = str(stanza.get('repo_id', None)),
+                    path = str(stanza.get('path',None)),
+                    status = status,
+                )
+        
         return models
 
     def print_models(self) -> None:
@@ -184,7 +215,7 @@ class ModelManager(object):
         for name in models:
             if models[name]['format'] == 'vae':
                 continue
-            line = f'{name:25s} {models[name]["status"]:>10s}  {models[name]["description"]}'
+            line = f'{name:25s} {models[name]["status"]:>10s}  {models[name]["format"]:10s} {models[name]["description"]}'
             if models[name]['status'] == 'active':
                 line = f'\033[1m{line}\033[0m'
             print(line)
@@ -207,7 +238,7 @@ class ModelManager(object):
         attributes are incorrect or the model name is missing.
         '''
         omega = self.config
-        assert 'format' in model_attributes, f'missing required field "format"'
+        assert 'format' in model_attributes, 'missing required field "format"'
         if model_attributes['format']=='diffusers':
             assert 'description' in model_attributes, 'required field "description" is missing'
             assert 'path' in model_attributes or 'repo_id' in model_attributes,'model must have either the "path" or "repo_id" fields defined'
@@ -231,6 +262,7 @@ class ModelManager(object):
         """Load and initialize the model from configuration variables passed at object creation time"""
         if model_name not in self.config:
             print(f'"{model_name}" is not a known model name. Please check your models.yaml file')
+            return
 
         mconfig = self.config[model_name]
 
@@ -256,7 +288,7 @@ class ModelManager(object):
 
         # usage statistics
         toc = time.time()
-        print(f'>> Model loaded in', '%4.2fs' % (toc - tic))
+        print('>> Model loaded in', '%4.2fs' % (toc - tic))
         if self._has_cuda():
             print(
                 '>> Max VRAM used to load the model:',
@@ -296,13 +328,17 @@ class ModelManager(object):
         with open(weights,'rb') as f:
             weight_bytes = f.read()
         model_hash = self._cached_sha256(weights, weight_bytes)
-        sd = torch.load(io.BytesIO(weight_bytes), map_location='cpu')
+        sd = None
+        if weights.endswith('.safetensors'):
+            sd = safetensors.torch.load(weight_bytes)
+        else:
+            sd = torch.load(io.BytesIO(weight_bytes), map_location='cpu')
         del weight_bytes
         # merged models from auto11 merge board are flat for some reason
         if 'state_dict' in sd:
             sd = sd['state_dict']
 
-        print(f'   | Forcing garbage collection prior to loading new model')
+        print('   | Forcing garbage collection prior to loading new model')
         gc.collect()
         model = instantiate_from_config(omega_config.model)
         model.load_state_dict(sd, strict=False)
@@ -337,7 +373,7 @@ class ModelManager(object):
 
         # usage statistics
         toc = time.time()
-        print(f'>> Model loaded in', '%4.2fs' % (toc - tic))
+        print('>> Model loaded in', '%4.2fs' % (toc - tic))
 
         if self._has_cuda():
             print(
@@ -356,9 +392,9 @@ class ModelManager(object):
 
         print(f'>> Loading diffusers model from {name_or_path}')
         if using_fp16:
-            print(f'  | Using faster float16 precision')
+            print('  | Using faster float16 precision')
         else:
-            print(f'  | Using more accurate float32 precision')
+            print('  | Using more accurate float32 precision')
 
         # TODO: scan weights maybe?
         pipeline_args: dict[str, Any] = dict(
@@ -505,7 +541,7 @@ class ModelManager(object):
                     weights:Union[str,Path],
                     config:Union[str,Path]='configs/stable-diffusion/v1-inference.yaml',
                     model_name:str=None,
-                    description:str=None,
+                    model_description:str=None,
                     commit_to_conf:Path=None,
     )->bool:
         '''
@@ -530,12 +566,12 @@ class ModelManager(object):
         if config_path is None or not config_path.exists():
             return False
             
-        model_name = model_name or Path(basename).stem
-        description = description or f'imported stable diffusion weights file {model_name}'
+        model_name = model_name or Path(weights).stem
+        model_description = model_description or f'imported stable diffusion weights file {model_name}'
         new_config = dict(
             weights=str(weights_path),
             config=str(config_path),
-            description=description,
+            description=model_description,
             format='ckpt',
             width=512,
             height=512
@@ -577,7 +613,13 @@ class ModelManager(object):
             self.convert_and_import(ckpt, ckpt_files[ckpt])
         self.commit(conf_path)
 
-    def convert_and_import(self, ckpt_path:Path, diffuser_path:Path)->dict:
+    def convert_and_import(self,
+                           ckpt_path:Path,
+                           diffuser_path:Path,
+                           model_name=None,
+                           model_description=None,
+                           commit_to_conf:Path=None,
+    )->dict:
         '''
         Convert a legacy ckpt weights file to diffuser model and import
         into models.yaml.
@@ -589,25 +631,30 @@ class ModelManager(object):
             print(f'ERROR: The path {str(diffuser_path)} already exists. Please move or remove it and try again.')
             return
 
-        print(f'>> {ckpt_path.name}: optimizing (30-60s).')
+        model_name = model_name or diffuser_path.name
+        model_description = model_description or 'Optimized version of {model_name}'
+        print(f'>> {model_name}: optimizing (30-60s).')
         try:
-            model_name = diffuser_path.name
             verbosity =transformers.logging.get_verbosity()
             transformers.logging.set_verbosity_error()
-            convert_ckpt_to_diffuser(ckpt_path, diffuser_path)
+            convert_ckpt_to_diffuser(ckpt_path, diffuser_path,extract_ema=True)
             transformers.logging.set_verbosity(verbosity)
             print(f'>> Success. Optimized model is now located at {str(diffuser_path)}')
             print(f'>> Writing new config file entry for {model_name}...',end='')
             new_config = dict(
                 path=str(diffuser_path),
-                description=f'Optimized version of {model_name}',
+                description=model_description,
                 format='diffusers',
             )
+            self.del_model(model_name)
             self.add_model(model_name, new_config, True)
-            print('done.')
+            if commit_to_conf:
+                self.commit(commit_to_conf)
         except Exception as e:
             print(f'** Conversion failed: {str(e)}')
             traceback.print_exc()
+            
+        print('done.')
         return new_config
 
     def del_config(self, model_name:str, gen, opt, completer):
@@ -621,11 +668,14 @@ class ModelManager(object):
         completer.del_model(model_name)
 
     def search_models(self, search_folder):
-
         print(f'>> Finding Models In: {search_folder}')
-        models_folder = Path(search_folder).glob('**/*.ckpt')
+        models_folder_ckpt = Path(search_folder).glob('**/*.ckpt')
+        models_folder_safetensors = Path(search_folder).glob('**/*.safetensors')
 
-        files = [x for x in models_folder if x.is_file()]
+        ckpt_files = [x for x in models_folder_ckpt if x.is_file()]
+        safetensor_files = [x for x in models_folder_safetensors if x.is_file]
+
+        files = ckpt_files + safetensor_files
 
         found_models = []
         for file in files:
@@ -655,9 +705,9 @@ class ModelManager(object):
         '''
         yaml_str = OmegaConf.to_yaml(self.config)
         if not os.path.isabs(config_file_path):
-            config_file_path = os.path.normpath(os.path.join(Globals.root,opt.conf))
+            config_file_path = os.path.normpath(os.path.join(Globals.root,config_file_path))
         tmpfile = os.path.join(os.path.dirname(config_file_path),'new_config.tmp')
-        with open(tmpfile, 'w') as outfile:
+        with open(tmpfile, 'w', encoding="utf-8") as outfile:
             outfile.write(self.preamble())
             outfile.write(yaml_str)
         os.replace(tmpfile,config_file_path)
@@ -678,7 +728,7 @@ class ModelManager(object):
 
     def _resolve_path(self, source:Union[str,Path], dest_directory:str)->Path:
         resolved_path = None
-        if source.startswith('http'):
+        if source.startswith(('http:','https:','ftp:')):
             basename = os.path.basename(source)
             if not os.path.isabs(dest_directory):
                 dest_directory = os.path.join(Globals.root,dest_directory)
@@ -761,7 +811,7 @@ class ModelManager(object):
                 hash = f.read()
             return hash
 
-        print(f'>> Calculating sha256 hash of weights file')
+        print('>> Calculating sha256 hash of weights file')
         tic = time.time()
         sha = hashlib.sha256()
         sha.update(data)
@@ -788,7 +838,7 @@ class ModelManager(object):
             vae_args.update(torch_dtype=torch.float16)
             fp_args_list = [{'revision':'fp16'},{}]
         else:
-            print(f'  | Using more accurate float32 precision')
+            print('  | Using more accurate float32 precision')
             fp_args_list = [{}]
 
         vae = None
@@ -805,7 +855,7 @@ class ModelManager(object):
                 vae = AutoencoderKL.from_pretrained(name_or_path, **vae_args, **fp_args)
             except OSError as e:
                 if str(e).startswith('fp16 is not a valid'):
-                    print(f'  | Half-precision version of model not available; fetching full-precision instead')
+                    print('  | Half-precision version of model not available; fetching full-precision instead')
                 else:
                     deferred_error = e
             if vae:

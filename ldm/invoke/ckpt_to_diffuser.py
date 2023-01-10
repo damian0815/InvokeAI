@@ -14,12 +14,15 @@
 # limitations under the License.
 #
 # Adapted for use as a module by Lincoln Stein <lstein@gmail.com>
+# Original file at: https://github.com/huggingface/diffusers/blob/main/scripts/convert_ldm_original_checkpoint_to_diffusers.py
 """ Conversion script for the LDM checkpoints. """
 
 import os
 import re
 import torch
+from pathlib import Path
 from ldm.invoke.globals import Globals
+from safetensors.torch import load_file
 
 try:
     from omegaconf import OmegaConf
@@ -790,7 +793,7 @@ def convert_ckpt_to_diffuser(checkpoint_path:str,
                              upcast_attn:bool=False,
                              ):
 
-    checkpoint = torch.load(checkpoint_path)
+    checkpoint = load_file(checkpoint_path) if Path(checkpoint_path).suffix == '.safetensors' else torch.load(checkpoint_path)
 
     # Sometimes models don't have the global_step item
     if "global_step" in checkpoint:

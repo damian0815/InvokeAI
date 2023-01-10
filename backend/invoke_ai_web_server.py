@@ -84,7 +84,14 @@ class InvokeAIWebServer:
         }
 
         if opt.cors:
-            socketio_args["cors_allowed_origins"] = opt.cors
+            _cors = opt.cors
+            # convert list back into comma-separated string,
+            # be defensive here, not sure in what form this arrives
+            if isinstance(_cors, list):
+                _cors = ",".join(_cors)
+            if "," in _cors:
+                _cors = _cors.split(",")
+            socketio_args["cors_allowed_origins"] = _cors
 
         frontend_path = self.find_frontend()
         self.app = Flask(
@@ -327,6 +334,8 @@ class InvokeAIWebServer:
                 model_name = new_model_config['name']
                 del new_model_config['name']
                 model_attributes = new_model_config
+                if len(model_attributes['vae']) == 0:
+                    del model_attributes['vae']
                 update = False
                 current_model_list = self.generate.model_manager.list_models()
                 if model_name in current_model_list:
@@ -926,9 +935,7 @@ class InvokeAIWebServer:
                 init_img_path = self.get_image_path_from_url(init_img_url)
                 generation_parameters["init_img"] = Image.open(init_img_path).convert('RGB')
 
-            def image_progress(progress_state: PipelineIntermediateState):
-                step = progress_state.step
-                sample = progress_state.latents
+            def image_progress(sample, step):
                 if self.canceled.is_set():
                     raise CanceledException
 
@@ -1199,9 +1206,16 @@ class InvokeAIWebServer:
 
             print(generation_parameters)
 
+            def diffusers_step_callback_adapter(*cb_args, **kwargs):
+                if isinstance(cb_args[0], PipelineIntermediateState):
+                    progress_state: PipelineIntermediateState = cb_args[0]
+                    return image_progress(progress_state.latents, progress_state.step)
+                else:
+                    return image_progress(*cb_args, **kwargs)
+
             self.generate.prompt2image(
                 **generation_parameters,
-                step_callback=image_progress,
+                step_callback=diffusers_step_callback_adapter,
                 image_callback=image_done
             )
 
