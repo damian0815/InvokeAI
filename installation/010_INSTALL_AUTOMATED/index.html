@@ -1298,19 +1298,20 @@ Terminal, including InvokeAI. This package is provided directly by Apple.</p>
     <a href="https://github.com/invoke-ai/InvokeAI/releases/latest">latest release</a>, and
     look for a series of files named:</p>
 <ul>
-<li><a href="https://github.com/invoke-ai/InvokeAI/files/10254728/InvokeAI-installer-2.2.4-p5-mac.zip">InvokeAI-installer-2.2.4-p5-mac.zip</a></li>
-<li><a href="https://github.com/invoke-ai/InvokeAI/files/10254729/InvokeAI-installer-2.2.4-p5-windows.zip">InvokeAI-installer-2.2.4-p5-windows.zip</a></li>
-<li><a href="https://github.com/invoke-ai/InvokeAI/files/10254727/InvokeAI-installer-2.2.4-p5-linux.zip">InvokeAI-installer-2.2.4-p5-linux.zip</a></li>
+<li>InvokeAI-installer-2.X.X-mac.zip</li>
+<li>InvokeAI-installer-2.X.X-windows.zip</li>
+<li>InvokeAI-installer-2.X.X-linux.zip</li>
 </ul>
-<p>Download the one that is appropriate for your operating system.</p>
+<p>(Where 2.X.X is the current release number).
+Download the one that is appropriate for your operating system.</p>
 </li>
 <li>
 <p>Unpack the zip file into a convenient directory. This will create a new
     directory named "InvokeAI-Installer". This example shows how this would look
     using the <code>unzip</code> command-line tool, but you may use any graphical or
     command-line Zip extractor:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>C:\Documents\Linco&gt; unzip InvokeAI-installer-2.2.4-windows.zip
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>Archive:  C: \Linco\Downloads\InvokeAI-installer-2.2.4-windows.zip
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>C:\Documents\Linco&gt; unzip InvokeAI-installer-2.X.X-windows.zip
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>Archive:  C: \Linco\Downloads\InvokeAI-installer-2.X.X-windows.zip
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>creating: InvokeAI-Installer\
 <a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>inflating: InvokeAI-Installer\install.bat
 <a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>inflating: InvokeAI-Installer\readme.txt
@@ -1486,17 +1487,21 @@ bottom. Alternatively, you can browse "branches" and "tags" at the top of the
 big code directory on the InvokeAI welcome page. When you find the version you
 want to install, go to the green "&lt;&gt; Code" button at the top, and copy the
 "Download ZIP" link.</p>
-<p>Now run <code>update.sh</code> (or <code>update.bat</code>) with the URL of the desired InvokeAI
+<p>Now run <code>update.sh</code> (or <code>update.bat</code>) with the version number of the desired InvokeAI
 version as its argument. For example, this will install the old 2.2.0 release.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>update.sh https://github.com/invoke-ai/InvokeAI/archive/refs/tags/v2.2.0.zip
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>update.sh v2.2.0
 </code></pre></div>
+<p>You can get the list of version numbers by going to the <a href="https://github.com/invoke-ai/InvokeAI/releases">releases
+page</a> or by browsing
+the (Tags)[<a href="https://github.com/invoke-ai/InvokeAI/tags">https://github.com/invoke-ai/InvokeAI/tags</a>] list from the
+Code section of the main github page.</p>
 
   <hr>
 <div class="md-source-file">
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">December 18, 2022</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">January 9, 2023</span>
       
         <br>
         Created:

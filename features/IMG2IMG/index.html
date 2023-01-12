@@ -1238,7 +1238,7 @@ from a prompt. If the step count is 10, then the "latent space" (Stable
 Diffusion's internal representation of the image) for the prompt "fire" with
 seed <code>1592514025</code> develops something like this:</p>
 <div class="admonition example">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>invoke&gt; <span class="s2">&quot;fire&quot;</span> -s10 -W384 -H384 -S1592514025
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>invoke&gt;<span class="w"> </span><span class="s2">&quot;fire&quot;</span><span class="w"> </span>-s10<span class="w"> </span>-W384<span class="w"> </span>-H384<span class="w"> </span>-S1592514025
 </code></pre></div>
 <p><figure markdown>
 <img alt="latent steps" src="../../assets/img2img/000019.steps.png" width="720" />
@@ -1315,7 +1315,7 @@ the problems of my bad drawing.</p>
 <p>If you want to try this out yourself, all of these are using a seed of
 <code>1592514025</code> with a width/height of <code>384</code>, step count <code>10</code>, the default sampler
 (<code>k_lms</code>), and the single-word prompt <code>"fire"</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>invoke&gt; <span class="s2">&quot;fire&quot;</span> -s10 -W384 -H384 -S1592514025 -I /tmp/fire-drawing.png --strength <span class="m">0</span>.7
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>invoke&gt;<span class="w"> </span><span class="s2">&quot;fire&quot;</span><span class="w"> </span>-s10<span class="w"> </span>-W384<span class="w"> </span>-H384<span class="w"> </span>-S1592514025<span class="w"> </span>-I<span class="w"> </span>/tmp/fire-drawing.png<span class="w"> </span>--strength<span class="w"> </span><span class="m">0</span>.7
 </code></pre></div>
 <p>The code for rendering intermediates is on my (damian0815's) branch
 <a href="https://github.com/damian0815/InvokeAI/tree/document-img2img">document-img2img</a> -
@@ -1329,7 +1329,7 @@ generation again using the same seed, but this time adapting the step count to
 give each generation 20 steps.</p>
 <p>Here's strength <code>0.4</code> (note step count <code>50</code>, which is <code>20 ÷ 0.4</code> to make sure SD
 does <code>20</code> steps from my image):</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>invoke&gt; <span class="s2">&quot;fire&quot;</span> -s50 -W384 -H384 -S1592514025 -I /tmp/fire-drawing.png -f <span class="m">0</span>.4
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>invoke&gt;<span class="w"> </span><span class="s2">&quot;fire&quot;</span><span class="w"> </span>-s50<span class="w"> </span>-W384<span class="w"> </span>-H384<span class="w"> </span>-S1592514025<span class="w"> </span>-I<span class="w"> </span>/tmp/fire-drawing.png<span class="w"> </span>-f<span class="w"> </span><span class="m">0</span>.4
 </code></pre></div>
 <figure>
 <p><img alt="000035.1592514025" src="../../assets/img2img/000035.1592514025.png" /></p>

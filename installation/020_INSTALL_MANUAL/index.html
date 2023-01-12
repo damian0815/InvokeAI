@@ -1260,13 +1260,13 @@ manager, please follow these steps:</p>
 <li>
 <p>Make sure you are using Python 3.9 or 3.10. The rest of the install
     procedure depends on this:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>python -V
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>python<span class="w"> </span>-V
 </code></pre></div>
 </li>
 <li>
 <p>Clone the <a href="https://github.com/invoke-ai/InvokeAI">InvokeAI</a> source code from
     GitHub:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>git clone https://github.com/invoke-ai/InvokeAI.git
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/invoke-ai/InvokeAI.git
 </code></pre></div>
 <p>This will create InvokeAI folder where you will follow the rest of the
 steps.</p>
@@ -1274,14 +1274,14 @@ steps.</p>
 <li>
 <p>From within the InvokeAI top-level directory, create and activate a virtual
     environment named <code>invokeai</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>python -mvenv invokeai
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nb">source</span> invokeai/bin/activate
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>python<span class="w"> </span>-mvenv<span class="w"> </span>invokeai
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nb">source</span><span class="w"> </span>invokeai/bin/activate
 </code></pre></div>
 </li>
 <li>
 <p>Make sure that pip is installed in your virtual environment an up to date:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>python -mensurepip --upgrade
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>python -mpip install --upgrade pip
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>python<span class="w"> </span>-mensurepip<span class="w"> </span>--upgrade
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>python<span class="w"> </span>-mpip<span class="w"> </span>install<span class="w"> </span>--upgrade<span class="w"> </span>pip
 </code></pre></div>
 </li>
 <li>
@@ -1332,7 +1332,7 @@ this from the top-level directory is:</p>
 <div class="admonition info">
 <p class="admonition-title">Replace <code>xxx</code> and <code>yyy</code> with the appropriate OS and GPU codes.</p>
 </div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>ln -sf environments-and-requirements/requirements-xxx-yyy.txt requirements.txt
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>ln<span class="w"> </span>-sf<span class="w"> </span>environments-and-requirements/requirements-xxx-yyy.txt<span class="w"> </span>requirements.txt
 </code></pre></div>
 </div>
 <div class="tabbed-block">
@@ -1360,7 +1360,7 @@ file in <code>environments-and-requirements</code>.</p>
 <li>
 <p>Run PIP</p>
 <p>Be sure that the <code>invokeai</code> environment is active before doing this:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>pip install --prefer-binary -r requirements.txt
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>pip<span class="w"> </span>install<span class="w"> </span>--prefer-binary<span class="w"> </span>-r<span class="w"> </span>requirements.txt
 </code></pre></div>
 </li>
 <li>
@@ -1372,7 +1372,7 @@ directory separate from the source code and aids in updating.</p>
 <p>You may pick any location for this directory using the <code>--root_dir</code>
 option (abbreviated --root). If you don't pass this option, it will
 default to <code>invokeai</code> in your home directory.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>configure_invokeai.py --root_dir ~/Programs/invokeai
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>configure_invokeai.py<span class="w"> </span>--root_dir<span class="w"> </span>~/Programs/invokeai
 </code></pre></div>
 <p>The script <code>configure_invokeai.py</code> will interactively guide you through the
 process of downloading and installing the weights files needed for InvokeAI.
@@ -1409,15 +1409,15 @@ option (abbreviated below as <code>--root</code>):</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="2:3"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><input id="__tabbed_2_3" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">CLI</label><label for="__tabbed_2_2">local Webserver</label><label for="__tabbed_2_3">Public Webserver</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>invoke.py --root ~/Programs/invokeai
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>invoke.py<span class="w"> </span>--root<span class="w"> </span>~/Programs/invokeai
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>invoke.py --web --root ~/Programs/invokeai
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>invoke.py<span class="w"> </span>--web<span class="w"> </span>--root<span class="w"> </span>~/Programs/invokeai
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>invoke.py --web --host <span class="m">0</span>.0.0.0 --root ~/Programs/invokeai
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>invoke.py<span class="w"> </span>--web<span class="w"> </span>--host<span class="w"> </span><span class="m">0</span>.0.0.0<span class="w"> </span>--root<span class="w"> </span>~/Programs/invokeai
 </code></pre></div>
 </div>
 </div>
@@ -1479,14 +1479,14 @@ can skip this step.</p>
 <li>
 <p>Clone the <a href="https://github.com/invoke-ai/InvokeAI">InvokeAI</a> source code from
     GitHub:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>git clone https://github.com/invoke-ai/InvokeAI.git
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/invoke-ai/InvokeAI.git
 </code></pre></div>
 <p>This will create InvokeAI folder where you will follow the rest of the
 steps.</p>
 </li>
 <li>
 <p>Enter the newly-created InvokeAI folder:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="nb">cd</span> InvokeAI
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="nb">cd</span><span class="w"> </span>InvokeAI
 </code></pre></div>
 <p>From this step forward make sure that you are working in the InvokeAI
 directory!</p>
@@ -1534,12 +1534,12 @@ following command from the repository-root:</p>
 <div class="admonition todo">
 <p class="admonition-title">Replace <code>xxx</code> and <code>yyy</code> with the appropriate OS and GPU codes as seen in the table above</p>
 </div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>ln -sf environments-and-requirements/environment-xxx-yyy.yml environment.yml
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>ln<span class="w"> </span>-sf<span class="w"> </span>environments-and-requirements/environment-xxx-yyy.yml<span class="w"> </span>environment.yml
 </code></pre></div>
 <p>When this is done, confirm that a file <code>environment.yml</code> has been linked in
 the InvokeAI root directory and that it points to the correct file in the
 <code>environments-and-requirements</code>.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>ls -la
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>ls<span class="w"> </span>-la
 </code></pre></div>
 </div>
 <div class="tabbed-block">
@@ -1562,7 +1562,7 @@ explorer or by using the command <code>dir</code> from the terminal</p>
 </li>
 <li>
 <p>Create the conda environment:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>conda env update
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>conda<span class="w"> </span>env<span class="w"> </span>update
 </code></pre></div>
 <p>This will create a new environment named <code>invokeai</code> and install all InvokeAI
 dependencies into it. If something goes wrong you should take a look at
@@ -1572,7 +1572,7 @@ dependencies into it. If something goes wrong you should take a look at
 <p>Activate the <code>invokeai</code> environment:</p>
 <p>In order to use the newly created environment you will first need to
 activate it</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>conda activate invokeai
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>conda<span class="w"> </span>activate<span class="w"> </span>invokeai
 </code></pre></div>
 <p>Your command-line prompt should change to indicate that <code>invokeai</code> is active
 by prepending <code>(invokeai)</code>.</p>
@@ -1586,7 +1586,7 @@ directory separate from the source code and aids in updating.</p>
 <p>You may pick any location for this directory using the <code>--root_dir</code>
 option (abbreviated --root). If you don't pass this option, it will
 default to <code>invokeai</code> in your home directory.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>python scripts/configure_invokeai.py --root_dir ~/Programs/invokeai
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>python<span class="w"> </span>scripts/configure_invokeai.py<span class="w"> </span>--root_dir<span class="w"> </span>~/Programs/invokeai
 </code></pre></div>
 <p>The script <code>configure_invokeai.py</code> will interactively guide you through the
 process of downloading and installing the weights files needed for InvokeAI.
@@ -1623,15 +1623,15 @@ option (abbreviated below as <code>--root</code>):</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="4:3"><input checked="checked" id="__tabbed_4_1" name="__tabbed_4" type="radio" /><input id="__tabbed_4_2" name="__tabbed_4" type="radio" /><input id="__tabbed_4_3" name="__tabbed_4" type="radio" /><div class="tabbed-labels"><label for="__tabbed_4_1">CLI</label><label for="__tabbed_4_2">local Webserver</label><label for="__tabbed_4_3">Public Webserver</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>invoke.py --root ~/Programs/invokeai
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>invoke.py<span class="w"> </span>--root<span class="w"> </span>~/Programs/invokeai
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>invoke.py --web --root ~/Programs/invokeai
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>invoke.py<span class="w"> </span>--web<span class="w"> </span>--root<span class="w"> </span>~/Programs/invokeai
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>invoke.py --web --host <span class="m">0</span>.0.0.0 --root ~/Programs/invokeai
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>invoke.py<span class="w"> </span>--web<span class="w"> </span>--host<span class="w"> </span><span class="m">0</span>.0.0.0<span class="w"> </span>--root<span class="w"> </span>~/Programs/invokeai
 </code></pre></div>
 </div>
 </div>
@@ -1670,7 +1670,7 @@ time. Note that this method only works with the PIP method.</p>
    virtual environment into the runtime directory. For example, assuming the
    runtime directory lives in <code>~/Programs/invokeai</code>, you'd run:</li>
 </ol>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>python -menv ~/Programs/invokeai
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>python<span class="w"> </span>-menv<span class="w"> </span>~/Programs/invokeai
 </code></pre></div>
 <ol>
 <li>
@@ -1693,9 +1693,9 @@ time. Note that this method only works with the PIP method.</p>
 <p>This distribution is changing rapidly. If you used the <code>git clone</code> method
 (step 5) to download the InvokeAI directory, then to update to the latest and
 greatest version, launch the Anaconda window, enter <code>InvokeAI</code> and type:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>git pull
-<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>conda env update
-<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>python scripts/configure_invokeai.py --skip-sd-weights <span class="c1">#optional</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>git<span class="w"> </span>pull
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>conda<span class="w"> </span>env<span class="w"> </span>update
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>python<span class="w"> </span>scripts/configure_invokeai.py<span class="w"> </span>--skip-sd-weights<span class="w"> </span><span class="c1">#optional</span>
 </code></pre></div>
 <p>This will bring your local copy into sync with the remote one. The last step may
 be needed to take advantage of new features or released models. The
@@ -1714,7 +1714,7 @@ channel of the <a href="https://discord.gg/ZmtBAhwWhy">InvokeAI Discord</a>.</p>
 <p>You may also try to install the broken packages manually using PIP. To do this,
 activate the <code>invokeai</code> environment, and run <code>pip install</code> with the name and
 version of the package that is causing the incompatibility. For example:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>pip install test-tube<span class="o">==</span><span class="m">0</span>.7.5
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>pip<span class="w"> </span>install<span class="w"> </span>test-tube<span class="o">==</span><span class="m">0</span>.7.5
 </code></pre></div>
 <p>You can keep doing this until all requirements are satisfied and the <code>invoke.py</code>
 script runs without errors. Please report to
@@ -1724,8 +1724,8 @@ to work around the problem so that others can benefit from your investigation.</
 <p>If conda create environment fails with lmdb error, this is most likely caused by Clang.
 Run brew config to see which Clang is installed on your Mac. If Clang isn't installed, that's causing the error.
 Start by installing additional XCode command line tools, followed by brew install llvm.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>xcode-select --install
-<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>brew install llvm
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>xcode-select<span class="w"> </span>--install
+<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>brew<span class="w"> </span>install<span class="w"> </span>llvm
 </code></pre></div>
 <p>If brew config has Clang installed, update to the latest llvm and try creating the environment again.</p>
 <h4 id="configure_invokeaipy-or-invokepy-crashes-at-an-early-stage"><code>configure_invokeai.py</code> or <code>invoke.py</code> crashes at an early stage<a class="headerlink" href="#configure_invokeaipy-or-invokepy-crashes-at-an-early-stage" title="Permanent link">#</a></h4>
@@ -1733,10 +1733,10 @@ Start by installing additional XCode command line tools, followed by brew instal
 have linked to the correct environment file and run <code>conda update</code> again.</p>
 <p>If the problem persists, a more extreme measure is to clear Conda's caches and
 remove the <code>invokeai</code> environment:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a>conda deactivate
-<a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a>conda env remove -n invokeai
-<a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a>conda clean -a
-<a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a>conda update
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a>conda<span class="w"> </span>deactivate
+<a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a>conda<span class="w"> </span>env<span class="w"> </span>remove<span class="w"> </span>-n<span class="w"> </span>invokeai
+<a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a>conda<span class="w"> </span>clean<span class="w"> </span>-a
+<a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a>conda<span class="w"> </span>update
 </code></pre></div>
 <p>This removes all cached library files, including ones that may have been
 corrupted somehow. (This is not supposed to happen, but does anyway).</p>
@@ -1760,12 +1760,12 @@ the magic incantations for Conda and PIP.</p>
 <ul>
 <li>conda</li>
 </ul>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a>conda install pytorch torchvision torchaudio pytorch-cuda<span class="o">=</span><span class="m">11</span>.6 -c pytorch -c nvidia
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a>conda<span class="w"> </span>install<span class="w"> </span>pytorch<span class="w"> </span>torchvision<span class="w"> </span>torchaudio<span class="w"> </span>pytorch-cuda<span class="o">=</span><span class="m">11</span>.6<span class="w"> </span>-c<span class="w"> </span>pytorch<span class="w"> </span>-c<span class="w"> </span>nvidia
 </code></pre></div>
 <ul>
 <li>pip</li>
 </ul>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a>pip3 install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu116
+<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a>pip3<span class="w"> </span>install<span class="w"> </span>torch<span class="w"> </span>torchvision<span class="w"> </span>torchaudio<span class="w"> </span>--extra-index-url<span class="w"> </span>https://download.pytorch.org/whl/cu116
 </code></pre></div>
 </div>
 <div class="admonition todo">
@@ -1773,13 +1773,13 @@ the magic incantations for Conda and PIP.</p>
 <ul>
 <li>conda</li>
 </ul>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a>conda activate invokeai
-<a id="__codelineno-30-2" name="__codelineno-30-2" href="#__codelineno-30-2"></a>pip3 install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/rocm5.2/
+<div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a>conda<span class="w"> </span>activate<span class="w"> </span>invokeai
+<a id="__codelineno-30-2" name="__codelineno-30-2" href="#__codelineno-30-2"></a>pip3<span class="w"> </span>install<span class="w"> </span>torch<span class="w"> </span>torchvision<span class="w"> </span>torchaudio<span class="w"> </span>--extra-index-url<span class="w"> </span>https://download.pytorch.org/whl/rocm5.2/
 </code></pre></div>
 <ul>
 <li>pip</li>
 </ul>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a>pip3 install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/rocm5.2/
+<div class="highlight"><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a>pip3<span class="w"> </span>install<span class="w"> </span>torch<span class="w"> </span>torchvision<span class="w"> </span>torchaudio<span class="w"> </span>--extra-index-url<span class="w"> </span>https://download.pytorch.org/whl/rocm5.2/
 </code></pre></div>
 </div>
 <p>More information and troubleshooting tips can be found at <a href="https://pytorch.org">https://pytorch.org</a>.</p>
