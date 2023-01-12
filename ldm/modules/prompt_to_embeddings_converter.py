@@ -1,9 +1,20 @@
 import math
 
 import torch
+from transformers import CLIPTokenizer, CLIPTextModel
+
+from ldm.modules.textual_inversion_manager import TextualInversionManager
 
 
 class PromptToEmbeddingsConverter:
+
+    def __init__(self,
+                 tokenizer: CLIPTokenizer,
+                 text_encoder: CLIPTextModel,
+                 textual_inversion_manager: TextualInversionManager):
+        self.tokenizer = tokenizer
+        self.text_encoder = text_encoder
+        self.textual_inversion_manager = textual_inversion_manager
 
     def get_embeddings_for_weighted_prompt_fragments(self,
                                                      text: list[str],
@@ -14,7 +25,7 @@ class PromptToEmbeddingsConverter:
         '''
 
         :param text: A list of fragments of text to which different weights are to be applied.
-        :param fragment_weights: A batch of lists of weights, one for each entry in `fragments`.
+        :param fragment_weights: A list of weights, one for each entry in `fragments`.
         :return: A tensor of shape `[1, 77, token_dim]` containing weighted embeddings where token_dim is 768 for SD1
                     and 1280 for SD2
         '''
@@ -93,6 +104,21 @@ class PromptToEmbeddingsConverter:
         else:
             return batch_z
 
+    @property
+    def max_token_count(self) -> int:
+        return self.tokenizer.model_max_length
+
+    def get_tokenization_description(self, text: str) -> list[str]:
+        """
+        For the given text, return a list of strings showing how it will be tokenized.
+
+        :param text: The text that is to be tokenized.
+        :return: A list of strings representing the output of the tokenizer. It's expected that the output list may be
+        longer than the number of words in `text` because the tokenizer may split words to multiple tokens. Because of
+        this, word boundaries are indicated in the output with `</w>` strings.
+        """
+        return self.tokenizer.tokenize(text)
+
     def get_token_ids(self, fragments: list[str], include_start_and_end_markers: bool = True) -> list[list[int]]:
         """
         Convert a list of strings like `["a cat", "sitting", "on a mat"]` into a list of lists of token ids like
@@ -108,7 +134,7 @@ class PromptToEmbeddingsConverter:
         token_ids_list = self.tokenizer(
             fragments,
             truncation=True,
-            max_length=self.max_length,
+            max_length=self.max_token_count,
             return_overflowing_tokens=False,
             padding='do_not_pad',
             return_tensors=None,  # just give me lists of ints
@@ -120,8 +146,8 @@ class PromptToEmbeddingsConverter:
             token_ids = token_ids[1:-1]
             # pad for textual inversions with vector length >1
             token_ids = self.textual_inversion_manager.expand_textual_inversion_token_ids_if_necessary(token_ids)
-            # restrict length to max_length-2 (leaving room for bos/eos)
-            token_ids = token_ids[0:self.max_length - 2]
+            # truncate if necessary to max_length-2 (leaving room for bos/eos)
+            token_ids = token_ids[0:self.max_token_count - 2]
             # add back eos/bos if requested
             if include_start_and_end_markers:
                 token_ids = [self.tokenizer.bos_token_id] + token_ids + [self.tokenizer.eos_token_id]
@@ -132,7 +158,7 @@ class PromptToEmbeddingsConverter:
 
 
     @classmethod
-    def apply_embedding_weights(self, embeddings: torch.Tensor, per_embedding_weights: list[float], normalize:bool) -> torch.Tensor:
+    def apply_embedding_weights(cls, embeddings: torch.Tensor, per_embedding_weights: list[float], normalize:bool) -> torch.Tensor:
         per_embedding_weights = torch.tensor(per_embedding_weights, dtype=embeddings.dtype, device=embeddings.device)
         if normalize:
             per_embedding_weights = per_embedding_weights / torch.sum(per_embedding_weights)
@@ -172,20 +198,20 @@ class PromptToEmbeddingsConverter:
             per_token_weights += [float(weight)] * len(this_fragment_token_ids)
 
         # leave room for bos/eos
-        if len(all_token_ids) > self.max_length - 2:
-            excess_token_count = len(all_token_ids) - self.max_length - 2
+        if len(all_token_ids) > self.max_token_count - 2:
+            excess_token_count = len(all_token_ids) - self.max_token_count - 2
             # TODO build nice description string of how the truncation was applied
             # this should be done by calling self.tokenizer.convert_ids_to_tokens() then passing the result to
             # self.tokenizer.convert_tokens_to_string() for the token_ids on each side of the truncation limit.
             print(f">> Prompt is {excess_token_count} token(s) too long and has been truncated")
-            all_token_ids = all_token_ids[0:self.max_length]
-            per_token_weights = per_token_weights[0:self.max_length]
+            all_token_ids = all_token_ids[0:self.max_token_count]
+            per_token_weights = per_token_weights[0:self.max_token_count]
 
         # pad out to a self.max_length-entry array: [eos_token, <prompt tokens>, eos_token, ..., eos_token]
         # (typically self.max_length == 77)
         all_token_ids = [self.tokenizer.bos_token_id] + all_token_ids + [self.tokenizer.eos_token_id]
         per_token_weights = [1.0] + per_token_weights + [1.0]
-        pad_length = self.max_length - len(all_token_ids)
+        pad_length = self.max_token_count - len(all_token_ids)
         all_token_ids += [self.tokenizer.eos_token_id] * pad_length
         per_token_weights += [1.0] * pad_length
 
@@ -203,13 +229,13 @@ class PromptToEmbeddingsConverter:
         where `token_dim` is 768 for SD1 and 1280 for SD2.
         '''
         #print(f"building weighted embedding tensor for {tokens} with weights {per_token_weights}")
-        if token_ids.shape != torch.Size([self.max_length]):
-            raise ValueError(f"token_ids has shape {token_ids.shape} - expected [{self.max_length}]")
+        if token_ids.shape != torch.Size([self.max_token_count]):
+            raise ValueError(f"token_ids has shape {token_ids.shape} - expected [{self.max_token_count}]")
 
         z = self.text_encoder.forward(input_ids=token_ids.unsqueeze(0),
                                       return_dict=False)[0]
         empty_token_ids = torch.tensor([self.tokenizer.bos_token_id] +
-                                    [self.tokenizer.pad_token_id] * (self.max_length-2) +
+                                    [self.tokenizer.pad_token_id] * (self.max_token_count-2) +
                                     [self.tokenizer.eos_token_id], dtype=torch.int, device=token_ids.device).unsqueeze(0)
         empty_z = self.text_encoder(input_ids=empty_token_ids).last_hidden_state
         batch_weights_expanded = per_token_weights.reshape(per_token_weights.shape + (1,)).expand(z.shape)

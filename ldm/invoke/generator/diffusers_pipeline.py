@@ -40,7 +40,7 @@ from diffusers.utils.outputs import BaseOutput
 from torchvision.transforms.functional import resize as tv_resize
 from transformers import CLIPFeatureExtractor, CLIPTextModel, CLIPTokenizer
 
-from ldm.models.diffusion.shared_invokeai_diffusion import InvokeAIDiffuserComponent, ThresholdSettings
+from ldm.models.diffusion.shared_invokeai_diffusion import InvokeAIDiffuserComponent, ExtraConditioningInfo, ThresholdSettings
 from ldm.modules.textual_inversion_manager import TextualInversionManager
 
 
@@ -203,7 +203,7 @@ class ConditioningData:
     Guidance scale is enabled by setting `guidance_scale > 1`. Higher guidance scale encourages to generate
     images that are closely linked to the text `prompt`, usually at the expense of lower image quality.
     """
-    extra: Optional[InvokeAIDiffuserComponent.ExtraConditioningInfo] = None
+    extra: Optional[ExtraConditioningInfo] = None
     scheduler_args: dict[str, Any] = field(default_factory=dict)
     """Additional arguments to pass to scheduler.step."""
     threshold: Optional[ThresholdSettings] = None

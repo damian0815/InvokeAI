@@ -22,7 +22,7 @@ class DummyTransformer:
 
 
     def __init__(self):
-        self.embeddings = DummyEmbeddingsList([make_dummy_embedding() for _ in range(len(KNOWN_WORDS))])
+        self.embeddings = DummyEmbeddingsList([make_dummy_embedding() for _ in range(len(KNOWN_WORDS)+2)])
 
     def resize_token_embeddings(self, new_size=None):
         if new_size is None:
@@ -36,13 +36,28 @@ class DummyTransformer:
     def get_input_embeddings(self):
         return self.embeddings
 
+    def forward(self, input_ids: torch.Tensor, return_dict: bool=False) -> torch.Tensor:
+        if return_dict:
+            raise AssertionError("for unit testing, return_dict must be false")
+        if input_ids.shape[0] > 1:
+            raise AssertionError("for unit testing, only batch size =1 is supported")
+        return torch.index_select(torch.cat(self.embeddings), dim=0, index=input_ids.squeeze(0)).unsqueeze(0)
+
+    def __call__(self, input_ids, **kwargs):
+        return self.forward(input_ids=input_ids)
+
 class DummyTokenizer():
     def __init__(self):
-        self.tokens = KNOWN_WORDS.copy()
-        self.bos_token_id = 49406 # these are what the real CLIPTokenizer has
-        self.eos_token_id = 49407
-        self.pad_token_id = 49407
-        self.unk_token_id = 49407
+        self.tokens = KNOWN_WORDS.copy() + ["<|bos|>", "<|eos|>"]
+        self.bos_token_id = len(self.tokens)-2
+        self.eos_token_id = len(self.tokens)-2
+        self.pad_token_id = self.eos_token_id
+        self.unk_token_id = self.eos_token_id
+        self.model_max_length = 77
+
+    def __call__(self, fragments, **kwargs):
+        return {'input_ids': [[self.tokens.index(w) for w in fragment.split(" ")]
+                                           for fragment in fragments]}
 
     def convert_tokens_to_ids(self, token_str):
         try:

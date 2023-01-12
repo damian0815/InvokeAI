@@ -37,6 +37,9 @@ from ldm.invoke.txt2mask import Txt2Mask
 from ldm.models.diffusion.ddim import DDIMSampler
 from ldm.models.diffusion.ksampler import KSampler
 from ldm.models.diffusion.plms import PLMSSampler
+from ldm.invoke.conditioning import ConditioningSchedulerFactory
+from ldm.models.diffusion.shared_invokeai_diffusion import ExtraConditioningInfo
+from ldm.modules.prompt_to_embeddings_converter import PromptToEmbeddingsConverter
 
 
 def fix_func(orig):
@@ -463,11 +466,16 @@ class Generate:
             self.model.cond_stage_model.to(self.model.device)
 
         try:
-            uc, c, extra_conditioning_info = get_uc_and_c_and_ec(
-                prompt, model =self.model,
-                skip_normalize_legacy_blend=skip_normalize,
-                log_tokens    =self.log_tokenization
-            )
+
+            # replacement for get_uc_and_c_and_ec
+            csf = ConditioningSchedulerFactory(model.prompt_to_embeddings_converter)
+            conditioning_scheduler = csf.make_conditioning_scheduler(prompt, cfg_scale=cfg_scale, log_tokens=self.log_tokenization)
+            conditioning = conditioning_scheduler.get_conditioning_for_step_pct(0)
+            uc = conditioning.negative_conditioning
+            c = conditioning.positive_conditioning
+            ec = ExtraConditioningInfo(tokens_count_including_eos_bos=tokens_count_including_eos_bos,
+                                         cross_attention_control_args=conditioning.cross_attention_control_args)
+
 
             init_image, mask_image = self._make_images(
                 init_img,

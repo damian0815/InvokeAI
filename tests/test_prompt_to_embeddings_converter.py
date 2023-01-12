@@ -2,15 +2,22 @@ import unittest
 
 import torch
 
-from ldm.invoke.conditioning import ConditioningSchedulerFactory, ConditioningScheduler
+from ldm.invoke.conditioning import ConditioningSchedulerFactory, StaticConditioningScheduler
+from ldm.modules.prompt_to_embeddings_converter import PromptToEmbeddingsConverter
+from ldm.modules.textual_inversion_manager import TextualInversionManager
 from tests.prompting_test_utils import DummyTokenizer, DummyTransformer, KNOWN_WORDS, KNOWN_WORDS_TOKEN_IDS
 
 
 def make_dummy_conditioning_scheduler_factor():
+    tokenizer = DummyTokenizer()
+    text_encoder = DummyTransformer()
+    textual_inversion_manager = TextualInversionManager(tokenizer, text_encoder)
     return ConditioningSchedulerFactory(
-        tokenizer=DummyTokenizer(),
-        text_encoder=DummyTransformer(),
-        textual_inversion_manager=None
+        prompt_to_embeddings_converter=PromptToEmbeddingsConverter(
+            tokenizer=tokenizer,
+            text_encoder=text_encoder,
+            textual_inversion_manager=textual_inversion_manager
+        )
     )
 
 
@@ -47,7 +54,7 @@ class TestPromptToEmbeddings(unittest.TestCase):
 
 
     def assert_constant_scheduling_matches_expected(self,
-                                                    conditioning_scheduler: ConditioningScheduler,
+                                                    conditioning_scheduler: StaticConditioningScheduler,
                                                     expected_positive_conditioning: torch.Tensor,
                                                     expected_negative_conditioning: torch.Tensor,
                                                     cfg_scale: float):

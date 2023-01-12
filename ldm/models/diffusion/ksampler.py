@@ -6,7 +6,7 @@ from torch import nn
 
 from .cross_attention_map_saving import AttentionMapSaver
 from .sampler import Sampler
-from .shared_invokeai_diffusion import InvokeAIDiffuserComponent
+from .shared_invokeai_diffusion import InvokeAIDiffuserComponent, ExtraConditioningInfo
 
 
 # at this threshold, the scheduler will stop using the Karras
@@ -174,7 +174,7 @@ class KSampler(Sampler):
         log_every_t=100,
         unconditional_guidance_scale=1.0,
         unconditional_conditioning=None,
-        extra_conditioning_info: InvokeAIDiffuserComponent.ExtraConditioningInfo=None,
+        extra_conditioning_info: ExtraConditioningInfo=None,
         threshold = 0,
         perlin = 0,
         # this has to come in the same format as the conditioning, # e.g. as encoded tokens, ...

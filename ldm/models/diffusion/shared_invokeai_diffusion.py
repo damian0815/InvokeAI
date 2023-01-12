@@ -18,6 +18,15 @@ class ThresholdSettings:
     warmup: float
 
 
+class ExtraConditioningInfo:
+    def __init__(self, tokens_count_including_eos_bos:int, cross_attention_control_args: Optional[Arguments]):
+        self.tokens_count_including_eos_bos = tokens_count_including_eos_bos
+        self.cross_attention_control_args = cross_attention_control_args
+
+    @property
+    def wants_cross_attention_control(self):
+        return self.cross_attention_control_args is not None
+
 class InvokeAIDiffuserComponent:
     '''
     The aim of this component is to provide a single place for code that can be applied identically to
@@ -28,16 +37,6 @@ class InvokeAIDiffuserComponent:
     * Hybrid conditioning (used for inpainting)
     '''
     debug_thresholding = False
-
-
-    class ExtraConditioningInfo:
-        def __init__(self, tokens_count_including_eos_bos:int, cross_attention_control_args: Optional[Arguments]):
-            self.tokens_count_including_eos_bos = tokens_count_including_eos_bos
-            self.cross_attention_control_args = cross_attention_control_args
-
-        @property
-        def wants_cross_attention_control(self):
-            return self.cross_attention_control_args is not None
 
     def __init__(self, model, model_forward_callback:
                     Callable[[torch.Tensor, torch.Tensor, torch.Tensor], torch.Tensor]
