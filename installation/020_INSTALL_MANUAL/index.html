@@ -1242,15 +1242,16 @@
 <p>who are already experienced with using conda or pip</p>
 </div>
 <h2 id="introduction">Introduction<a class="headerlink" href="#introduction" title="Permanent link">#</a></h2>
-<p>You have two choices for manual installation, the <a href="#PIP_method">first
-one</a> uses basic Python virtual environment (<code>venv</code>)
-commands and the PIP package manager. The <a href="#Conda_method">second one</a>
-based on the Anaconda3 package manager (<code>conda</code>). Both methods require
-you to enter commands on the terminal, also known as the "console".</p>
-<p>Note that the conda install method is currently deprecated and will not
-be supported at some point in the future.</p>
-<p>On Windows systems you are encouraged to install and use the
-<a href="https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows?view=powershell-7.3">Powershell</a>,
+<p>You have two choices for manual installation.
+The <a href="#pip-Install">first one</a> uses basic Python virtual environment (<code>venv</code>)
+command and <code>pip</code> package manager.
+The <a href="#Conda-method">second one</a> uses Anaconda3 package manager (<code>conda</code>).
+Both methods require you to enter commands on the terminal, also known as the
+"console".</p>
+<p>Note that the <code>conda</code> installation method is currently deprecated and will
+not be supported at some point in the future.</p>
+<p>On Windows systems, you are encouraged to install and use the
+<a href="https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows?view=powershell-7.3">PowerShell</a>,
 which provides compatibility with Linux and Mac shells and nice
 features such as command-line completion.</p>
 <h2 id="pip-install">pip Install<a class="headerlink" href="#pip-install" title="Permanent link">#</a></h2>
@@ -1274,14 +1275,14 @@ steps.</p>
 <li>
 <p>From within the InvokeAI top-level directory, create and activate a virtual
     environment named <code>invokeai</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>python<span class="w"> </span>-mvenv<span class="w"> </span>invokeai
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>python<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>invokeai
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nb">source</span><span class="w"> </span>invokeai/bin/activate
 </code></pre></div>
 </li>
 <li>
 <p>Make sure that pip is installed in your virtual environment an up to date:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>python<span class="w"> </span>-mensurepip<span class="w"> </span>--upgrade
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>python<span class="w"> </span>-mpip<span class="w"> </span>install<span class="w"> </span>--upgrade<span class="w"> </span>pip
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>python<span class="w"> </span>-m<span class="w"> </span>ensurepip<span class="w"> </span>--upgrade
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--upgrade<span class="w"> </span>pip
 </code></pre></div>
 </li>
 <li>
@@ -1436,18 +1437,18 @@ option (abbreviated below as <code>--root</code>):</p>
 can do with InvokeAI.</p>
 <p>Note that some GPUs are slow to warm up. In particular, when using an AMD
 card with the ROCm driver, you may have to wait for over a minute the first
-time you try to generate an image. Fortunately, after the warm up period
+time you try to generate an image. Fortunately, after the warm-up period
 rendering will be fast.</p>
 </li>
 <li>
-<p>Subsequently, to relaunch the script, be sure to run "conda activate
-    invokeai", enter the <code>InvokeAI</code> directory, and then launch the invoke
-    script. If you forget to activate the 'invokeai' environment, the script
-    will fail with multiple <code>ModuleNotFound</code> errors.</p>
+<p>Subsequently, to relaunch the script, be sure to enter <code>InvokeAI</code> directory,
+    activate the virtual environment, and then launch <code>invoke.py</code> script.
+    If you forget to activate the virtual environment,
+    the script will fail with multiple <code>ModuleNotFound</code> errors.</p>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-</div>
 <p>Do not move the source code repository after installation. The virtual environment directory has absolute paths in it that get confused if the directory is moved.</p>
+</div>
 </li>
 </ol>
 <hr />
@@ -1789,7 +1790,7 @@ the magic incantations for Conda and PIP.</p>
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">December 25, 2022</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">January 16, 2023</span>
       
         <br>
         Created:
