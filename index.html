@@ -982,6 +982,20 @@
   
   
     <li class="md-nav__item">
+      <a href="installation/070_INSTALL_XFORMERS/" class="md-nav__link">
+        Installing xFormers
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
       <a href="installation/INSTALL_AUTOMATED/" class="md-nav__link">
         Installing with the Automated Installer
       </a>
@@ -1013,18 +1027,18 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_9" type="checkbox" id="__nav_5_9" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_10" type="checkbox" id="__nav_5_10" >
       
       
       
       
-        <label class="md-nav__link" for="__nav_5_9">
+        <label class="md-nav__link" for="__nav_5_10">
           Developers documentation
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" aria-label="Developers documentation" data-md-level="2">
-        <label class="md-nav__title" for="__nav_5_9">
+        <label class="md-nav__title" for="__nav_5_10">
           <span class="md-nav__icon md-icon"></span>
           Developers documentation
         </label>
@@ -1060,18 +1074,18 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_10" type="checkbox" id="__nav_5_10" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_11" type="checkbox" id="__nav_5_11" >
       
       
       
       
-        <label class="md-nav__link" for="__nav_5_10">
+        <label class="md-nav__link" for="__nav_5_11">
           Deprecated documentation
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" aria-label="Deprecated documentation" data-md-level="2">
-        <label class="md-nav__title" for="__nav_5_10">
+        <label class="md-nav__title" for="__nav_5_11">
           <span class="md-nav__icon md-icon"></span>
           Deprecated documentation
         </label>
@@ -1317,9 +1331,14 @@ driver).</p>
 getting InvokeAI up and running on your system. For alternative installation and
 upgrade instructions, please see:
 <a href="installation/">InvokeAI Installation Overview</a></p>
-<p>Linux users who wish to make use of the PyPatchMatch inpainting functions will
-need to perform a bit of extra work to enable this module. Instructions can be
-found at <a href="installation/060_INSTALL_PATCHMATCH/">Installing PyPatchMatch</a>.</p>
+<p>Users who wish to make use of the <strong>PyPatchMatch</strong> inpainting functions
+will need to perform a bit of extra work to enable this
+module. Instructions can be found at <a href="installation/060_INSTALL_PATCHMATCH/">Installing
+PyPatchMatch</a>.</p>
+<p>If you have an NVIDIA card, you can benefit from the significant
+memory savings and performance benefits provided by Facebook Lab's
+<strong>xFormers</strong> module. Instructions for Linux and Windows users can be found
+at <a href="installation/070_INSTALL_XFORMERS/">Installing xFormers</a>.</p>
 <h2 id="hardware-requirements"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M384 96v224H64V96h320zM64 32C28.7 32 0 60.7 0 96v224c0 35.3 28.7 64 64 64h117.3l-10.7 32H96c-17.7 0-32 14.3-32 32s14.3 32 32 32h256c17.7 0 32-14.3 32-32s-14.3-32-32-32h-74.7l-10.7-32H384c35.3 0 64-28.7 64-64V96c0-35.3-28.7-64-64-64H64zm464 0c-26.5 0-48 21.5-48 48v352c0 26.5 21.5 48 48 48h64c26.5 0 48-21.5 48-48V80c0-26.5-21.5-48-48-48h-64zm16 64h32c8.8 0 16 7.2 16 16s-7.2 16-16 16h-32c-8.8 0-16-7.2-16-16s7.2-16 16-16zm-16 80c0-8.8 7.2-16 16-16h32c8.8 0 16 7.2 16 16s-7.2 16-16 16h-32c-8.8 0-16-7.2-16-16zm32 224c-17.7 0-32-14.3-32-32s14.3-32 32-32 32 14.3 32 32-14.3 32-32 32z"/></svg></span> Hardware Requirements<a class="headerlink" href="#hardware-requirements" title="Permanent link">#</a></h2>
 <h3 id="system"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M8.75 8a.75.75 0 0 0-.75.75v6.5c0 .414.336.75.75.75h6.5a.75.75 0 0 0 .75-.75v-6.5a.75.75 0 0 0-.75-.75h-6.5zm.75 6.5v-5h5v5h-5z"/><path fill-rule="evenodd" d="M15.25 1a.75.75 0 0 1 .75.75V4h2.25c.966 0 1.75.784 1.75 1.75V8h2.25a.75.75 0 0 1 0 1.5H20v5h2.25a.75.75 0 0 1 0 1.5H20v2.25A1.75 1.75 0 0 1 18.25 20H16v2.25a.75.75 0 0 1-1.5 0V20h-5v2.25a.75.75 0 0 1-1.5 0V20H5.75A1.75 1.75 0 0 1 4 18.25V16H1.75a.75.75 0 0 1 0-1.5H4v-5H1.75a.75.75 0 0 1 0-1.5H4V5.75C4 4.784 4.784 4 5.75 4H8V1.75a.75.75 0 0 1 1.5 0V4h5V1.75a.75.75 0 0 1 .75-.75zm3 17.5a.25.25 0 0 0 .25-.25V5.75a.25.25 0 0 0-.25-.25H5.75a.25.25 0 0 0-.25.25v12.5c0 .138.112.25.25.25h12.5z"/></svg></span> System<a class="headerlink" href="#system" title="Permanent link">#</a></h3>
 <p>You wil need one of the following:</p>
@@ -1491,7 +1510,7 @@ underlying algorithm, located in the file
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">December 15, 2022</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">January 18, 2023</span>
       
         <br>
         Created:
