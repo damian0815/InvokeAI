@@ -684,6 +684,20 @@
   
   
     <li class="md-nav__item">
+      <a href="../features/MODEL_MERGING/" class="md-nav__link">
+        Model Merging
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../features/NSFW/" class="md-nav__link">
         The NSFW Checker
       </a>
@@ -1346,20 +1360,29 @@ introduces several changes you should know about.</p>
 <a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>path: models/diffusers/hakurei-haifu-diffusion-1.4
 </code></pre></div>
 <ol>
-<li>The format of the models directory has changed to mimic the
-   HuggingFace cache directory. By default, diffusers models are
-   now automatically downloaded and retrieved from the directory
-   <code>ROOTDIR/models/diffusers</code>, while other models are stored in
-   the directory <code>ROOTDIR/models/hub</code>. This organization is the
-   same as that used by HuggingFace for its cache management.</li>
+<li>In order of precedence, InvokeAI will now use HF_HOME, then
+   XDG_CACHE_HOME, then finally default to <code>ROOTDIR/models</code> to
+   store HuggingFace diffusers models.</li>
 </ol>
+<p>Consequently, the format of the models directory has changed to
+   mimic the HuggingFace cache directory. When HF_HOME and XDG_HOME
+   are not set, diffusers models are now automatically downloaded
+   and retrieved from the directory <code>ROOTDIR/models/diffusers</code>,
+   while other models are stored in the directory
+   <code>ROOTDIR/models/hub</code>. This organization is the same as that used
+   by HuggingFace for its cache management.</p>
 <p>This allows you to share diffusers and ckpt model files easily with
    other machine learning applications that use the HuggingFace
    libraries. To do this, set the environment variable HF_HOME
    before starting up InvokeAI to tell it what directory to
    cache models in. To tell InvokeAI to use the standard HuggingFace
    cache directory, you would set HF_HOME like this (Linux/Mac):</p>
-<p><code>export HF_HOME=~/.cache/hugging_face</code></p>
+<p><code>export HF_HOME=~/.cache/huggingface</code></p>
+<p>Both HuggingFace and InvokeAI will fall back to the XDG_CACHE_HOME
+   environment variable if HF_HOME is not set; this path
+   takes precedence over <code>ROOTDIR/models</code> to allow for the same sharing
+   with other machine learning applications that use HuggingFace
+   libraries.</p>
 <ol>
 <li>
 <p>If you upgrade to InvokeAI 2.3.* from an earlier version, there
@@ -1840,7 +1863,7 @@ sections describe what's new for InvokeAI.</p>
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">January 15, 2023</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">January 30, 2023</span>
       
         <br>
         Created:

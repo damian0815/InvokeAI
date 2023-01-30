@@ -484,6 +484,20 @@
   
   
     <li class="md-nav__item">
+      <a href="../MODEL_MERGING/" class="md-nav__link">
+        Model Merging
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../NSFW/" class="md-nav__link">
         The NSFW Checker
       </a>
@@ -595,16 +609,142 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#training" class="md-nav__link">
-    Training
+  <a href="#hardware-and-software-requirements" class="md-nav__link">
+    Hardware and Software Requirements
   </a>
   
-    <nav class="md-nav" aria-label="Training">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#preparing-for-training" class="md-nav__link">
+    Preparing for Training
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#launching-training-using-the-console-front-end" class="md-nav__link">
+    Launching Training Using the Console Front End
+  </a>
+  
+    <nav class="md-nav" aria-label="Launching Training Using the Console Front End">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#windows" class="md-nav__link">
-    WINDOWS
+  <a href="#model-name" class="md-nav__link">
+    Model Name
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#trigger-term" class="md-nav__link">
+    Trigger Term
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#initializer" class="md-nav__link">
+    Initializer
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resume-from-last-saved-checkpoint" class="md-nav__link">
+    Resume from last saved checkpoint
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-training-directory" class="md-nav__link">
+    Data Training Directory
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#output-destination-directory" class="md-nav__link">
+    Output Destination Directory
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#image-resolution" class="md-nav__link">
+    Image resolution
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#center-crop-images" class="md-nav__link">
+    Center crop images
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mixed-precision" class="md-nav__link">
+    Mixed precision
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#max-training-steps" class="md-nav__link">
+    Max training steps
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#batch-size" class="md-nav__link">
+    Batch size
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#learning-rate" class="md-nav__link">
+    Learning rate
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scale-learning-rate-by-number-of-gpus-steps-and-batch-size" class="md-nav__link">
+    Scale learning rate by number of GPUs, steps and batch size
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-xformers-acceleration" class="md-nav__link">
+    Use xformers acceleration
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#learning-rate-scheduler" class="md-nav__link">
+    Learning rate scheduler
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gradient-accumulation-steps" class="md-nav__link">
+    Gradient accumulation steps
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#warmup-steps" class="md-nav__link">
+    Warmup steps
   </a>
   
 </li>
@@ -615,8 +755,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#run-the-model" class="md-nav__link">
-    Run the Model
+  <a href="#the-training-run" class="md-nav__link">
+    The training run
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#training-with-the-command-line-script" class="md-nav__link">
+    Training with the Command-Line Script
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reading" class="md-nav__link">
+    Reading
   </a>
   
 </li>
@@ -1180,68 +1334,207 @@
 by training a new LDM checkpoint and introducing a new vocabulary to the fixed
 model as a (.pt) embeddings file. Alternatively, you may use or train
 HuggingFace Concepts embeddings files (.bin) from
-<a href="https://huggingface.co/sd-concepts-library">https://huggingface.co/sd-concepts-library</a> and its associated notebooks.</p>
-<h2 id="training"><strong>Training</strong><a class="headerlink" href="#training" title="Permanent link">#</a></h2>
-<p>To train, prepare a folder that contains images sized at 512x512 and execute the
-following:</p>
-<h3 id="windows">WINDOWS<a class="headerlink" href="#windows" title="Permanent link">#</a></h3>
-<p>As the default backend is not available on Windows, if you're using that
-platform, set the environment variable <code>PL_TORCH_DISTRIBUTED_BACKEND</code> to <code>gloo</code></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>python3<span class="w"> </span>./main.py<span class="w"> </span>-t<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span>--base<span class="w"> </span>./configs/stable-diffusion/v1-finetune.yaml<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span>--actual_resume<span class="w"> </span>./models/ldm/stable-diffusion-v1/model.ckpt<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span>-n<span class="w"> </span>my_cat<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span>--gpus<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span>--data_root<span class="w"> </span>D:/textual-inversion/my_cat<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span>--init_word<span class="w"> </span><span class="s1">&#39;cat&#39;</span>
+<a href="https://huggingface.co/sd-concepts-library">https://huggingface.co/sd-concepts-library</a> and its associated
+notebooks.</p>
+<h2 id="hardware-and-software-requirements"><strong>Hardware and Software Requirements</strong><a class="headerlink" href="#hardware-and-software-requirements" title="Permanent link">#</a></h2>
+<p>You will need a GPU to perform training in a reasonable length of
+time, and at least 12 GB of VRAM. We recommend using the <a href="../installation/070_INSTALL_XFORMERS"><code>xformers</code>
+library</a> to accelerate the
+training process further. During training, about ~8 GB is temporarily
+needed in order to store intermediate models, checkpoints and logs.</p>
+<h2 id="preparing-for-training"><strong>Preparing for Training</strong><a class="headerlink" href="#preparing-for-training" title="Permanent link">#</a></h2>
+<p>To train, prepare a folder that contains 3-5 images that illustrate
+the object or concept. It is good to provide a variety of examples or
+poses to avoid overtraining the system. Format these images as PNG
+(preferred) or JPG. You do not need to resize or crop the images in
+advance, but for more control you may wish to do so.</p>
+<p>Place the training images in a directory on the machine InvokeAI runs
+on. We recommend placing them in a subdirectory of the
+<code>text-inversion-training-data</code> folder located in the InvokeAI root
+directory, ordinarily <code>~/invokeai</code> (Linux/Mac), or
+<code>C:\Users\your_name\invokeai</code> (Windows). For example, to create an
+embedding for the "psychedelic" style, you'd place the training images
+into the directory
+<code>~invokeai/text-inversion-training-data/psychedelic</code>.</p>
+<h2 id="launching-training-using-the-console-front-end"><strong>Launching Training Using the Console Front End</strong><a class="headerlink" href="#launching-training-using-the-console-front-end" title="Permanent link">#</a></h2>
+<p>InvokeAI 2.3 and higher comes with a text console-based training front
+end. From within the <code>invoke.sh</code>/<code>invoke.bat</code> Invoke launcher script,
+start the front end by selecting choice (3):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Do<span class="w"> </span>you<span class="w"> </span>want<span class="w"> </span>to<span class="w"> </span>generate<span class="w"> </span>images<span class="w"> </span>using<span class="w"> </span>the
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="m">1</span>.<span class="w"> </span>command-line
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="m">2</span>.<span class="w"> </span>browser-based<span class="w"> </span>UI
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="m">3</span>.<span class="w"> </span>textual<span class="w"> </span>inversion<span class="w"> </span>training
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="m">4</span>.<span class="w"> </span>open<span class="w"> </span>the<span class="w"> </span>developer<span class="w"> </span>console
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>Please<span class="w"> </span>enter<span class="w"> </span><span class="m">1</span>,<span class="w"> </span><span class="m">2</span>,<span class="w"> </span><span class="m">3</span>,<span class="w"> </span>or<span class="w"> </span><span class="m">4</span>:<span class="w"> </span><span class="o">[</span><span class="m">1</span><span class="o">]</span><span class="w"> </span><span class="m">3</span>
 </code></pre></div>
-<p>During the training process, files will be created in
-<code>/logs/[project][time][project]/</code> where you can see the process.</p>
-<p>Conditioning contains the training prompts inputs, reconstruction the input
-images for the training epoch samples, samples scaled for a sample of the prompt
-and one with the init word provided.</p>
-<p>On a RTX3090, the process for SD will take ~1h <a class="magiclink magiclink-github magiclink-mention" href="https://github.com/1" title="GitHub User: 1">@1</a>.6 iterations/sec.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>According to the associated paper, the optimal number of
-images is 3-5. Your model may not converge if you use more images than
-that.</p>
-</div>
-<p>Training will run indefinitely, but you may wish to stop it (with ctrl-c) before
-the heat death of the universe, when you find a low loss epoch or around ~5000
-iterations. Note that you can set a fixed limit on the number of training steps
-by decreasing the "max_steps" option in
-configs/stable_diffusion/v1-finetune.yaml (currently set to 4000000)</p>
-<h2 id="run-the-model"><strong>Run the Model</strong><a class="headerlink" href="#run-the-model" title="Permanent link">#</a></h2>
-<p>Once the model is trained, specify the trained .pt or .bin file when starting
-invoke using</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>python3<span class="w"> </span>./scripts/invoke.py<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span>--embedding_path<span class="w"> </span>/path/to/embedding.pt
+<p>From the command line, with the InvokeAI virtual environment active,
+you can launch the front end with the command <code>textual_inversion
+--gui</code>.</p>
+<p>This will launch a text-based front end that will look like this:</p>
+<figure>
+<p><img alt="ti-frontend" src="../../assets/textual-inversion/ti-frontend.png" /></p>
+</figure>
+<p>The interface is keyboard-based. Move from field to field using
+control-N (^N) to move to the next field and control-P (^P) to the
+previous one. <Tab> and <shift-TAB> work as well. Once a field is
+active, use the cursor keys. In a checkbox group, use the up and down
+cursor keys to move from choice to choice, and <space> to select a
+choice. In a scrollbar, use the left and right cursor keys to increase
+and decrease the value of the scroll. In textfields, type the desired
+values.</p>
+<p>The number of parameters may look intimidating, but in most cases the
+predefined defaults work fine. The red circled fields in the above
+illustration are the ones you will adjust most frequently.</p>
+<h3 id="model-name">Model Name<a class="headerlink" href="#model-name" title="Permanent link">#</a></h3>
+<p>This will list all the diffusers models that are currently
+installed. Select the one you wish to use as the basis for your
+embedding. Be aware that if you use a SD-1.X-based model for your
+training, you will only be able to use this embedding with other
+SD-1.X-based models. Similarly, if you train on SD-2.X, you will only
+be able to use the embeddings with models based on SD-2.X.</p>
+<h3 id="trigger-term">Trigger Term<a class="headerlink" href="#trigger-term" title="Permanent link">#</a></h3>
+<p>This is the prompt term you will use to trigger the embedding. Type a
+single word or phrase you wish to use as the trigger, example
+"psychedelic" (without angle brackets). Within InvokeAI, you will then
+be able to activate the trigger using the syntax <code>&lt;psychedelic&gt;</code>.</p>
+<h3 id="initializer">Initializer<a class="headerlink" href="#initializer" title="Permanent link">#</a></h3>
+<p>This is a single character that is used internally during the training
+process as a placeholder for the trigger term. It defaults to "*" and
+can usually be left alone.</p>
+<h3 id="resume-from-last-saved-checkpoint">Resume from last saved checkpoint<a class="headerlink" href="#resume-from-last-saved-checkpoint" title="Permanent link">#</a></h3>
+<p>As training proceeds, textual inversion will write a series of
+intermediate files that can be used to resume training from where it
+was left off in the case of an interruption. This checkbox will be
+automatically selected if you provide a previously used trigger term
+and at least one checkpoint file is found on disk.</p>
+<p>Note that as of 20 January 2023, resume does not seem to be working
+properly due to an issue with the upstream code.</p>
+<h3 id="data-training-directory">Data Training Directory<a class="headerlink" href="#data-training-directory" title="Permanent link">#</a></h3>
+<p>This is the location of the images to be used for training. When you
+select a trigger term like "my-trigger", the frontend will prepopulate
+this field with <code>~/invokeai/text-inversion-training-data/my-trigger</code>,
+but you can change the path to wherever you want.</p>
+<h3 id="output-destination-directory">Output Destination Directory<a class="headerlink" href="#output-destination-directory" title="Permanent link">#</a></h3>
+<p>This is the location of the logs, checkpoint files, and embedding
+files created during training. When you select a trigger term like
+"my-trigger", the frontend will prepopulate this field with
+<code>~/invokeai/text-inversion-output/my-trigger</code>, but you can change the
+path to wherever you want.</p>
+<h3 id="image-resolution">Image resolution<a class="headerlink" href="#image-resolution" title="Permanent link">#</a></h3>
+<p>The images in the training directory will be automatically scaled to
+the value you use here. For best results, you will want to use the
+same default resolution of the underlying model (512 pixels for
+SD-1.5, 768 for the larger version of SD-2.1).</p>
+<h3 id="center-crop-images">Center crop images<a class="headerlink" href="#center-crop-images" title="Permanent link">#</a></h3>
+<p>If this is selected, your images will be center cropped to make them
+square before resizing them to the desired resolution. Center cropping
+can indiscriminately cut off the top of subjects' heads for portrait
+aspect images, so if you have images like this, you may wish to use a
+photoeditor to manually crop them to a square aspect ratio.</p>
+<h3 id="mixed-precision">Mixed precision<a class="headerlink" href="#mixed-precision" title="Permanent link">#</a></h3>
+<p>Select the floating point precision for the embedding. "no" will
+result in a full 32-bit precision, "fp16" will provide 16-bit
+precision, and "bf16" will provide mixed precision (only available
+when XFormers is used).</p>
+<h3 id="max-training-steps">Max training steps<a class="headerlink" href="#max-training-steps" title="Permanent link">#</a></h3>
+<p>How many steps the training will take before the model converges. Most
+training sets will converge with 2000-3000 steps.</p>
+<h3 id="batch-size">Batch size<a class="headerlink" href="#batch-size" title="Permanent link">#</a></h3>
+<p>This adjusts how many training images are processed simultaneously in
+each step. Higher values will cause the training process to run more
+quickly, but use more memory. The default size will run with GPUs with
+as little as 12 GB.</p>
+<h3 id="learning-rate">Learning rate<a class="headerlink" href="#learning-rate" title="Permanent link">#</a></h3>
+<p>The rate at which the system adjusts its internal weights during
+training. Higher values risk overtraining (getting the same image each
+time), and lower values will take more steps to train a good
+model. The default of 0.0005 is conservative; you may wish to increase
+it to 0.005 to speed up training.</p>
+<h3 id="scale-learning-rate-by-number-of-gpus-steps-and-batch-size">Scale learning rate by number of GPUs, steps and batch size<a class="headerlink" href="#scale-learning-rate-by-number-of-gpus-steps-and-batch-size" title="Permanent link">#</a></h3>
+<p>If this is selected (the default) the system will adjust the provided
+learning rate to improve performance.</p>
+<h3 id="use-xformers-acceleration">Use xformers acceleration<a class="headerlink" href="#use-xformers-acceleration" title="Permanent link">#</a></h3>
+<p>This will activate XFormers memory-efficient attention. You need to
+have XFormers installed for this to have an effect.</p>
+<h3 id="learning-rate-scheduler">Learning rate scheduler<a class="headerlink" href="#learning-rate-scheduler" title="Permanent link">#</a></h3>
+<p>This adjusts how the learning rate changes over the course of
+training. The default "constant" means to use a constant learning rate
+for the entire training session. The other values scale the learning
+rate according to various formulas.</p>
+<p>Only "constant" is supported by the XFormers library.</p>
+<h3 id="gradient-accumulation-steps">Gradient accumulation steps<a class="headerlink" href="#gradient-accumulation-steps" title="Permanent link">#</a></h3>
+<p>This is a parameter that allows you to use bigger batch sizes than
+your GPU's VRAM would ordinarily accommodate, at the cost of some
+performance.</p>
+<h3 id="warmup-steps">Warmup steps<a class="headerlink" href="#warmup-steps" title="Permanent link">#</a></h3>
+<p>If "constant_with_warmup" is selected in the learning rate scheduler,
+then this provides the number of warmup steps. Warmup steps have a
+very low learning rate, and are one way of preventing early
+overtraining.</p>
+<h2 id="the-training-run">The training run<a class="headerlink" href="#the-training-run" title="Permanent link">#</a></h2>
+<p>Start the training run by advancing to the OK button (bottom right)
+and pressing <enter>. A series of progress messages will be displayed
+as the training process proceeds. This may take an hour or two,
+depending on settings and the speed of your system. Various log and
+checkpoint files will be written into the output directory (ordinarily
+<code>~/invokeai/text-inversion-output/my-model/</code>)</p>
+<p>At the end of successful training, the system will copy the file
+<code>learned_embeds.bin</code> into the InvokeAI root directory's <code>embeddings</code>
+directory, using a subdirectory named after the trigger token. For
+example, if the trigger token was <code>psychedelic</code>, then look for the
+embeddings file in
+<code>~/invokeai/embeddings/psychedelic/learned_embeds.bin</code></p>
+<p>You may now launch InvokeAI and try out a prompt that uses the trigger
+term. For example <code>a plate of banana sushi in &lt;psychedelic&gt; style</code>.</p>
+<h2 id="training-with-the-command-line-script"><strong>Training with the Command-Line Script</strong><a class="headerlink" href="#training-with-the-command-line-script" title="Permanent link">#</a></h2>
+<p>Training can also be done using a traditional command-line script. It
+can be launched from within the "developer's console", or from the
+command line after activating InvokeAI's virtual environment.</p>
+<p>It accepts a large number of arguments, which can be summarized by
+passing the <code>--help</code> argument:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>textual_inversion<span class="w"> </span>--help
 </code></pre></div>
-<p>Then, to utilize your subject at the invoke prompt</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>invoke&gt;<span class="w"> </span><span class="s2">&quot;a photo of *&quot;</span>
-</code></pre></div>
-<p>This also works with image2image</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>invoke&gt;<span class="w"> </span><span class="s2">&quot;waterfall and rainbow in the style of *&quot;</span><span class="w"> </span>--init_img<span class="o">=</span>./init-images/crude_drawing.png<span class="w"> </span>--strength<span class="o">=</span><span class="m">0</span>.5<span class="w"> </span>-s100<span class="w"> </span>-n4
-</code></pre></div>
-<p>For .pt files it's also possible to train multiple tokens (modify the
-placeholder string in <code>configs/stable-diffusion/v1-finetune.yaml</code>) and combine
-LDM checkpoints using:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>python3<span class="w"> </span>./scripts/merge_embeddings.py<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span>--manager_ckpts<span class="w"> </span>/path/to/first/embedding.pt<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="o">[</span>&lt;/path/to/second/embedding.pt&gt;,<span class="o">[</span>...<span class="o">]]</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span>--output_path<span class="w"> </span>/path/to/output/embedding.pt
-</code></pre></div>
-<p>Credit goes to rinongal and the repository</p>
-<p>Please see <a href="https://github.com/rinongal/textual_inversion">the repository</a> and
-associated paper for details and limitations.</p>
+<p>Typical usage is shown here:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>textual_inversion<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">       </span>--model<span class="o">=</span>stable-diffusion-1.5<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">       </span>--resolution<span class="o">=</span><span class="m">512</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">       </span>--learnable_property<span class="o">=</span>style<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">       </span>--initializer_token<span class="o">=</span><span class="s1">&#39;*&#39;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">       </span>--placeholder_token<span class="o">=</span><span class="s1">&#39;&lt;psychedelic&gt;&#39;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">       </span>--train_data_dir<span class="o">=</span>/home/lstein/invokeai/training-data/psychedelic<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">       </span>--output_dir<span class="o">=</span>/home/lstein/invokeai/text-inversion-training/psychedelic<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">       </span>--scale_lr<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">       </span>--train_batch_size<span class="o">=</span><span class="m">8</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">       </span>--gradient_accumulation_steps<span class="o">=</span><span class="m">4</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="w">       </span>--max_train_steps<span class="o">=</span><span class="m">3000</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="w">       </span>--learning_rate<span class="o">=</span><span class="m">0</span>.0005<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="w">       </span>--resume_from_checkpoint<span class="o">=</span>latest<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="w">       </span>--lr_scheduler<span class="o">=</span>constant<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="w">       </span>--mixed_precision<span class="o">=</span>fp16<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="w">       </span>--only_save_embeds
+</code></pre></div></p>
+<h2 id="reading">Reading<a class="headerlink" href="#reading" title="Permanent link">#</a></h2>
+<p>For more information on textual inversion, please see the following
+resources:</p>
+<ul>
+<li>The <a href="https://github.com/rinongal/textual_inversion">textual inversion repository</a> and
+  associated paper for details and limitations.</li>
+<li><a href="https://huggingface.co/docs/diffusers/training/text_inversion">HuggingFace's textual inversion training
+  page</a></li>
+<li><a href="https://github.com/huggingface/diffusers/tree/main/examples/textual_inversion">HuggingFace example script
+  documentation</a>
+  (Note that this script is similar to, but not identical, to
+  <code>textual_inversion</code>, but produces embed files that are completely compatible.</li>
+</ul>
+<hr />
+<p>copyright &copy; 2023, Lincoln Stein and the InvokeAI Development Team</p>
 
   <hr>
 <div class="md-source-file">
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">October 11, 2022</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">January 26, 2023</span>
       
         <br>
         Created:

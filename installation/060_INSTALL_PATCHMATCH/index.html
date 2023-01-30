@@ -482,6 +482,20 @@
   
   
     <li class="md-nav__item">
+      <a href="../../features/MODEL_MERGING/" class="md-nav__link">
+        Model Merging
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../features/NSFW/" class="md-nav__link">
         The NSFW Checker
       </a>
@@ -1191,26 +1205,23 @@ challenging. This guide leads you through the steps.</p>
 <p>You're in luck! On Windows platforms PyPatchMatch will install automatically on
 Windows systems with no extra intervention.</p>
 <h2 id="macintosh">Macintosh<a class="headerlink" href="#macintosh" title="Permanent link">#</a></h2>
-<p>PyPatchMatch is not currently supported, but the team is working on it.</p>
+<p>You need to have opencv installed so that pypatchmatch can be built:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>brew<span class="w"> </span>install<span class="w"> </span>opencv
+</code></pre></div>
+<p>The next time you start <code>invoke</code>, after sucesfully installing opencv, pypatchmatch will be built.</p>
 <h2 id="linux">Linux<a class="headerlink" href="#linux" title="Permanent link">#</a></h2>
 <p>Prior to installing PyPatchMatch, you need to take the following steps:</p>
 <h3 id="debian-based-distros">Debian Based Distros<a class="headerlink" href="#debian-based-distros" title="Permanent link">#</a></h3>
 <ol>
 <li>
 <p>Install the <code>build-essential</code> tools:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>sudo<span class="w"> </span>apt<span class="w"> </span>update
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>build-essential
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>sudo<span class="w"> </span>apt<span class="w"> </span>update
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>build-essential
 </code></pre></div>
 </li>
 <li>
 <p>Install <code>opencv</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>python3-opencv<span class="w"> </span>libopencv-dev
-</code></pre></div>
-</li>
-<li>
-<p>Fix the naming of the <code>opencv</code> package configuration file:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nb">cd</span><span class="w"> </span>/usr/lib/x86_64-linux-gnu/pkgconfig/
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>ln<span class="w"> </span>-sf<span class="w"> </span>opencv4.pc<span class="w"> </span>opencv.pc
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>python3-opencv<span class="w"> </span>libopencv-dev
 </code></pre></div>
 </li>
 <li>
@@ -1219,7 +1230,7 @@ Windows systems with no extra intervention.</p>
 </li>
 <li>
 <p>Install pypatchmatch:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;git+https://github.com/invoke-ai/PyPatchMatch@0.1.3#egg=pypatchmatch&quot;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>pip<span class="w"> </span>install<span class="w"> </span>pypatchmatch
 </code></pre></div>
 </li>
 <li>
@@ -1277,7 +1288,7 @@ Windows systems with no extra intervention.</p>
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">January 1, 2023</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">January 19, 2023</span>
       
         <br>
         Created:

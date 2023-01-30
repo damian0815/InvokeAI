@@ -482,6 +482,20 @@
   
   
     <li class="md-nav__item">
+      <a href="../../features/MODEL_MERGING/" class="md-nav__link">
+        Model Merging
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../features/NSFW/" class="md-nav__link">
         The NSFW Checker
       </a>
@@ -1374,8 +1388,7 @@ file in <code>environments-and-requirements</code>.</p>
 </li>
 <li>
 <p>Run PIP</p>
-<p>Be sure that the <code>invokeai</code> environment is active before doing this:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>pip<span class="w"> </span>install<span class="w"> </span>--prefer-binary<span class="w"> </span>-r<span class="w"> </span>requirements.txt
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>pip<span class="w"> </span>--python<span class="w"> </span>invokeai<span class="w"> </span>install<span class="w"> </span>--use-pep517<span class="w"> </span>.
 </code></pre></div>
 </li>
 <li>
@@ -1387,7 +1400,7 @@ directory separate from the source code and aids in updating.</p>
 <p>You may pick any location for this directory using the <code>--root_dir</code>
 option (abbreviated --root). If you don't pass this option, it will
 default to <code>invokeai</code> in your home directory.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>configure_invokeai.py<span class="w"> </span>--root_dir<span class="w"> </span>~/Programs/invokeai
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>configure_invokeai<span class="w"> </span>--root_dir<span class="w"> </span>~/Programs/invokeai
 </code></pre></div>
 <p>The script <code>configure_invokeai.py</code> will interactively guide you through the
 process of downloading and installing the weights files needed for InvokeAI.
@@ -1694,7 +1707,7 @@ time. Note that this method only works with the PIP method.</p>
 </li>
 <li>
 <p>Run one additional step while you are in the source code repository
-   directory <code>pip install .</code> (note the dot at the end).</p>
+   directory <code>pip install --use-pep517 .</code> (note the dot at the end).</p>
 </li>
 <li>
 <p>That's all! Now, whenever you activate the virtual environment,
@@ -1804,7 +1817,7 @@ the magic incantations for Conda and PIP.</p>
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">January 16, 2023</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">January 19, 2023</span>
       
         <br>
         Created:
