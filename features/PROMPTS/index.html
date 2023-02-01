@@ -1483,38 +1483,38 @@ handy.</p>
 <p>Generate an image with a given prompt, record the seed of the image, and then
 use the <code>prompt2prompt</code> syntax to substitute words in the original prompt for
 words in a new prompt. This works for <code>img2img</code> as well.</p>
+<p>For example, consider the prompt <code>a cat.swap(dog) playing with a ball in the forest</code>. Normally, because of the word words interact with each other when doing a stable diffusion image generation, these two prompts would generate different compositions:
+  - <code>a cat playing with a ball in the forest</code>
+  - <code>a dog playing with a ball in the forest</code></p>
+<table>
+<thead>
+<tr>
+<th><code>a cat playing with a ball in the forest</code></th>
+<th><code>a dog playing with a ball in the forest</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>img</td>
+<td>img</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code>  - For multiple word swaps, use parentheses: `a (fluffy cat).swap(barking dog) playing with a ball in the forest`.
+  - To swap a comma, use quotes: `a (&quot;fluffy, grey cat&quot;).swap(&quot;big, barking dog&quot;) playing with a ball in the forest`.
+</code></pre></div>
 <ul>
-<li><code>a ("fluffy cat").swap("smiling dog") eating a hotdog</code>.<ul>
-<li>quotes optional: <code>a (fluffy cat).swap(smiling dog) eating a hotdog</code>.</li>
-<li>for single word substitutions parentheses are also optional:
-  <code>a cat.swap(dog) eating a hotdog</code>.</li>
-</ul>
-</li>
-<li>Supports options <code>s_start</code>, <code>s_end</code>, <code>t_start</code>, <code>t_end</code> (each 0-1) loosely
-  corresponding to bloc97's <code>prompt_edit_spatial_start/_end</code> and
-  <code>prompt_edit_tokens_start/_end</code> but with the math swapped to make it easier to
-  intuitively understand.<ul>
-<li>Example usage:<code>a (cat).swap(dog, s_end=0.3) eating a hotdog</code> - the <code>s_end</code>
-  argument means that the "spatial" (self-attention) edit will stop having any
-  effect after 30% (=0.3) of the steps have been done, leaving Stable
-  Diffusion with 70% of the steps where it is free to decide for itself how to
-  reshape the cat-form into a dog form.</li>
-<li>The numbers represent a percentage through the step sequence where the edits
-  should happen. 0 means the start (noisy starting image), 1 is the end (final
-  image).<ul>
-<li>For img2img, the step sequence does not start at 0 but instead at
-  (1-strength) - so if strength is 0.7, s_start and s_end must both be
-  greater than 0.3 (1-0.7) to have any effect.</li>
-</ul>
+<li>Supports options <code>t_start</code> and <code>t_end</code> (each 0-1) loosely corresponding to bloc97's <code>prompt_edit_tokens_start/_end</code> but with the math swapped to make it easier to
+  intuitively understand. <code>t_start</code> and <code>t_end</code> are used to control on which steps cross-attention control should run. With the default values <code>t_start=0</code> and <code>t_end=1</code>, cross-attention control is active on every step of image generation. Other values can be used to turn cross-attention control off for part of the image generation process.<ul>
+<li>For example, if doing a diffusion with 10 steps for the prompt is <code>a cat.swap(dog, t_start=0.3, t_end=1.0) playing with a ball in the forest</code>, the first 3 steps will be run as <code>a cat playing with a ball in the forest</code>, while the last 7 steps will run as <code>a dog playing with a ball in the forest</code>, but the pixels that represent <code>dog</code> will be locked to the pixels that would have represented <code>cat</code> if the <code>cat</code> prompt had been used instead.</li>
+<li>Conversely, for <code>a cat.swap(dog, t_start=0, t_end=0.7) playing with a ball in the forest</code>, the first 7 steps will run as <code>a dog playing with a ball in the forest</code> with the pixels that represent <code>dog</code> locked to the same pixels that would have represented <code>cat</code> if the <code>cat</code> prompt was being used instead. The final 3 steps will just run <code>a cat playing with a ball in the forest</code>.<blockquote>
+<p>For img2img, the step sequence does not start at 0 but instead at <code>(1.0-strength)</code> - so if the img2img <code>strength</code> is <code>0.7</code>, <code>t_start</code> and <code>t_end</code> must both be greater than <code>0.3</code> (<code>1.0-0.7</code>) to have any effect.</p>
+</blockquote>
 </li>
 </ul>
 </li>
-<li>Convenience option <code>shape_freedom</code> (0-1) to specify how much "freedom" Stable
-  Diffusion should have to change the shape of the subject being swapped.<ul>
-<li><code>a (cat).swap(dog, shape_freedom=0.5) eating a hotdog</code>.</li>
 </ul>
-</li>
-</ul>
+<p>Prompt2prompt <code>.swap()</code> is not compatible with xformers, which will be temporarily disabled when doing a <code>.swap()</code> - so you should expect to use more VRAM and run slower that with xformers enabled.</p>
 <p>The <code>prompt2prompt</code> code is based off
 <a href="https://github.com/bloc97/CrossAttentionControl">bloc97's colab</a>.</p>
 <p>Note that <code>prompt2prompt</code> is not currently working with the runwayML inpainting
@@ -1597,7 +1597,7 @@ deterministic prompt weighting.</p>
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">December 23, 2022</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">January 25, 2023</span>
       
         <br>
         Created:
