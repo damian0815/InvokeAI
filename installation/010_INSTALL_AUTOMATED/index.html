@@ -927,50 +927,22 @@
   
   
   
-    <li class="md-nav__item">
-      <a href="../INSTALL_AUTOMATED/" class="md-nav__link">
-        Installing with the Automated Installer
-      </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../INSTALL_MANUAL/" class="md-nav__link">
-        Manual Installation
-      </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
     
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_10" type="checkbox" id="__nav_5_10" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_8" type="checkbox" id="__nav_5_8" >
       
       
       
       
-        <label class="md-nav__link" for="__nav_5_10">
+        <label class="md-nav__link" for="__nav_5_8">
           Developers documentation
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" aria-label="Developers documentation" data-md-level="2">
-        <label class="md-nav__title" for="__nav_5_10">
+        <label class="md-nav__title" for="__nav_5_8">
           <span class="md-nav__icon md-icon"></span>
           Developers documentation
         </label>
@@ -1006,18 +978,18 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_11" type="checkbox" id="__nav_5_11" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_9" type="checkbox" id="__nav_5_9" >
       
       
       
       
-        <label class="md-nav__link" for="__nav_5_11">
+        <label class="md-nav__link" for="__nav_5_9">
           Deprecated documentation
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" aria-label="Deprecated documentation" data-md-level="2">
-        <label class="md-nav__title" for="__nav_5_11">
+        <label class="md-nav__title" for="__nav_5_9">
           <span class="md-nav__icon md-icon"></span>
           Deprecated documentation
         </label>
@@ -1241,17 +1213,16 @@ recommended model weights files.</p>
 <p>Check that your system has an up-to-date Python installed. To do this, open
     up a command-line window ("Terminal" on Linux and Macintosh, "Command" or
     "Powershell" on Windows) and type <code>python --version</code>. If Python is
-    installed, it will print out the version number. If it is version <code>3.9.1</code> or
-    higher, you meet requirements.</p>
+    installed, it will print out the version number. If it is version <code>3.9.1</code> or <code>3.10.x</code>, you meet requirements.</p>
+<div class="admonition warning">
+<p class="admonition-title">At this time we do not recommend Python 3.11</p>
+</div>
 <div class="admonition warning">
 <p class="admonition-title">If you see an older version, or get a command not found error</p>
 <p>Go to <a href="https://www.python.org/downloads/">Python Downloads</a> and
 download the appropriate installer package for your platform. We recommend
 <a href="https://www.python.org/downloads/release/python-3109/">Version 3.10.9</a>,
 which has been extensively tested with InvokeAI.</p>
-</div>
-<div class="admonition warning">
-<p class="admonition-title">At this time we do not recommend Python 3.11</p>
 </div>
 <p><em>Please select your platform in the section below for platform-specific
 setup requirements.</em></p>
@@ -1326,12 +1297,10 @@ Terminal, including InvokeAI. This package is provided directly by Apple.</p>
     <a href="https://github.com/invoke-ai/InvokeAI/releases/latest">latest release</a>, and
     look for a series of files named:</p>
 <ul>
-<li>InvokeAI-installer-2.X.X-mac.zip</li>
-<li>InvokeAI-installer-2.X.X-windows.zip</li>
-<li>InvokeAI-installer-2.X.X-linux.zip</li>
+<li>InvokeAI-installer-2.X.X.zip</li>
 </ul>
-<p>(Where 2.X.X is the current release number).
-Download the one that is appropriate for your operating system.</p>
+<p>(Where 2.X.X is the current release number).</p>
+<p>Download the latest release.</p>
 </li>
 <li>
 <p>Unpack the zip file into a convenient directory. This will create a new
@@ -1399,8 +1368,7 @@ minutes and nothing is happening, you can interrupt the script with ^C. You
 may restart it and it will pick up where it left off.</p>
 </li>
 <li>
-<p>After installation completes, the installer will launch a script called
-    <code>configure_invokeai.py</code>, which will guide you through the first-time process
+<p>After installation completes, the installer will launch the configuration script, which will guide you through the first-time process
     of selecting one or more Stable Diffusion model weights files, downloading
     and configuring them. We provide a list of popular models that InvokeAI
     performs well with. However, you can add more weight files later on using
@@ -1452,7 +1420,7 @@ follow to add and modify launch options.
 </code></pre></div>
 </li>
 </ol>
-<p>!!! warning "The <code>invokeai</code> directory contains the <code>invoke</code> application, its
+<p>!!! warning "The <code>invokeai</code> directory contains the <code>invokeai</code> application, its
 configuration files, the model weight files, and outputs of image generation.
 Once InvokeAI is installed, do not move or remove this directory."</p>
 <h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">#</a></h2>
@@ -1472,15 +1440,15 @@ ldm will make matters worse. If you've installed ldm, uninstall it with
 <code>pip uninstall ldm</code>.</p>
 </div>
 <h3 id="corrupted-configuration-file">Corrupted configuration file<a class="headerlink" href="#corrupted-configuration-file" title="Permanent link">#</a></h3>
-<p>Everything seems to install ok, but <code>invoke</code> complains of a corrupted
+<p>Everything seems to install ok, but <code>invokeai</code> complains of a corrupted
 configuration file and goes back into the configuration process (asking you to
 download models, etc), but this doesn't fix the problem.</p>
 <p>This issue is often caused by a misconfigured configuration directive in the
 <code>invokeai\invokeai.init</code> initialization file that contains startup settings. The
 easiest way to fix the problem is to move the file out of the way and re-run
-<code>configure_invokeai.py</code>. Enter the developer's console (option 3 of the launcher
+<code>invokeai-configure</code>. Enter the developer's console (option 3 of the launcher
 script) and run this command:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>configure_invokeai.py --root=.
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>invokeai-configure --root=.
 </code></pre></div>
 <p>Note the dot (.) after <code>--root</code>. It is part of the command.</p>
 <p><em>If none of these maneuvers fixes the problem</em> then please report the problem to
@@ -1499,14 +1467,14 @@ hours, and often much sooner.</p>
 <p>This distribution is changing rapidly, and we add new features on a daily basis.
 To update to the latest released version (recommended), run the <code>update.sh</code>
 (Linux/Mac) or <code>update.bat</code> (Windows) scripts. This will fetch the latest
-release and re-run the <code>configure_invokeai</code> script to download any updated
+release and re-run the <code>invokeai-configure</code> script to download any updated
 models files that may be needed. You can also use this to add additional models
 that you did not select at installation time.</p>
 <p>You can now close the developer console and run <code>invoke</code> as before. If you get
 complaints about missing models, then you may need to do the additional step of
-running <code>configure_invokeai.py</code>. This happens relatively infrequently. To do
+running <code>invokeai-configure</code>. This happens relatively infrequently. To do
 this, simply open up the developer's console again and type
-<code>python scripts/configure_invokeai.py</code>.</p>
+<code>invokeai-configure</code>.</p>
 <p>You may also use the <code>update</code> script to install any selected version of
 InvokeAI. From <a href="https://github.com/invoke-ai/InvokeAI">https://github.com/invoke-ai/InvokeAI</a>, navigate to the zip file
 link of the version you wish to install. You can find the zip links by going to
@@ -1529,7 +1497,7 @@ Code section of the main github page.</p>
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">January 12, 2023</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">January 28, 2023</span>
       
         <br>
         Created:

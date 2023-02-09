@@ -853,8 +853,8 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#installation-via-configure_invokeaipy" class="md-nav__link">
-    Installation via configure_invokeai.py
+  <a href="#installation-via-invokeai-configure" class="md-nav__link">
+    Installation via invokeai-configure
   </a>
   
 </li>
@@ -920,50 +920,22 @@
   
   
   
-    <li class="md-nav__item">
-      <a href="../INSTALL_AUTOMATED/" class="md-nav__link">
-        Installing with the Automated Installer
-      </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../INSTALL_MANUAL/" class="md-nav__link">
-        Manual Installation
-      </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
     
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_10" type="checkbox" id="__nav_5_10" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_8" type="checkbox" id="__nav_5_8" >
       
       
       
       
-        <label class="md-nav__link" for="__nav_5_10">
+        <label class="md-nav__link" for="__nav_5_8">
           Developers documentation
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" aria-label="Developers documentation" data-md-level="2">
-        <label class="md-nav__title" for="__nav_5_10">
+        <label class="md-nav__title" for="__nav_5_8">
           <span class="md-nav__icon md-icon"></span>
           Developers documentation
         </label>
@@ -999,18 +971,18 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_11" type="checkbox" id="__nav_5_11" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_9" type="checkbox" id="__nav_5_9" >
       
       
       
       
-        <label class="md-nav__link" for="__nav_5_11">
+        <label class="md-nav__link" for="__nav_5_9">
           Deprecated documentation
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" aria-label="Deprecated documentation" data-md-level="2">
-        <label class="md-nav__title" for="__nav_5_11">
+        <label class="md-nav__title" for="__nav_5_9">
           <span class="md-nav__icon md-icon"></span>
           Deprecated documentation
         </label>
@@ -1285,7 +1257,7 @@ unofficial Stable Diffusion models and where they can be obtained.</p>
 <p>There are three ways to install weights files:</p>
 <ol>
 <li>
-<p>During InvokeAI installation, the <code>configure_invokeai.py</code> script can download
+<p>During InvokeAI installation, the <code>invokeai-configure</code> script can download
    them for you.</p>
 </li>
 <li>
@@ -1297,11 +1269,11 @@ unofficial Stable Diffusion models and where they can be obtained.</p>
    <code>models.yaml</code>.</p>
 </li>
 </ol>
-<h3 id="installation-via-configure_invokeaipy">Installation via <code>configure_invokeai.py</code><a class="headerlink" href="#installation-via-configure_invokeaipy" title="Permanent link">#</a></h3>
-<p>This is the most automatic way. Run <code>scripts/configure_invokeai.py</code> from the
+<h3 id="installation-via-invokeai-configure">Installation via <code>invokeai-configure</code><a class="headerlink" href="#installation-via-invokeai-configure" title="Permanent link">#</a></h3>
+<p>This is the most automatic way. Run <code>invokeai-configure</code> from the
 console. It will ask you to select which models to download and lead you through
 the steps of setting up a Hugging Face account if you haven't done so already.</p>
-<p>To start, run <code>python scripts/configure_invokeai.py</code> from within the InvokeAI:
+<p>To start, run <code>invokeai-configure</code> from within the InvokeAI:
 directory</p>
 <div class="admonition example">
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Loading Python libraries...
@@ -1478,7 +1450,7 @@ file <code>configs/models.yaml</code>, and add a new stanza that follows this mo
 </tr>
 <tr>
 <td align="left">config</td>
-<td align="left">This is the confusingly-named configuration file for the model itself. Use <code>./configs/stable-diffusion/v1-inference.yaml</code> unless the model happens to need a custom configuration, in which case the place you downloaded it from will tell you what to use instead. For example, the runwayML custom inpainting model requires the file <code>configs/stable-diffusion/v1-inpainting-inference.yaml</code>. This is already inclued in the InvokeAI distribution and is configured automatically for you by the <code>configure_invokeai.py</code> script.</td>
+<td align="left">This is the confusingly-named configuration file for the model itself. Use <code>./configs/stable-diffusion/v1-inference.yaml</code> unless the model happens to need a custom configuration, in which case the place you downloaded it from will tell you what to use instead. For example, the runwayML custom inpainting model requires the file <code>configs/stable-diffusion/v1-inpainting-inference.yaml</code>. This is already inclued in the InvokeAI distribution and is configured automatically for you by the <code>invokeai-configure</code> script.</td>
 </tr>
 <tr>
 <td align="left">vae</td>
@@ -1498,7 +1470,7 @@ available for your use.</p>
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">December 19, 2022</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">January 28, 2023</span>
       
         <br>
         Created:
