@@ -302,6 +302,8 @@ class StableDiffusionGeneratorPipeline(StableDiffusionPipeline):
         )
 
         self._enable_memory_efficient_attention()
+        self.prev_uc = None
+        self.prev_c = None
 
 
     def _enable_memory_efficient_attention(self):
@@ -362,6 +364,19 @@ class StableDiffusionGeneratorPipeline(StableDiffusionPipeline):
         if timesteps is None:
             self.scheduler.set_timesteps(num_inference_steps, device=self.unet.device)
             timesteps = self.scheduler.timesteps
+
+
+        this_c = conditioning_data.text_embeddings.clone().detach().cpu()
+        if self.prev_c is not None:
+            print("concatenating previous conditioning to this conditioning")
+            conditioning_data = ConditioningData(unconditioned_embeddings=torch.cat([conditioning_data.unconditioned_embeddings] * 2, dim=1),
+                                                 text_embeddings=torch.cat([self.prev_c.to(conditioning_data.text_embeddings.device), conditioning_data.text_embeddings], dim=1),
+                                                 guidance_scale=conditioning_data.guidance_scale,
+                                                 extra=conditioning_data.extra,
+                                                 scheduler_args=conditioning_data.scheduler_args,
+                                                 threshold=conditioning_data.threshold)
+        self.prev_c = this_c
+
         infer_latents_from_embeddings = GeneratorToCallbackinator(self.generate_latents_from_embeddings, PipelineIntermediateState)
         result: PipelineIntermediateState = infer_latents_from_embeddings(
             latents, timesteps, conditioning_data,
