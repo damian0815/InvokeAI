@@ -69,6 +69,11 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
+        
+        <a href="#main-application" class="md-skip">
+          Skip to content
+        </a>
+      
     </div>
     <div data-md-component="announce">
       
@@ -678,10 +683,43 @@
   
   
   
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_2" type="checkbox" id="__nav_4_2" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_4_2">
+          Deprecated
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Deprecated" data-md-level="2">
+        <label class="md-nav__title" for="__nav_4_2">
+          <span class="md-nav__icon md-icon"></span>
+          Deprecated
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
     <li class="md-nav__item">
-      <a href="../help/TROUBLESHOOT/" class="md-nav__link">
+      <a href="../help/deprecated/TROUBLESHOOT/" class="md-nav__link">
         F.A.Q.
       </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
     </li>
   
 
@@ -736,9 +774,45 @@
       
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Overview
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         Overview
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#main-application" class="md-nav__link">
+    Main Application
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quick-guides" class="md-nav__link">
+    Quick Guides
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -767,6 +841,20 @@
     <li class="md-nav__item">
       <a href="020_INSTALL_MANUAL/" class="md-nav__link">
         Installing Manually
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="030_INSTALL_CUDA_AND_ROCM/" class="md-nav__link">
+        NVIDIA Cuda / AMD ROCm
       </a>
     </li>
   
@@ -838,18 +926,18 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_8" type="checkbox" id="__nav_5_8" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_9" type="checkbox" id="__nav_5_9" >
       
       
       
       
-        <label class="md-nav__link" for="__nav_5_8">
+        <label class="md-nav__link" for="__nav_5_9">
           Developers documentation
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" aria-label="Developers documentation" data-md-level="2">
-        <label class="md-nav__title" for="__nav_5_8">
+        <label class="md-nav__title" for="__nav_5_9">
           <span class="md-nav__icon md-icon"></span>
           Developers documentation
         </label>
@@ -885,18 +973,18 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_9" type="checkbox" id="__nav_5_9" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_10" type="checkbox" id="__nav_5_10" >
       
       
       
       
-        <label class="md-nav__link" for="__nav_5_9">
+        <label class="md-nav__link" for="__nav_5_10">
           Deprecated documentation
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" aria-label="Deprecated documentation" data-md-level="2">
-        <label class="md-nav__title" for="__nav_5_9">
+        <label class="md-nav__title" for="__nav_5_10">
           <span class="md-nav__icon md-icon"></span>
           Deprecated documentation
         </label>
@@ -1098,7 +1186,17 @@
   <h1>Overview</h1>
 
 <p>We offer several ways to install InvokeAI, each one suited to your
-experience and preferences.</p>
+experience and preferences. We suggest that everyone start by
+reviewing the
+<a href="010_INSTALL_AUTOMATED/#hardware_requirements">hardware</a> and
+<a href="010_INSTALL_AUTOMATED/#software_requirements">software</a>
+requirements, as they are the same across each install method. Then
+pick the install method most suitable to your level of experience and
+needs.</p>
+<p>See the <a href="010_INSTALL_AUTOMATED/#troubleshooting">troubleshooting
+section</a> of the automated
+install guide for frequently-encountered installation issues.</p>
+<h2 id="main-application">Main Application<a class="headerlink" href="#main-application" title="Permanent link">#</a></h2>
 <ol>
 <li>
 <p><a href="010_INSTALL_AUTOMATED/">Automated Installer</a></p>
@@ -1113,8 +1211,8 @@ give you to access experimental features.</p>
 InvokeAI and its dependencies. We offer two recipes: one suited to
 those who prefer the <code>conda</code> tool, and one suited to those who prefer
 <code>pip</code> and Python virtual environments. In our hands the pip install
-is faster and more reliable, but your mileage may vary. 
-Note that the conda installation method is currently deprecated and 
+is faster and more reliable, but your mileage may vary.
+Note that the conda installation method is currently deprecated and
 will not be supported at some point in the future.</p>
 <p>This method is recommended for users who have previously used <code>conda</code>
 or <code>pip</code> in the past, developers, and anyone who wishes to remain on
@@ -1129,13 +1227,20 @@ individuals with experience with Docker containers and understand
 the pluses and minuses of a container-based install.</p>
 </li>
 </ol>
+<h2 id="quick-guides">Quick Guides<a class="headerlink" href="#quick-guides" title="Permanent link">#</a></h2>
+<ul>
+<li><a href="030_INSTALL_CUDA_AND_ROCM/">Installing CUDA and ROCm Drivers</a></li>
+<li><a href="070_INSTALL_XFORMERS/">Installing XFormers</a></li>
+<li><a href="060_INSTALL_PATCHMATCH/">Installing PyPatchMatch</a></li>
+<li><a href="050_INSTALLING_MODELS/">Installing New Models</a></li>
+</ul>
 
   <hr>
 <div class="md-source-file">
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">January 20, 2023</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">February 8, 2023</span>
       
         <br>
         Created:
@@ -1169,7 +1274,7 @@ the pluses and minuses of a container-based install.</p>
     <nav class="md-footer__inner md-grid" aria-label="Footer" >
       
         
-        <a href="../help/TROUBLESHOOT/" class="md-footer__link md-footer__link--prev" aria-label="Previous: F.A.Q." rel="prev">
+        <a href="../help/deprecated/TROUBLESHOOT/" class="md-footer__link md-footer__link--prev" aria-label="Previous: F.A.Q." rel="prev">
           <div class="md-footer__button md-icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
           </div>

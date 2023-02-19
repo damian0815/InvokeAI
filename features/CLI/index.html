@@ -573,8 +573,36 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#import_model-pathtomodelweights" class="md-nav__link">
-    !import_model &lt;path/to/model/weights&gt;
+  <a href="#import_model-hugging_face_repo_id" class="md-nav__link">
+    !import_model &lt;hugging_face_repo_ID&gt;
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#import_model-pathtodiffusersdirectory" class="md-nav__link">
+    !import_model &lt;path/to/diffusers/directory&gt;
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#import_model-url" class="md-nav__link">
+    !import_model &lt;url&gt;
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#import_model-pathtomodelweightsckpt" class="md-nav__link">
+    !import_model &lt;path/to/model/weights.ckpt&gt;
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#import_model-pathtodirectory_of_models" class="md-nav__link">
+    !import_model &lt;path/to/directory_of_models&gt;
   </a>
   
 </li>
@@ -923,10 +951,43 @@
   
   
   
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_2" type="checkbox" id="__nav_4_2" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_4_2">
+          Deprecated
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Deprecated" data-md-level="2">
+        <label class="md-nav__title" for="__nav_4_2">
+          <span class="md-nav__icon md-icon"></span>
+          Deprecated
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
     <li class="md-nav__item">
-      <a href="../../help/TROUBLESHOOT/" class="md-nav__link">
+      <a href="../../help/deprecated/TROUBLESHOOT/" class="md-nav__link">
         F.A.Q.
       </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
     </li>
   
 
@@ -1014,6 +1075,20 @@
   
   
     <li class="md-nav__item">
+      <a href="../../installation/030_INSTALL_CUDA_AND_ROCM/" class="md-nav__link">
+        NVIDIA Cuda / AMD ROCm
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../installation/040_INSTALL_DOCKER/" class="md-nav__link">
         Installing with Docker
       </a>
@@ -1073,18 +1148,18 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_8" type="checkbox" id="__nav_5_8" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_9" type="checkbox" id="__nav_5_9" >
       
       
       
       
-        <label class="md-nav__link" for="__nav_5_8">
+        <label class="md-nav__link" for="__nav_5_9">
           Developers documentation
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" aria-label="Developers documentation" data-md-level="2">
-        <label class="md-nav__title" for="__nav_5_8">
+        <label class="md-nav__title" for="__nav_5_9">
           <span class="md-nav__icon md-icon"></span>
           Developers documentation
         </label>
@@ -1120,18 +1195,18 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_9" type="checkbox" id="__nav_5_9" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_10" type="checkbox" id="__nav_5_10" >
       
       
       
       
-        <label class="md-nav__link" for="__nav_5_9">
+        <label class="md-nav__link" for="__nav_5_10">
           Deprecated documentation
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" aria-label="Deprecated documentation" data-md-level="2">
-        <label class="md-nav__title" for="__nav_5_9">
+        <label class="md-nav__title" for="__nav_5_10">
           <span class="md-nav__icon md-icon"></span>
           Deprecated documentation
         </label>
@@ -1332,58 +1407,56 @@
 
 <h1 id="cli"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M5 9h2.31l.32-3h2l-.32 3h2l.32-3h2l-.32 3H15v2h-1.9l-.2 2H15v2h-2.31l-.32 3h-2l.32-3h-2l-.32 3h-2l.32-3H5v-2h1.9l.2-2H5V9m4.1 2-.2 2h2l.2-2M19 6h-2v8h2m0 2h-2v2h2Z"/></svg></span> CLI<a class="headerlink" href="#cli" title="Permanent link">#</a></h1>
 <h2 id="interactive-command-line-interface"><strong>Interactive Command Line Interface</strong><a class="headerlink" href="#interactive-command-line-interface" title="Permanent link">#</a></h2>
-<p>The <code>invoke.py</code> script, located in <code>scripts/</code>, provides an interactive interface
-to image generation similar to the "invoke mothership" bot that Stable AI
-provided on its Discord server.</p>
-<p>Unlike the <code>txt2img.py</code> and <code>img2img.py</code> scripts provided in the original
-<a href="https://github.com/CompVis/stable-diffusion">CompVis/stable-diffusion</a> source
-code repository, the time-consuming initialization of the AI model
-initialization only happens once. After that image generation from the
-command-line interface is very fast.</p>
+<p>The InvokeAI command line interface (CLI) provides scriptable access
+to InvokeAI's features.Some advanced features are only available
+through the CLI, though they eventually find their way into the WebUI.</p>
+<p>The CLI is accessible from the <code>invoke.sh</code>/<code>invoke.bat</code> launcher by
+selecting option (1). Alternatively, it can be launched directly from
+the command line by activating the InvokeAI environment and giving the
+command:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>invokeai
+</code></pre></div>
+<p>After some startup messages, you will be presented with the <code>invoke&gt;</code>
+prompt. Here you can type prompts to generate images and issue other
+commands to load and manipulate generative models. The CLI has a large
+number of command-line options that control its behavior. To get a
+concise summary of the options, call <code>invokeai</code> with the <code>--help</code> argument:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>invokeai<span class="w"> </span>--help
+</code></pre></div>
 <p>The script uses the readline library to allow for in-line editing, command
 history (<span class="keys"><kbd class="key-arrow-up">Up</kbd></span> and <span class="keys"><kbd class="key-arrow-down">Down</kbd></span>), autocompletion, and more. To help keep track of
 which prompts generated which images, the script writes a log file of image
 names and prompts to the selected output directory.</p>
-<p>In addition, as of version 1.02, it also writes the prompt into the PNG file's
-metadata where it can be retrieved using <code>scripts/images2prompt.py</code></p>
-<p>The script is confirmed to work on Linux, Windows and Mac systems.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This script runs from the command-line or can be used as a Web application. The Web GUI is
-currently rudimentary, but a much better replacement is on its way.</p>
-</div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="o">(</span>invokeai<span class="o">)</span><span class="w"> </span>~/stable-diffusion$<span class="w"> </span>python3<span class="w"> </span>./scripts/invoke.py
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>*<span class="w"> </span>Initializing,<span class="w"> </span>be<span class="w"> </span>patient...
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>Loading<span class="w"> </span>model<span class="w"> </span>from<span class="w"> </span>models/ldm/text2img-large/model.ckpt
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="o">(</span>...more<span class="w"> </span>initialization<span class="w"> </span>messages...<span class="o">)</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>*<span class="w"> </span>Initialization<span class="w"> </span><span class="k">done</span>!<span class="w"> </span>Awaiting<span class="w"> </span>your<span class="w"> </span>command...
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>invoke&gt;<span class="w"> </span>ashley<span class="w"> </span>judd<span class="w"> </span>riding<span class="w"> </span>a<span class="w"> </span>camel<span class="w"> </span>-n2<span class="w"> </span>-s150
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>Outputs:
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">   </span>outputs/img-samples/00009.png:<span class="w"> </span><span class="s2">&quot;ashley judd riding a camel&quot;</span><span class="w"> </span>-n2<span class="w"> </span>-s150<span class="w"> </span>-S<span class="w"> </span><span class="m">416354203</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">   </span>outputs/img-samples/00010.png:<span class="w"> </span><span class="s2">&quot;ashley judd riding a camel&quot;</span><span class="w"> </span>-n2<span class="w"> </span>-s150<span class="w"> </span>-S<span class="w"> </span><span class="m">1362479620</span>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>invoke&gt;<span class="w"> </span><span class="s2">&quot;there&#39;s a fly in my soup&quot;</span><span class="w"> </span>-n6<span class="w"> </span>-g
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">    </span>outputs/img-samples/00011.png:<span class="w"> </span><span class="s2">&quot;there&#39;s a fly in my soup&quot;</span><span class="w"> </span>-n6<span class="w"> </span>-g<span class="w"> </span>-S<span class="w"> </span><span class="m">2685670268</span>
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">    </span>seeds<span class="w"> </span><span class="k">for</span><span class="w"> </span>individual<span class="w"> </span>rows:<span class="w"> </span><span class="o">[</span><span class="m">2685670268</span>,<span class="w"> </span><span class="m">1216708065</span>,<span class="w"> </span><span class="m">2335773498</span>,<span class="w"> </span><span class="m">822223658</span>,<span class="w"> </span><span class="m">714542046</span>,<span class="w"> </span><span class="m">3395302430</span><span class="o">]</span>
-<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>invoke&gt;<span class="w"> </span>q
-<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>
-<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="c1"># this shows how to retrieve the prompt stored in the saved image&#39;s metadata</span>
-<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="o">(</span>invokeai<span class="o">)</span><span class="w"> </span>~/stable-diffusion$<span class="w"> </span>python<span class="w"> </span>./scripts/images2prompt.py<span class="w"> </span>outputs/img_samples/*.png
-<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="m">00009</span>.png:<span class="w"> </span><span class="s2">&quot;ashley judd riding a camel&quot;</span><span class="w"> </span>-s150<span class="w"> </span>-S<span class="w"> </span><span class="m">416354203</span>
-<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="m">00010</span>.png:<span class="w"> </span><span class="s2">&quot;ashley judd riding a camel&quot;</span><span class="w"> </span>-s150<span class="w"> </span>-S<span class="w"> </span><span class="m">1362479620</span>
-<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="m">00011</span>.png:<span class="w"> </span><span class="s2">&quot;there&#39;s a fly in my soup&quot;</span><span class="w"> </span>-n6<span class="w"> </span>-g<span class="w"> </span>-S<span class="w"> </span><span class="m">2685670268</span>
+<p>Here is a typical session</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>PS1:C:<span class="se">\U</span>sers<span class="se">\f</span>red&gt;<span class="w"> </span>invokeai
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>*<span class="w"> </span>Initializing,<span class="w"> </span>be<span class="w"> </span>patient...
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>*<span class="w"> </span>Initializing,<span class="w"> </span>be<span class="w"> </span>patient...
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>&gt;&gt;<span class="w"> </span>Initialization<span class="w"> </span>file<span class="w"> </span>/home/lstein/invokeai/invokeai.init<span class="w"> </span>found.<span class="w"> </span>Loading...
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>&gt;&gt;<span class="w"> </span>Internet<span class="w"> </span>connectivity<span class="w"> </span>is<span class="w"> </span>True
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>&gt;&gt;<span class="w"> </span>InvokeAI,<span class="w"> </span>version<span class="w"> </span><span class="m">2</span>.3.0-rc5
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>&gt;&gt;<span class="w"> </span>InvokeAI<span class="w"> </span>runtime<span class="w"> </span>directory<span class="w"> </span>is<span class="w"> </span><span class="s2">&quot;/home/lstein/invokeai&quot;</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>&gt;&gt;<span class="w"> </span>GFPGAN<span class="w"> </span>Initialized
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>&gt;&gt;<span class="w"> </span>CodeFormer<span class="w"> </span>Initialized
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>&gt;&gt;<span class="w"> </span>ESRGAN<span class="w"> </span>Initialized
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>&gt;&gt;<span class="w"> </span>Using<span class="w"> </span>device_type<span class="w"> </span>cuda
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>&gt;&gt;<span class="w"> </span>xformers<span class="w"> </span>memory-efficient<span class="w"> </span>attention<span class="w"> </span>is<span class="w"> </span>available<span class="w"> </span>and<span class="w"> </span>enabled
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="w">     </span><span class="o">(</span>...more<span class="w"> </span>initialization<span class="w"> </span>messages...<span class="o">)</span>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>*<span class="w"> </span>Initialization<span class="w"> </span><span class="k">done</span>!<span class="w"> </span>Awaiting<span class="w"> </span>your<span class="w"> </span><span class="nb">command</span><span class="w"> </span><span class="o">(</span>-h<span class="w"> </span><span class="k">for</span><span class="w"> </span>help,<span class="w"> </span><span class="s1">&#39;q&#39;</span><span class="w"> </span>to<span class="w"> </span>quit<span class="o">)</span>
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>invoke&gt;<span class="w"> </span>ashley<span class="w"> </span>judd<span class="w"> </span>riding<span class="w"> </span>a<span class="w"> </span>camel<span class="w"> </span>-n2<span class="w"> </span>-s150
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>Outputs:
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="w">   </span>outputs/img-samples/00009.png:<span class="w"> </span><span class="s2">&quot;ashley judd riding a camel&quot;</span><span class="w"> </span>-n2<span class="w"> </span>-s150<span class="w"> </span>-S<span class="w"> </span><span class="m">416354203</span>
+<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="w">   </span>outputs/img-samples/00010.png:<span class="w"> </span><span class="s2">&quot;ashley judd riding a camel&quot;</span><span class="w"> </span>-n2<span class="w"> </span>-s150<span class="w"> </span>-S<span class="w"> </span><span class="m">1362479620</span>
+<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>
+<a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>invoke&gt;<span class="w"> </span><span class="s2">&quot;there&#39;s a fly in my soup&quot;</span><span class="w"> </span>-n6<span class="w"> </span>-g
+<a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a><span class="w">    </span>outputs/img-samples/00011.png:<span class="w"> </span><span class="s2">&quot;there&#39;s a fly in my soup&quot;</span><span class="w"> </span>-n6<span class="w"> </span>-g<span class="w"> </span>-S<span class="w"> </span><span class="m">2685670268</span>
+<a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a><span class="w">    </span>seeds<span class="w"> </span><span class="k">for</span><span class="w"> </span>individual<span class="w"> </span>rows:<span class="w"> </span><span class="o">[</span><span class="m">2685670268</span>,<span class="w"> </span><span class="m">1216708065</span>,<span class="w"> </span><span class="m">2335773498</span>,<span class="w"> </span><span class="m">822223658</span>,<span class="w"> </span><span class="m">714542046</span>,<span class="w"> </span><span class="m">3395302430</span><span class="o">]</span>
+<a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a>invoke&gt;<span class="w"> </span>q
 </code></pre></div>
 <p><img alt="invoke-py-demo" src="../../assets/dream-py-demo.png" /></p>
-<p>The <code>invoke&gt;</code> prompt's arguments are pretty much identical to those used in the
-Discord bot, except you don't need to type <code>!invoke</code> (it doesn't hurt if you
-do). A significant change is that creation of individual images is now the
-default unless <code>--grid</code> (<code>-g</code>) is given. A full list is given in
-<a href="#list-of-prompt-arguments">List of prompt arguments</a>.</p>
 <h2 id="arguments">Arguments<a class="headerlink" href="#arguments" title="Permanent link">#</a></h2>
-<p>The script itself also recognizes a series of command-line switches that will
-change important global defaults, such as the directory for image outputs and
-the location of the model weight files.</p>
+<p>The script recognizes a series of command-line switches that will
+change important global defaults, such as the directory for image
+outputs and the location of the model weight files.</p>
 <h3 id="list-of-arguments-recognized-at-the-command-line">List of arguments recognized at the command line<a class="headerlink" href="#list-of-arguments-recognized-at-the-command-line" title="Permanent link">#</a></h3>
 <p>These command-line arguments can be passed to <code>invoke.py</code> when you first run it
 from the Windows, Mac or Linux command line. Some set defaults that can be
@@ -1426,14 +1499,26 @@ overridden on a per-prompt basis (see
 <tr>
 <td><code>--model &lt;modelname&gt;</code></td>
 <td></td>
-<td><code>stable-diffusion-1.4</code></td>
-<td>Loads model specified in configs/models.yaml. Currently one of "stable-diffusion-1.4" or "laion400m"</td>
+<td><code>stable-diffusion-1.5</code></td>
+<td>Loads the initial model specified in configs/models.yaml.</td>
 </tr>
 <tr>
-<td><code>--full_precision</code></td>
-<td><code>-F</code></td>
+<td><code>--ckpt_convert</code></td>
+<td></td>
 <td><code>False</code></td>
-<td>Run in slower full-precision mode. Needed for Macintosh M1/M2 hardware and some older video cards.</td>
+<td>If provided both .ckpt and .safetensors files will be auto-converted into diffusers format in memory</td>
+</tr>
+<tr>
+<td><code>--autoconvert &lt;path&gt;</code></td>
+<td></td>
+<td><code>None</code></td>
+<td>On startup, scan the indicated directory for new .ckpt/.safetensor files and automatically convert and import them</td>
+</tr>
+<tr>
+<td><code>--precision</code></td>
+<td></td>
+<td><code>fp16</code></td>
+<td>Provide <code>fp32</code> for full precision mode, <code>fp16</code> for half-precision. <code>fp32</code> needed for Macintoshes and some NVidia cards.</td>
 </tr>
 <tr>
 <td><code>--png_compression &lt;0-9&gt;</code></td>
@@ -1446,6 +1531,18 @@ overridden on a per-prompt basis (see
 <td></td>
 <td><code>False</code></td>
 <td>Activate safety checker for NSFW and other potentially disturbing imagery</td>
+</tr>
+<tr>
+<td><code>--patchmatch</code>, <code>--no-patchmatch</code></td>
+<td></td>
+<td><code>--patchmatch</code></td>
+<td>Load/Don't load the PatchMatch inpainting extension</td>
+</tr>
+<tr>
+<td><code>--xformers</code>, <code>--no-xformers</code></td>
+<td></td>
+<td><code>--xformers</code></td>
+<td>Load/Don't load the Xformers memory-efficient attention module (CUDA only)</td>
 </tr>
 <tr>
 <td><code>--web</code></td>
@@ -1559,6 +1656,12 @@ overridden on a per-prompt basis (see
 </thead>
 <tbody>
 <tr>
+<td><code>--full_precision</code></td>
+<td></td>
+<td><code>False</code></td>
+<td>Same as <code>--precision=fp32</code></td>
+</tr>
+<tr>
 <td><code>--weights &lt;path&gt;</code></td>
 <td></td>
 <td><code>None</code></td>
@@ -1590,37 +1693,37 @@ command line (<code>--steps=10 --grid</code>), one argument per line, or a
 mixture of both using any of the accepted command switch formats:</p>
 <div class="admonition example">
 <p class="admonition-title">my unmodified initialization file</p>
-<div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">~/.invokeai</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-1"> 1</a></span>
-<span class="normal"><a href="#__codelineno-1-2"> 2</a></span>
-<span class="normal"><a href="#__codelineno-1-3"> 3</a></span>
-<span class="normal"><a href="#__codelineno-1-4"> 4</a></span>
-<span class="normal"><a href="#__codelineno-1-5"> 5</a></span>
-<span class="normal"><a href="#__codelineno-1-6"> 6</a></span>
-<span class="normal"><a href="#__codelineno-1-7"> 7</a></span>
-<span class="normal"><a href="#__codelineno-1-8"> 8</a></span>
-<span class="normal"><a href="#__codelineno-1-9"> 9</a></span>
-<span class="normal"><a href="#__codelineno-1-10">10</a></span>
-<span class="normal"><a href="#__codelineno-1-11">11</a></span>
-<span class="normal"><a href="#__codelineno-1-12">12</a></span>
-<span class="normal"><a href="#__codelineno-1-13">13</a></span>
-<span class="normal"><a href="#__codelineno-1-14">14</a></span>
-<span class="normal"><a href="#__codelineno-1-15">15</a></span>
-<span class="normal"><a href="#__codelineno-1-16">16</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="c1"># InvokeAI initialization file</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2"></a><span class="c1"># This is the InvokeAI initialization file, which contains command-line default values.</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="c1"># Feel free to edit. If anything goes wrong, you can re-initialize this file by deleting</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4"></a><span class="c1"># or renaming it and then running invokeai-configure again.</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5"></a>
-<a id="__codelineno-1-6" name="__codelineno-1-6"></a><span class="c1"># The --root option below points to the folder in which InvokeAI stores its models, configs and outputs.</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7"></a>--root<span class="o">=</span><span class="s2">&quot;/Users/mauwii/invokeai&quot;</span>
-<a id="__codelineno-1-8" name="__codelineno-1-8"></a>
-<a id="__codelineno-1-9" name="__codelineno-1-9"></a><span class="c1"># the --outdir option controls the default location of image files.</span>
-<a id="__codelineno-1-10" name="__codelineno-1-10"></a>--outdir<span class="o">=</span><span class="s2">&quot;/Users/mauwii/invokeai/outputs&quot;</span>
-<a id="__codelineno-1-11" name="__codelineno-1-11"></a>
-<a id="__codelineno-1-12" name="__codelineno-1-12"></a><span class="c1"># You may place other  frequently-used startup commands here, one or more per line.</span>
-<a id="__codelineno-1-13" name="__codelineno-1-13"></a><span class="c1"># Examples:</span>
-<a id="__codelineno-1-14" name="__codelineno-1-14"></a><span class="c1"># --web --host=0.0.0.0</span>
-<a id="__codelineno-1-15" name="__codelineno-1-15"></a><span class="c1"># --steps=20</span>
-<a id="__codelineno-1-16" name="__codelineno-1-16"></a><span class="c1"># -Ak_euler_a -C10.0</span>
+<div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">~/.invokeai</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-3-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-3-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-3-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-3-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-3-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-3-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-3-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-3-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-3-10">10</a></span>
+<span class="normal"><a href="#__codelineno-3-11">11</a></span>
+<span class="normal"><a href="#__codelineno-3-12">12</a></span>
+<span class="normal"><a href="#__codelineno-3-13">13</a></span>
+<span class="normal"><a href="#__codelineno-3-14">14</a></span>
+<span class="normal"><a href="#__codelineno-3-15">15</a></span>
+<span class="normal"><a href="#__codelineno-3-16">16</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="c1"># InvokeAI initialization file</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2"></a><span class="c1"># This is the InvokeAI initialization file, which contains command-line default values.</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3"></a><span class="c1"># Feel free to edit. If anything goes wrong, you can re-initialize this file by deleting</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4"></a><span class="c1"># or renaming it and then running invokeai-configure again.</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5"></a>
+<a id="__codelineno-3-6" name="__codelineno-3-6"></a><span class="c1"># The --root option below points to the folder in which InvokeAI stores its models, configs and outputs.</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7"></a>--root<span class="o">=</span><span class="s2">&quot;/Users/mauwii/invokeai&quot;</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8"></a>
+<a id="__codelineno-3-9" name="__codelineno-3-9"></a><span class="c1"># the --outdir option controls the default location of image files.</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10"></a>--outdir<span class="o">=</span><span class="s2">&quot;/Users/mauwii/invokeai/outputs&quot;</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11"></a>
+<a id="__codelineno-3-12" name="__codelineno-3-12"></a><span class="c1"># You may place other  frequently-used startup commands here, one or more per line.</span>
+<a id="__codelineno-3-13" name="__codelineno-3-13"></a><span class="c1"># Examples:</span>
+<a id="__codelineno-3-14" name="__codelineno-3-14"></a><span class="c1"># --web --host=0.0.0.0</span>
+<a id="__codelineno-3-15" name="__codelineno-3-15"></a><span class="c1"># --steps=20</span>
+<a id="__codelineno-3-16" name="__codelineno-3-16"></a><span class="c1"># -Ak_euler_a -C10.0</span>
 </code></pre></div></td></tr></table></div>
 </div>
 <div class="admonition note">
@@ -1639,7 +1742,7 @@ prompt. Here you can enter information to generate images from text
 (<a href="#inpainting">inpainting</a>).</p>
 <h3 id="txt2img">txt2img<a class="headerlink" href="#txt2img" title="Permanent link">#</a></h3>
 <div class="admonition example">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>invoke&gt;<span class="w"> </span>waterfall<span class="w"> </span>and<span class="w"> </span>rainbow<span class="w"> </span>-W640<span class="w"> </span>-H480
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>invoke&gt;<span class="w"> </span>waterfall<span class="w"> </span>and<span class="w"> </span>rainbow<span class="w"> </span>-W640<span class="w"> </span>-H480
 </code></pre></div>
 <p>This will create the requested image with the dimensions 640 (width)
 and 480 (height).</p>
@@ -1821,7 +1924,7 @@ of 64.</p>
 </div>
 <div class="admonition example">
 <p class="admonition-title">This is a example of img2img</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>invoke&gt;<span class="w"> </span>waterfall<span class="w"> </span>and<span class="w"> </span>rainbow<span class="w"> </span>-I./vacation-photo.png<span class="w"> </span>-W640<span class="w"> </span>-H480<span class="w"> </span>--fit
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>invoke&gt;<span class="w"> </span>waterfall<span class="w"> </span>and<span class="w"> </span>rainbow<span class="w"> </span>-I./vacation-photo.png<span class="w"> </span>-W640<span class="w"> </span>-H480<span class="w"> </span>--fit
 </code></pre></div>
 </div>
 <p>This will modify the indicated vacation photograph by making it more like the
@@ -1863,7 +1966,7 @@ additional options:</p>
 </table>
 <h3 id="inpainting">inpainting<a class="headerlink" href="#inpainting" title="Permanent link">#</a></h3>
 <div class="admonition example">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>invoke&gt;<span class="w"> </span>waterfall<span class="w"> </span>and<span class="w"> </span>rainbow<span class="w"> </span>-I./vacation-photo.png<span class="w"> </span>-M./vacation-mask.png<span class="w"> </span>-W640<span class="w"> </span>-H480<span class="w"> </span>--fit
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>invoke&gt;<span class="w"> </span>waterfall<span class="w"> </span>and<span class="w"> </span>rainbow<span class="w"> </span>-I./vacation-photo.png<span class="w"> </span>-M./vacation-mask.png<span class="w"> </span>-W640<span class="w"> </span>-H480<span class="w"> </span>--fit
 </code></pre></div>
 <p>This will do the same thing as img2img, but image alterations will
 only occur within transparent areas defined by the mask file specified
@@ -1911,7 +2014,7 @@ in which case all black areas will be painted into.</p>
 description of the part of the image to replace. For example, if you have an
 image of a breakfast plate with a bagel, toast and scrambled eggs, you can
 selectively mask the bagel and replace it with a piece of cake this way:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>invoke&gt;<span class="w"> </span>a<span class="w"> </span>piece<span class="w"> </span>of<span class="w"> </span>cake<span class="w"> </span>-I<span class="w"> </span>/path/to/breakfast.png<span class="w"> </span>-tm<span class="w"> </span>bagel
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>invoke&gt;<span class="w"> </span>a<span class="w"> </span>piece<span class="w"> </span>of<span class="w"> </span>cake<span class="w"> </span>-I<span class="w"> </span>/path/to/breakfast.png<span class="w"> </span>-tm<span class="w"> </span>bagel
 </code></pre></div>
 <p>The algorithm uses <a
 href="https://github.com/timojl/clipseg">clipseg</a> to classify different
@@ -1920,7 +2023,7 @@ it identifies. Generally regions that score above 0.5 are reliable, but if you
 are getting too much or too little masking you can adjust the threshold down (to
 get more mask), or up (to get less). In this example, by passing <code>-tm</code> a higher
 value, we are insisting on a more stringent classification.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>invoke&gt;<span class="w"> </span>a<span class="w"> </span>piece<span class="w"> </span>of<span class="w"> </span>cake<span class="w"> </span>-I<span class="w"> </span>/path/to/breakfast.png<span class="w"> </span>-tm<span class="w"> </span>bagel<span class="w"> </span><span class="m">0</span>.6
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>invoke&gt;<span class="w"> </span>a<span class="w"> </span>piece<span class="w"> </span>of<span class="w"> </span>cake<span class="w"> </span>-I<span class="w"> </span>/path/to/breakfast.png<span class="w"> </span>-tm<span class="w"> </span>bagel<span class="w"> </span><span class="m">0</span>.6
 </code></pre></div>
 <h3 id="custom-styles-and-subjects">Custom Styles and Subjects<a class="headerlink" href="#custom-styles-and-subjects" title="Permanent link">#</a></h3>
 <p>You can load and use hundreds of community-contributed Textual
@@ -1940,17 +2043,17 @@ full or partial path to the desired file.</p>
 <p>Some examples:</p>
 <div class="admonition example">
 <p class="admonition-title">Upscale to 4X its original size and fix faces using codeformer</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>invoke&gt;<span class="w"> </span>!fix<span class="w"> </span><span class="m">0000045</span>.4829112.png<span class="w"> </span>-G1<span class="w"> </span>-U4<span class="w"> </span>-ft<span class="w"> </span>codeformer
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>invoke&gt;<span class="w"> </span>!fix<span class="w"> </span><span class="m">0000045</span>.4829112.png<span class="w"> </span>-G1<span class="w"> </span>-U4<span class="w"> </span>-ft<span class="w"> </span>codeformer
 </code></pre></div>
 </div>
 <div class="admonition example">
 <p class="admonition-title">Use the GFPGAN algorithm to fix faces, then upscale to 3X using --embiggen</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>invoke&gt;<span class="w"> </span>!fix<span class="w"> </span><span class="m">0000045</span>.4829112.png<span class="w"> </span>-G0.8<span class="w"> </span>-ft<span class="w"> </span>gfpgan
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>&gt;&gt;<span class="w"> </span>fixing<span class="w"> </span>outputs/img-samples/0000045.4829112.png
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>&gt;&gt;<span class="w"> </span>retrieved<span class="w"> </span>seed<span class="w"> </span><span class="m">4829112</span><span class="w"> </span>and<span class="w"> </span>prompt<span class="w"> </span><span class="s2">&quot;boy enjoying a banana split&quot;</span>
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>&gt;&gt;<span class="w"> </span>GFPGAN<span class="w"> </span>-<span class="w"> </span>Restoring<span class="w"> </span>Faces<span class="w"> </span><span class="k">for</span><span class="w"> </span>image<span class="w"> </span>seed:4829112
-<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>Outputs:
-<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="o">[</span><span class="m">1</span><span class="o">]</span><span class="w"> </span>outputs/img-samples/000017.4829112.gfpgan-00.png:<span class="w"> </span>!fix<span class="w"> </span><span class="s2">&quot;outputs/img-samples/0000045.4829112.png&quot;</span><span class="w"> </span>-s<span class="w"> </span><span class="m">50</span><span class="w"> </span>-S<span class="w">  </span>-W<span class="w"> </span><span class="m">512</span><span class="w"> </span>-H<span class="w"> </span><span class="m">512</span><span class="w"> </span>-C<span class="w"> </span><span class="m">7</span>.5<span class="w"> </span>-A<span class="w"> </span>k_lms<span class="w"> </span>-G<span class="w"> </span><span class="m">0</span>.8
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>invoke&gt;<span class="w"> </span>!fix<span class="w"> </span><span class="m">0000045</span>.4829112.png<span class="w"> </span>-G0.8<span class="w"> </span>-ft<span class="w"> </span>gfpgan
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>&gt;&gt;<span class="w"> </span>fixing<span class="w"> </span>outputs/img-samples/0000045.4829112.png
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>&gt;&gt;<span class="w"> </span>retrieved<span class="w"> </span>seed<span class="w"> </span><span class="m">4829112</span><span class="w"> </span>and<span class="w"> </span>prompt<span class="w"> </span><span class="s2">&quot;boy enjoying a banana split&quot;</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>&gt;&gt;<span class="w"> </span>GFPGAN<span class="w"> </span>-<span class="w"> </span>Restoring<span class="w"> </span>Faces<span class="w"> </span><span class="k">for</span><span class="w"> </span>image<span class="w"> </span>seed:4829112
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>Outputs:
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="o">[</span><span class="m">1</span><span class="o">]</span><span class="w"> </span>outputs/img-samples/000017.4829112.gfpgan-00.png:<span class="w"> </span>!fix<span class="w"> </span><span class="s2">&quot;outputs/img-samples/0000045.4829112.png&quot;</span><span class="w"> </span>-s<span class="w"> </span><span class="m">50</span><span class="w"> </span>-S<span class="w">  </span>-W<span class="w"> </span><span class="m">512</span><span class="w"> </span>-H<span class="w"> </span><span class="m">512</span><span class="w"> </span>-C<span class="w"> </span><span class="m">7</span>.5<span class="w"> </span>-A<span class="w"> </span>k_lms<span class="w"> </span>-G<span class="w"> </span><span class="m">0</span>.8
 </code></pre></div>
 </div>
 <h4 id="mask"><code>!mask</code><a class="headerlink" href="#mask" title="Permanent link">#</a></h4>
@@ -1959,16 +2062,18 @@ automatically generate a mask of the area that matches the text prompt. It is
 useful for debugging the text masking process prior to inpainting with the
 <code>--text_mask</code> argument. See [INPAINTING.md] for details.</p>
 <h3 id="model-selection-and-importation">Model selection and importation<a class="headerlink" href="#model-selection-and-importation" title="Permanent link">#</a></h3>
-<p>The CLI allows you to add new models on the fly, as well as to switch among them
-rapidly without leaving the script.</p>
+<p>The CLI allows you to add new models on the fly, as well as to switch
+among them rapidly without leaving the script. There are several
+different model formats, each described in the <a href="../../installation/050_INSTALLING_MODELS/">Model Installation
+Guide</a>.</p>
 <h4 id="models"><code>!models</code><a class="headerlink" href="#models" title="Permanent link">#</a></h4>
 <p>This prints out a list of the models defined in `config/models.yaml'. The active
 model is bold-faced</p>
 <p>Example:</p>
 <pre>
-laion400m                 not loaded  <no description>
-<b>stable-diffusion-1.4          active  Stable Diffusion v1.4</b>
-waifu-diffusion           not loaded  Waifu Diffusion v1.3
+inpainting-1.5            not loaded  Stable Diffusion inpainting model
+<b>stable-diffusion-1.5          active  Stable Diffusion v1.5</b>
+waifu-diffusion           not loaded  Waifu Diffusion v1.4
 </pre>
 
 <h4 id="switch-model"><code>!switch &lt;model&gt;</code><a class="headerlink" href="#switch-model" title="Permanent link">#</a></h4>
@@ -1978,43 +2083,22 @@ switching back and forth is quick. The following example shows this in action.
 Note how the second column of the <code>!models</code> table changes to <code>cached</code> after a
 model is first loaded, and that the long initialization step is not needed when
 loading a cached model.</p>
-<pre>
-invoke> !models
-laion400m                 not loaded  <no description>
-<b>stable-diffusion-1.4          cached  Stable Diffusion v1.4</b>
-waifu-diffusion               active  Waifu Diffusion v1.3
-
-invoke> !switch waifu-diffusion
->> Caching model stable-diffusion-1.4 in system RAM
->> Loading waifu-diffusion from models/ldm/stable-diffusion-v1/model-epoch08-float16.ckpt
-   | LatentDiffusion: Running in eps-prediction mode
-   | DiffusionWrapper has 859.52 M params.
-   | Making attention of type 'vanilla' with 512 in_channels
-   | Working with z of shape (1, 4, 32, 32) = 4096 dimensions.
-   | Making attention of type 'vanilla' with 512 in_channels
-   | Using faster float16 precision
->> Model loaded in 18.24s
->> Max VRAM used to load the model: 2.17G
->> Current VRAM usage:2.17G
->> Setting Sampler to k_lms
-
-invoke> !models
-laion400m                 not loaded  <no description>
-stable-diffusion-1.4          cached  Stable Diffusion v1.4
-<b>waifu-diffusion               active  Waifu Diffusion v1.3</b>
-
-invoke> !switch stable-diffusion-1.4
->> Caching model waifu-diffusion in system RAM
->> Retrieving model stable-diffusion-1.4 from system RAM cache
->> Setting Sampler to k_lms
-
-invoke> !models
-laion400m                 not loaded  <no description>
-<b>stable-diffusion-1.4          active  Stable Diffusion v1.4</b>
-waifu-diffusion               cached  Waifu Diffusion v1.3
-</pre>
-
-<h4 id="import_model-pathtomodelweights"><code>!import_model &lt;path/to/model/weights&gt;</code><a class="headerlink" href="#import_model-pathtomodelweights" title="Permanent link">#</a></h4>
+<h4 id="import_model-hugging_face_repo_id"><code>!import_model &lt;hugging_face_repo_ID&gt;</code><a class="headerlink" href="#import_model-hugging_face_repo_id" title="Permanent link">#</a></h4>
+<p>This imports and installs a <code>diffusers</code>-style model that is stored on
+the <a href="https://huggingface.co">HuggingFace Web Site</a>. You can look up
+any <a href="https://huggingface.co/models?library=diffusers">Stable Diffusion diffusers
+model</a> and install it
+with a command like the following:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>!import_model<span class="w"> </span>prompthero/openjourney
+</code></pre></div>
+<h4 id="import_model-pathtodiffusersdirectory"><code>!import_model &lt;path/to/diffusers/directory&gt;</code><a class="headerlink" href="#import_model-pathtodiffusersdirectory" title="Permanent link">#</a></h4>
+<p>If you have a copy of a <code>diffusers</code>-style model saved to disk, you can
+import it by passing the path to model's top-level directory.</p>
+<h4 id="import_model-url"><code>!import_model &lt;url&gt;</code><a class="headerlink" href="#import_model-url" title="Permanent link">#</a></h4>
+<p>For a <code>.ckpt</code> or <code>.safetensors</code> file, if you have a direct download
+URL for the file, you can provide it to <code>!import_model</code> and the file
+will be downloaded and installed for you.</p>
+<h4 id="import_model-pathtomodelweightsckpt"><code>!import_model &lt;path/to/model/weights.ckpt&gt;</code><a class="headerlink" href="#import_model-pathtomodelweightsckpt" title="Permanent link">#</a></h4>
 <p>This command imports a new model weights file into InvokeAI, makes it available
 for image generation within the script, and writes out the configuration for the
 model into <code>config/models.yaml</code> for use in subsequent sessions.</p>
@@ -2030,35 +2114,11 @@ three fields are automatically filled with reasonable defaults. In the example
 below, the bold-faced text shows what the user typed in with the exception of
 the width, height and configuration file paths, which were filled in
 automatically.</p>
-<p>Example:</p>
-<pre>
-invoke> <b>!import_model models/ldm/stable-diffusion-v1/model-epoch08-float16.ckpt</b>
->> Model import in process. Please enter the values needed to configure this model:
-
-Name for this model: <b>waifu-diffusion</b>
-Description of this model: <b>Waifu Diffusion v1.3</b>
-Configuration file for this model: <b>configs/stable-diffusion/v1-inference.yaml</b>
-Default image width: <b>512</b>
-Default image height: <b>512</b>
->> New configuration:
-waifu-diffusion:
-  config: configs/stable-diffusion/v1-inference.yaml
-  description: Waifu Diffusion v1.3
-  height: 512
-  weights: models/ldm/stable-diffusion-v1/model-epoch08-float16.ckpt
-  width: 512
-OK to import [n]? <b>y</b>
->> Caching model stable-diffusion-1.4 in system RAM
->> Loading waifu-diffusion from models/ldm/stable-diffusion-v1/model-epoch08-float16.ckpt
-   | LatentDiffusion: Running in eps-prediction mode
-   | DiffusionWrapper has 859.52 M params.
-   | Making attention of type 'vanilla' with 512 in_channels
-   | Working with z of shape (1, 4, 32, 32) = 4096 dimensions.
-   | Making attention of type 'vanilla' with 512 in_channels
-   | Using faster float16 precision
-invoke>
-</pre>
-
+<h4 id="import_model-pathtodirectory_of_models"><code>!import_model &lt;path/to/directory_of_models&gt;</code><a class="headerlink" href="#import_model-pathtodirectory_of_models" title="Permanent link">#</a></h4>
+<p>If you provide the path of a directory that contains one or more
+<code>.ckpt</code> or <code>.safetensors</code> files, the CLI will scan the directory and
+interactively offer to import the models it finds there. Also see the
+<code>--autoconvert</code> command-line option.</p>
 <h4 id="edit_model-name_of_model"><code>!edit_model &lt;name_of_model&gt;</code><a class="headerlink" href="#edit_model-name_of_model" title="Permanent link">#</a></h4>
 <p>The <code>!edit_model</code> command can be used to modify a model that is already defined
 in <code>config/models.yaml</code>. Call it with the short name of the model you wish to
@@ -2088,10 +2148,6 @@ OK to import [n]? y
 ...
 </pre>
 
-<p>======= invoke&gt; !fix 000017.4829112.gfpgan-00.png --embiggen 3 ...lots of
-text... Outputs: [2] outputs/img-samples/000018.2273800735.embiggen-00.png: !fix
-"outputs/img-samples/000017.243781548.gfpgan-00.png" -s 50 -S 2273800735 -W 512
--H 512 -C 7.5 -A k_lms --embiggen 3.0 0.75 0.25 ```</p>
 <h3 id="history-processing">History processing<a class="headerlink" href="#history-processing" title="Permanent link">#</a></h3>
 <p>The CLI provides a series of convenient commands for reviewing previous actions,
 retrieving them, modifying them, and re-running them.</p>
@@ -2105,16 +2161,16 @@ during the session (Windows), or the most recent 1000 commands (Mac|Linux). You
 can then repeat a command by using the command <code>!NNN</code>, where "NNN" is the
 history line number. For example:</p>
 <div class="admonition example">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>invoke&gt;<span class="w"> </span>!history
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>...
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="o">[</span><span class="m">14</span><span class="o">]</span><span class="w"> </span>happy<span class="w"> </span>woman<span class="w"> </span>sitting<span class="w"> </span>under<span class="w"> </span>tree<span class="w"> </span>wearing<span class="w"> </span>broad<span class="w"> </span>hat<span class="w"> </span>and<span class="w"> </span>flowing<span class="w"> </span>garment
-<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="o">[</span><span class="m">15</span><span class="o">]</span><span class="w"> </span>beautiful<span class="w"> </span>woman<span class="w"> </span>sitting<span class="w"> </span>under<span class="w"> </span>tree<span class="w"> </span>wearing<span class="w"> </span>broad<span class="w"> </span>hat<span class="w"> </span>and<span class="w"> </span>flowing<span class="w"> </span>garment
-<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="o">[</span><span class="m">18</span><span class="o">]</span><span class="w"> </span>beautiful<span class="w"> </span>woman<span class="w"> </span>sitting<span class="w"> </span>under<span class="w"> </span>tree<span class="w"> </span>wearing<span class="w"> </span>broad<span class="w"> </span>hat<span class="w"> </span>and<span class="w"> </span>flowing<span class="w"> </span>garment<span class="w"> </span>-v0.2<span class="w"> </span>-n6
-<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="o">[</span><span class="m">20</span><span class="o">]</span><span class="w"> </span>watercolor<span class="w"> </span>of<span class="w"> </span>beautiful<span class="w"> </span>woman<span class="w"> </span>sitting<span class="w"> </span>under<span class="w"> </span>tree<span class="w"> </span>wearing<span class="w"> </span>broad<span class="w"> </span>hat<span class="w"> </span>and<span class="w"> </span>flowing<span class="w"> </span>garment<span class="w"> </span>-v0.2<span class="w"> </span>-n6<span class="w"> </span>-S2878767194
-<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="o">[</span><span class="m">21</span><span class="o">]</span><span class="w"> </span>surrealist<span class="w"> </span>painting<span class="w"> </span>of<span class="w"> </span>beautiful<span class="w"> </span>woman<span class="w"> </span>sitting<span class="w"> </span>under<span class="w"> </span>tree<span class="w"> </span>wearing<span class="w"> </span>broad<span class="w"> </span>hat<span class="w"> </span>and<span class="w"> </span>flowing<span class="w"> </span>garment<span class="w"> </span>-v0.2<span class="w"> </span>-n6<span class="w"> </span>-S2878767194
-<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>...
-<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>invoke&gt;<span class="w"> </span>!20
-<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>invoke&gt;<span class="w"> </span>watercolor<span class="w"> </span>of<span class="w"> </span>beautiful<span class="w"> </span>woman<span class="w"> </span>sitting<span class="w"> </span>under<span class="w"> </span>tree<span class="w"> </span>wearing<span class="w"> </span>broad<span class="w"> </span>hat<span class="w"> </span>and<span class="w"> </span>flowing<span class="w"> </span>garment<span class="w"> </span>-v0.2<span class="w"> </span>-n6<span class="w"> </span>-S2878767194
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>invoke&gt;<span class="w"> </span>!history
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>...
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="o">[</span><span class="m">14</span><span class="o">]</span><span class="w"> </span>happy<span class="w"> </span>woman<span class="w"> </span>sitting<span class="w"> </span>under<span class="w"> </span>tree<span class="w"> </span>wearing<span class="w"> </span>broad<span class="w"> </span>hat<span class="w"> </span>and<span class="w"> </span>flowing<span class="w"> </span>garment
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="o">[</span><span class="m">15</span><span class="o">]</span><span class="w"> </span>beautiful<span class="w"> </span>woman<span class="w"> </span>sitting<span class="w"> </span>under<span class="w"> </span>tree<span class="w"> </span>wearing<span class="w"> </span>broad<span class="w"> </span>hat<span class="w"> </span>and<span class="w"> </span>flowing<span class="w"> </span>garment
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="o">[</span><span class="m">18</span><span class="o">]</span><span class="w"> </span>beautiful<span class="w"> </span>woman<span class="w"> </span>sitting<span class="w"> </span>under<span class="w"> </span>tree<span class="w"> </span>wearing<span class="w"> </span>broad<span class="w"> </span>hat<span class="w"> </span>and<span class="w"> </span>flowing<span class="w"> </span>garment<span class="w"> </span>-v0.2<span class="w"> </span>-n6
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="o">[</span><span class="m">20</span><span class="o">]</span><span class="w"> </span>watercolor<span class="w"> </span>of<span class="w"> </span>beautiful<span class="w"> </span>woman<span class="w"> </span>sitting<span class="w"> </span>under<span class="w"> </span>tree<span class="w"> </span>wearing<span class="w"> </span>broad<span class="w"> </span>hat<span class="w"> </span>and<span class="w"> </span>flowing<span class="w"> </span>garment<span class="w"> </span>-v0.2<span class="w"> </span>-n6<span class="w"> </span>-S2878767194
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="o">[</span><span class="m">21</span><span class="o">]</span><span class="w"> </span>surrealist<span class="w"> </span>painting<span class="w"> </span>of<span class="w"> </span>beautiful<span class="w"> </span>woman<span class="w"> </span>sitting<span class="w"> </span>under<span class="w"> </span>tree<span class="w"> </span>wearing<span class="w"> </span>broad<span class="w"> </span>hat<span class="w"> </span>and<span class="w"> </span>flowing<span class="w"> </span>garment<span class="w"> </span>-v0.2<span class="w"> </span>-n6<span class="w"> </span>-S2878767194
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>...
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a>invoke&gt;<span class="w"> </span>!20
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a>invoke&gt;<span class="w"> </span>watercolor<span class="w"> </span>of<span class="w"> </span>beautiful<span class="w"> </span>woman<span class="w"> </span>sitting<span class="w"> </span>under<span class="w"> </span>tree<span class="w"> </span>wearing<span class="w"> </span>broad<span class="w"> </span>hat<span class="w"> </span>and<span class="w"> </span>flowing<span class="w"> </span>garment<span class="w"> </span>-v0.2<span class="w"> </span>-n6<span class="w"> </span>-S2878767194
 </code></pre></div>
 </div>
 <h4 id="fetch"><code>!fetch</code><a class="headerlink" href="#fetch" title="Permanent link">#</a></h4>
@@ -2127,21 +2183,21 @@ used to generate the images, and save them to a file commands.txt for further
 processing.</p>
 <div class="admonition example">
 <p class="admonition-title">load the generation command for a single png file</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>invoke&gt;<span class="w"> </span>!fetch<span class="w"> </span><span class="m">0000015</span>.8929913.png
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="c1"># the script returns the next line, ready for editing and running:</span>
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>invoke&gt;<span class="w"> </span>a<span class="w"> </span>fantastic<span class="w"> </span>alien<span class="w"> </span>landscape<span class="w"> </span>-W<span class="w"> </span><span class="m">576</span><span class="w"> </span>-H<span class="w"> </span><span class="m">512</span><span class="w"> </span>-s<span class="w"> </span><span class="m">60</span><span class="w"> </span>-A<span class="w"> </span>plms<span class="w"> </span>-C<span class="w"> </span><span class="m">7</span>.5
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>invoke&gt;<span class="w"> </span>!fetch<span class="w"> </span><span class="m">0000015</span>.8929913.png
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="c1"># the script returns the next line, ready for editing and running:</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>invoke&gt;<span class="w"> </span>a<span class="w"> </span>fantastic<span class="w"> </span>alien<span class="w"> </span>landscape<span class="w"> </span>-W<span class="w"> </span><span class="m">576</span><span class="w"> </span>-H<span class="w"> </span><span class="m">512</span><span class="w"> </span>-s<span class="w"> </span><span class="m">60</span><span class="w"> </span>-A<span class="w"> </span>plms<span class="w"> </span>-C<span class="w"> </span><span class="m">7</span>.5
 </code></pre></div>
 </div>
 <div class="admonition example">
 <p class="admonition-title">fetch the generation commands from a batch of files and store them into <code>selected.txt</code></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>invoke&gt;<span class="w"> </span>!fetch<span class="w"> </span>outputs<span class="se">\s</span>elected-imgs<span class="se">\*</span>.png<span class="w"> </span>selected.txt
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>invoke&gt;<span class="w"> </span>!fetch<span class="w"> </span>outputs<span class="se">\s</span>elected-imgs<span class="se">\*</span>.png<span class="w"> </span>selected.txt
 </code></pre></div>
 </div>
 <h4 id="replay"><code>!replay</code><a class="headerlink" href="#replay" title="Permanent link">#</a></h4>
 <p>This command replays a text file generated by !fetch or created manually</p>
 <div class="admonition example">
 <p class="admonition-title">Example</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>invoke&gt;<span class="w"> </span>!replay<span class="w"> </span>outputs<span class="se">\s</span>elected-imgs<span class="se">\s</span>elected.txt
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>invoke&gt;<span class="w"> </span>!replay<span class="w"> </span>outputs<span class="se">\s</span>elected-imgs<span class="se">\s</span>elected.txt
 </code></pre></div>
 </div>
 <div class="admonition note">
@@ -2152,8 +2208,8 @@ not generated by InvokeAI.</p>
 <h4 id="search-search-string"><code>!search &lt;search string&gt;</code><a class="headerlink" href="#search-search-string" title="Permanent link">#</a></h4>
 <p>This is similar to !history but it only returns lines that contain
 <code>search string</code>. For example:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>invoke&gt;<span class="w"> </span>!search<span class="w"> </span>surreal
-<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="o">[</span><span class="m">21</span><span class="o">]</span><span class="w"> </span>surrealist<span class="w"> </span>painting<span class="w"> </span>of<span class="w"> </span>beautiful<span class="w"> </span>woman<span class="w"> </span>sitting<span class="w"> </span>under<span class="w"> </span>tree<span class="w"> </span>wearing<span class="w"> </span>broad<span class="w"> </span>hat<span class="w"> </span>and<span class="w"> </span>flowing<span class="w"> </span>garment<span class="w"> </span>-v0.2<span class="w"> </span>-n6<span class="w"> </span>-S2878767194
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>invoke&gt;<span class="w"> </span>!search<span class="w"> </span>surreal
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="o">[</span><span class="m">21</span><span class="o">]</span><span class="w"> </span>surrealist<span class="w"> </span>painting<span class="w"> </span>of<span class="w"> </span>beautiful<span class="w"> </span>woman<span class="w"> </span>sitting<span class="w"> </span>under<span class="w"> </span>tree<span class="w"> </span>wearing<span class="w"> </span>broad<span class="w"> </span>hat<span class="w"> </span>and<span class="w"> </span>flowing<span class="w"> </span>garment<span class="w"> </span>-v0.2<span class="w"> </span>-n6<span class="w"> </span>-S2878767194
 </code></pre></div>
 <h4 id="clear"><code>!clear</code><a class="headerlink" href="#clear" title="Permanent link">#</a></h4>
 <p>This clears the search history from memory and disk. Be advised that this
@@ -2177,7 +2233,7 @@ completion.</p>
 <p>Windows users can get similar, but more limited, functionality if they launch
 <code>invoke.py</code> with the <code>winpty</code> program and have the <code>pyreadline3</code> library
 installed:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="p">&gt;</span> winpty python scripts\invoke.py
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="p">&gt;</span> winpty python scripts\invoke.py
 </code></pre></div>
 <p>On the Mac and Linux platforms, when you exit invoke.py, the last 1000 lines of
 your command-line history will be saved. When you restart <code>invoke.py</code>, you can
@@ -2190,9 +2246,9 @@ completions will be presented to you. You can then type a little more, hit
 to complete pathnames for you. This is most handy for the <code>-I</code> (init image) and
 <code>-M</code> (init mask) paths. To initiate completion, start the path with a slash
 (<code>/</code>) or <code>./</code>. For example:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>invoke&gt;<span class="w"> </span>zebra<span class="w"> </span>with<span class="w"> </span>a<span class="w"> </span>mustache<span class="w"> </span>-I./test-pictures&lt;TAB&gt;
-<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>-I./test-pictures/Lincoln-and-Parrot.png<span class="w">  </span>-I./test-pictures/zebra.jpg<span class="w">        </span>-I./test-pictures/madonna.png
-<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>-I./test-pictures/bad-sketch.png<span class="w">          </span>-I./test-pictures/man_with_eagle/
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>invoke&gt;<span class="w"> </span>zebra<span class="w"> </span>with<span class="w"> </span>a<span class="w"> </span>mustache<span class="w"> </span>-I./test-pictures&lt;TAB&gt;
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>-I./test-pictures/Lincoln-and-Parrot.png<span class="w">  </span>-I./test-pictures/zebra.jpg<span class="w">        </span>-I./test-pictures/madonna.png
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>-I./test-pictures/bad-sketch.png<span class="w">          </span>-I./test-pictures/man_with_eagle/
 </code></pre></div>
 <p>You can then type <span class="keys"><kbd class="key-z">Z</kbd></span>, hit <span class="keys"><kbd class="key-tab">Tab</kbd></span> again, and it will autofill to <code>zebra.jpg</code>.</p>
 <p>More text completion features (such as autocompleting seeds) are on their way.</p>
@@ -2202,7 +2258,7 @@ to complete pathnames for you. This is most handy for the <code>-I</code> (init 
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">January 28, 2023</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">February 8, 2023</span>
       
         <br>
         Created:

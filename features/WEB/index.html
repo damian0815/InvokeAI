@@ -644,8 +644,8 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#quick-guided-walkthrough-of-the-webguis-features" class="md-nav__link">
-    Quick guided walkthrough of the WebGUI's features
+  <a href="#quick-guided-walkthrough-of-the-webuis-features" class="md-nav__link">
+    Quick guided walkthrough of the WebUI's features
   </a>
   
 </li>
@@ -695,6 +695,13 @@
           <li class="md-nav__item">
   <a href="#image-to-image" class="md-nav__link">
     Image to Image
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#unified-canvas" class="md-nav__link">
+    Unified Canvas
   </a>
   
 </li>
@@ -855,10 +862,43 @@
   
   
   
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_2" type="checkbox" id="__nav_4_2" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_4_2">
+          Deprecated
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Deprecated" data-md-level="2">
+        <label class="md-nav__title" for="__nav_4_2">
+          <span class="md-nav__icon md-icon"></span>
+          Deprecated
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
     <li class="md-nav__item">
-      <a href="../../help/TROUBLESHOOT/" class="md-nav__link">
+      <a href="../../help/deprecated/TROUBLESHOOT/" class="md-nav__link">
         F.A.Q.
       </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
     </li>
   
 
@@ -946,6 +986,20 @@
   
   
     <li class="md-nav__item">
+      <a href="../../installation/030_INSTALL_CUDA_AND_ROCM/" class="md-nav__link">
+        NVIDIA Cuda / AMD ROCm
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../installation/040_INSTALL_DOCKER/" class="md-nav__link">
         Installing with Docker
       </a>
@@ -1005,18 +1059,18 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_8" type="checkbox" id="__nav_5_8" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_9" type="checkbox" id="__nav_5_9" >
       
       
       
       
-        <label class="md-nav__link" for="__nav_5_8">
+        <label class="md-nav__link" for="__nav_5_9">
           Developers documentation
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" aria-label="Developers documentation" data-md-level="2">
-        <label class="md-nav__title" for="__nav_5_8">
+        <label class="md-nav__title" for="__nav_5_9">
           <span class="md-nav__icon md-icon"></span>
           Developers documentation
         </label>
@@ -1052,18 +1106,18 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_9" type="checkbox" id="__nav_5_9" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_10" type="checkbox" id="__nav_5_10" >
       
       
       
       
-        <label class="md-nav__link" for="__nav_5_9">
+        <label class="md-nav__link" for="__nav_5_10">
           Deprecated documentation
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" aria-label="Deprecated documentation" data-md-level="2">
-        <label class="md-nav__title" for="__nav_5_9">
+        <label class="md-nav__title" for="__nav_5_10">
           <span class="md-nav__icon md-icon"></span>
           Deprecated documentation
         </label>
@@ -1264,22 +1318,27 @@
 
 <h1 id="invokeai-web-server"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16.36 14c.08-.66.14-1.32.14-2 0-.68-.06-1.34-.14-2h3.38c.16.64.26 1.31.26 2s-.1 1.36-.26 2m-5.15 5.56c.6-1.11 1.06-2.31 1.38-3.56h2.95a8.03 8.03 0 0 1-4.33 3.56M14.34 14H9.66c-.1-.66-.16-1.32-.16-2 0-.68.06-1.35.16-2h4.68c.09.65.16 1.32.16 2 0 .68-.07 1.34-.16 2M12 19.96c-.83-1.2-1.5-2.53-1.91-3.96h3.82c-.41 1.43-1.08 2.76-1.91 3.96M8 8H5.08A7.923 7.923 0 0 1 9.4 4.44C8.8 5.55 8.35 6.75 8 8m-2.92 8H8c.35 1.25.8 2.45 1.4 3.56A8.008 8.008 0 0 1 5.08 16m-.82-2C4.1 13.36 4 12.69 4 12s.1-1.36.26-2h3.38c-.08.66-.14 1.32-.14 2 0 .68.06 1.34.14 2M12 4.03c.83 1.2 1.5 2.54 1.91 3.97h-3.82c.41-1.43 1.08-2.77 1.91-3.97M18.92 8h-2.95a15.65 15.65 0 0 0-1.38-3.56c1.84.63 3.37 1.9 4.33 3.56M12 2C6.47 2 2 6.5 2 12a10 10 0 0 0 10 10 10 10 0 0 0 10-10A10 10 0 0 0 12 2Z"/></svg></span> InvokeAI Web Server<a class="headerlink" href="#invokeai-web-server" title="Permanent link">#</a></h1>
 <p>As of version 2.0.0, this distribution comes with a full-featured web server
-(see screenshot). To use it, run the <code>invoke.py</code> script by adding the <code>--web</code>
-option:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="o">(</span>invokeai<span class="o">)</span><span class="w"> </span>~/InvokeAI$<span class="w"> </span>python3<span class="w"> </span>scripts/invoke.py<span class="w"> </span>--web
+(see screenshot).</p>
+<p>To use it, launch the <code>invoke.sh</code>/<code>invoke.bat</code> script and select
+option (2). Alternatively, with the InvokeAI environment active, run
+the <code>invokeai</code> script by adding the <code>--web</code> option:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>invokeai<span class="w"> </span>--web
 </code></pre></div>
 <p>You can then connect to the server by pointing your web browser at
 <a href="http://localhost:9090">http://localhost:9090</a>. To reach the server from a different machine on your LAN,
 you may launch the web server with the <code>--host</code> argument and either the IP
 address of the host you are running it on, or the wildcard <code>0.0.0.0</code>. For
 example:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="o">(</span>invokeai<span class="o">)</span><span class="w"> </span>~/InvokeAI$<span class="w"> </span>python3<span class="w"> </span>scripts/invoke.py<span class="w"> </span>--web<span class="w"> </span>--host<span class="w"> </span><span class="m">0</span>.0.0.0
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>invoke.sh<span class="w"> </span>--host<span class="w"> </span><span class="m">0</span>.0.0.0
 </code></pre></div>
-<h2 id="quick-guided-walkthrough-of-the-webguis-features">Quick guided walkthrough of the WebGUI's features<a class="headerlink" href="#quick-guided-walkthrough-of-the-webguis-features" title="Permanent link">#</a></h2>
-<p>While most of the WebGUI's features are intuitive, here is a guided walkthrough
+<p>or</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>invokeai<span class="w"> </span>--web<span class="w"> </span>--host<span class="w"> </span><span class="m">0</span>.0.0.0
+</code></pre></div>
+<h2 id="quick-guided-walkthrough-of-the-webuis-features">Quick guided walkthrough of the WebUI's features<a class="headerlink" href="#quick-guided-walkthrough-of-the-webuis-features" title="Permanent link">#</a></h2>
+<p>While most of the WebUI's features are intuitive, here is a guided walkthrough
 through its various components.</p>
 <p><img alt="Invoke Web Server - Major Components" src="../../assets/invoke-web-server-1.png" width="640px" /></p>
-<p>The screenshot above shows the Text to Image tab of the WebGUI. There are three
+<p>The screenshot above shows the Text to Image tab of the WebUI. There are three
 main sections:</p>
 <ol>
 <li>
@@ -1314,30 +1373,32 @@ for performing different types of operations.</p>
 <li>Text to Image - generate images from text</li>
 <li>Image to Image - from an uploaded starting image (drawing or photograph)
    generate a new one, modified by the text prompt</li>
-<li>Inpainting (pending) - Interactively erase portions of a starting image and
-   have the AI fill in the erased region from a text prompt.</li>
-<li>Outpainting (pending) - Interactively add blank space to the borders of a
-   starting image and fill in the background from a text prompt.</li>
-<li>Postprocessing (pending) - Interactively postprocess generated images using a
-   variety of filters.</li>
+<li>Unified Canvas - Interactively combine multiple images, extend them
+   with outpainting,and modify interior portions of the image with
+   inpainting, erase portions of a starting image and have the AI fill in
+   the erased region from a text prompt.</li>
+<li>Workflow Management (not yet implemented) - this panel will allow you to create
+   pipelines of common operations and combine them into workflows.</li>
+<li>Training (not yet implemented) - this panel will provide an interface to <a href="../TEXTUAL_INVERSION/">textual
+   inversion training</a> and fine tuning.</li>
 </ol>
 <p>The inpainting, outpainting and postprocessing tabs are currently in
 development. However, limited versions of their features can already be accessed
 through the Text to Image and Image to Image tabs.</p>
 <h2 id="walkthrough">Walkthrough<a class="headerlink" href="#walkthrough" title="Permanent link">#</a></h2>
-<p>The following walkthrough will exercise most (but not all) of the WebGUI's
+<p>The following walkthrough will exercise most (but not all) of the WebUI's
 feature set.</p>
 <h3 id="text-to-image">Text to Image<a class="headerlink" href="#text-to-image" title="Permanent link">#</a></h3>
 <ol>
 <li>
-<p>Launch the WebGUI using <code>python scripts/invoke.py --web</code> and connect to it
+<p>Launch the WebUI using <code>python scripts/invoke.py --web</code> and connect to it
    with your browser by accessing <code>http://localhost:9090</code>. If the browser and
    server are running on different machines on your LAN, add the option
    <code>--host 0.0.0.0</code> to the launch command line and connect to the machine
    hosting the web server using its IP address or domain name.</p>
 </li>
 <li>
-<p>If all goes well, the WebGUI should come up and you'll see a green
+<p>If all goes well, the WebUI should come up and you'll see a green
    <code>connected</code> message on the upper right.</p>
 </li>
 </ol>
@@ -1483,7 +1544,7 @@ walkthrough.</p>
 <li>
 <p>Drag-and-drop the Lincoln-and-Parrot image into the Image panel, or click
     the blank area to get an upload dialog. The image will load into an area
-    marked <em>Initial Image</em>. (The WebGUI will also load the most
+    marked <em>Initial Image</em>. (The WebUI will also load the most
     recently-generated image from the gallery into a section on the left, but
     this image will be replaced in the next step.)</p>
 </li>
@@ -1533,11 +1594,13 @@ the parrot will be replaced, leaving the rest of the original image intact:</p>
 above the central image panel. The screenshot below shows where the "use as
 initial image" icons are located.</p>
 <p><img alt="Invoke Web Server - Use as Image Links" src="../../assets/invoke-web-server-9.png" width="640px" /></p>
+<h3 id="unified-canvas">Unified Canvas<a class="headerlink" href="#unified-canvas" title="Permanent link">#</a></h3>
+<p>See the <a href="../UNIFIED_CANVAS/">Unified Canvas Guide</a></p>
 <h2 id="parting-remarks">Parting remarks<a class="headerlink" href="#parting-remarks" title="Permanent link">#</a></h2>
 <p>This concludes the walkthrough, but there are several more features that you can
 explore. Please check out the <a href="../CLI/">Command Line Interface</a> documentation for
 further explanation of the advanced features that were not covered here.</p>
-<p>The WebGUI is only rapid development. Check back regularly for updates!</p>
+<p>The WebUI is only rapid development. Check back regularly for updates!</p>
 <h2 id="reference">Reference<a class="headerlink" href="#reference" title="Permanent link">#</a></h2>
 <h3 id="additional-options">Additional Options<a class="headerlink" href="#additional-options" title="Permanent link">#</a></h3>
 <table>
@@ -1638,7 +1701,7 @@ cheerleader and added tooltips/docs.</p>
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">November 30, 2022</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">February 8, 2023</span>
       
         <br>
         Created:

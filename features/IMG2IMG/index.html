@@ -490,8 +490,8 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#img2img" class="md-nav__link">
-    img2img
+  <a href="#basic-usage" class="md-nav__link">
+    Basic Usage
   </a>
   
 </li>
@@ -753,10 +753,43 @@
   
   
   
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_2" type="checkbox" id="__nav_4_2" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_4_2">
+          Deprecated
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Deprecated" data-md-level="2">
+        <label class="md-nav__title" for="__nav_4_2">
+          <span class="md-nav__icon md-icon"></span>
+          Deprecated
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
     <li class="md-nav__item">
-      <a href="../../help/TROUBLESHOOT/" class="md-nav__link">
+      <a href="../../help/deprecated/TROUBLESHOOT/" class="md-nav__link">
         F.A.Q.
       </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
     </li>
   
 
@@ -844,6 +877,20 @@
   
   
     <li class="md-nav__item">
+      <a href="../../installation/030_INSTALL_CUDA_AND_ROCM/" class="md-nav__link">
+        NVIDIA Cuda / AMD ROCm
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../installation/040_INSTALL_DOCKER/" class="md-nav__link">
         Installing with Docker
       </a>
@@ -903,18 +950,18 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_8" type="checkbox" id="__nav_5_8" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_9" type="checkbox" id="__nav_5_9" >
       
       
       
       
-        <label class="md-nav__link" for="__nav_5_8">
+        <label class="md-nav__link" for="__nav_5_9">
           Developers documentation
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" aria-label="Developers documentation" data-md-level="2">
-        <label class="md-nav__title" for="__nav_5_8">
+        <label class="md-nav__title" for="__nav_5_9">
           <span class="md-nav__icon md-icon"></span>
           Developers documentation
         </label>
@@ -950,18 +997,18 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_9" type="checkbox" id="__nav_5_9" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_10" type="checkbox" id="__nav_5_10" >
       
       
       
       
-        <label class="md-nav__link" for="__nav_5_9">
+        <label class="md-nav__link" for="__nav_5_10">
           Deprecated documentation
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" aria-label="Deprecated documentation" data-md-level="2">
-        <label class="md-nav__title" for="__nav_5_9">
+        <label class="md-nav__title" for="__nav_5_10">
           <span class="md-nav__icon md-icon"></span>
           Deprecated documentation
         </label>
@@ -1161,12 +1208,20 @@
 
 
 <h1 id="image-to-image"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M22 16V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2m-11-4 2.03 2.71L16 11l4 5H8M2 6v14a2 2 0 0 0 2 2h14v-2H4V6"/></svg></span> Image-to-Image<a class="headerlink" href="#image-to-image" title="Permanent link">#</a></h1>
-<h2 id="img2img"><code>img2img</code><a class="headerlink" href="#img2img" title="Permanent link">#</a></h2>
-<p>This script also provides an <code>img2img</code> feature that lets you seed your creations
-with an initial drawing or photo. This is a really cool feature that tells
-stable diffusion to build the prompt on top of the image you provide, preserving
-the original's basic shape and layout. To use it, provide the <code>--init_img</code>
-option as shown here:</p>
+<p>Both the Web and command-line interfaces provide an "img2img" feature
+that lets you seed your creations with an initial drawing or
+photo. This is a really cool feature that tells stable diffusion to
+build the prompt on top of the image you provide, preserving the
+original's basic shape and layout.</p>
+<p>See the <a href="../WEB/">WebUI Guide</a> for a walkthrough of the img2img feature
+in the InvokeAI web server. This document describes how to use img2img
+in the command-line tool.</p>
+<h2 id="basic-usage">Basic Usage<a class="headerlink" href="#basic-usage" title="Permanent link">#</a></h2>
+<p>Launch the command-line client by launching <code>invoke.sh</code>/<code>invoke.bat</code>
+and choosing option (1). Alternative, activate the InvokeAI
+environment and issue the command <code>invokeai</code>.</p>
+<p>Once the <code>invoke&gt;</code> prompt appears, you can start an img2img render by
+pointing to a seed file with the <code>-I</code> option as shown here:</p>
 <div class="admonition example">
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>tree on a hill with a river, nature photograph, national geographic -I./test-pictures/tree-and-river-sketch.png -f 0.85
 </code></pre></div>
@@ -1381,7 +1436,7 @@ things get interpreted slightly differently at every step.</p>
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">December 2, 2022</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">February 8, 2023</span>
       
         <br>
         Created:

@@ -683,10 +683,43 @@
   
   
   
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_2" type="checkbox" id="__nav_4_2" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_4_2">
+          Deprecated
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Deprecated" data-md-level="2">
+        <label class="md-nav__title" for="__nav_4_2">
+          <span class="md-nav__icon md-icon"></span>
+          Deprecated
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
     <li class="md-nav__item">
-      <a href="../../help/TROUBLESHOOT/" class="md-nav__link">
+      <a href="../../help/deprecated/TROUBLESHOOT/" class="md-nav__link">
         F.A.Q.
       </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
     </li>
   
 
@@ -800,12 +833,60 @@
     Introduction
   </a>
   
+    <nav class="md-nav" aria-label="Introduction">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    Prerequisites
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#installation-walkthrough" class="md-nav__link">
+    Installation Walkthrough
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#developer-install" class="md-nav__link">
+    Developer Install
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#unsupported-conda-install" class="md-nav__link">
+    Unsupported Conda Install
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
   
 </nav>
       
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../030_INSTALL_CUDA_AND_ROCM/" class="md-nav__link">
+        NVIDIA Cuda / AMD ROCm
+      </a>
     </li>
   
 
@@ -876,18 +957,18 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_8" type="checkbox" id="__nav_5_8" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_9" type="checkbox" id="__nav_5_9" >
       
       
       
       
-        <label class="md-nav__link" for="__nav_5_8">
+        <label class="md-nav__link" for="__nav_5_9">
           Developers documentation
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" aria-label="Developers documentation" data-md-level="2">
-        <label class="md-nav__title" for="__nav_5_8">
+        <label class="md-nav__title" for="__nav_5_9">
           <span class="md-nav__icon md-icon"></span>
           Developers documentation
         </label>
@@ -923,18 +1004,18 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_9" type="checkbox" id="__nav_5_9" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_10" type="checkbox" id="__nav_5_10" >
       
       
       
       
-        <label class="md-nav__link" for="__nav_5_9">
+        <label class="md-nav__link" for="__nav_5_10">
           Deprecated documentation
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" aria-label="Deprecated documentation" data-md-level="2">
-        <label class="md-nav__title" for="__nav_5_9">
+        <label class="md-nav__title" for="__nav_5_10">
           <span class="md-nav__icon md-icon"></span>
           Deprecated documentation
         </label>
@@ -1141,15 +1222,56 @@
 <p><strong>python experience is mandatory</strong></p>
 </div>
 <h2 id="introduction">Introduction<a class="headerlink" href="#introduction" title="Permanent link">#</a></h2>
-<p>!!! tip As of InvokeAI v2.3.0 installation using the <code>conda</code> package manager
-is no longer being supported. It will likely still work, but we are not testing
-this installation method.</p>
+<div class="admonition tip">
+<p class="admonition-title">Conda</p>
+<p>As of InvokeAI v2.3.0 installation using the <code>conda</code> package manager is no longer being supported. It will likely still work, but we are not testing this installation method.</p>
+</div>
 <p>On Windows systems, you are encouraged to install and use the
 <a href="https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows?view=powershell-7.3">PowerShell</a>,
-which provides compatibility with Linux and Mac shells and nice features such as
-command-line completion.</p>
-<p>To install InvokeAI with virtual environments and the PIP package manager,
-please follow these steps:</p>
+which provides compatibility with Linux and Mac shells and nice
+features such as command-line completion.</p>
+<h3 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">#</a></h3>
+<p>Before you start, make sure you have the following preqrequisites
+installed.  These are described in more detail in <a href="../010_INSTALL_AUTOMATED/">Automated
+Installation</a>, and in many cases will
+already be installed (if, for example, you have used your system for
+gaming):</p>
+<ul>
+<li>
+<p><strong>Python</strong></p>
+<p>version 3.9 or 3.10 (3.11 is not recommended).</p>
+</li>
+<li>
+<p><strong>CUDA Tools</strong></p>
+<p>For those with <em>NVidia GPUs</em>, you will need to
+install the <a href="../070_INSTALL_XFORMERS/">CUDA toolkit and optionally the XFormers library</a>.</p>
+</li>
+<li>
+<p><strong>ROCm Tools</strong></p>
+<p>For <em>Linux users with AMD GPUs</em>, you will need
+to install the <a href="../030_INSTALL_CUDA_AND_ROCM/">ROCm toolkit</a>. Note that
+InvokeAI does not support AMD GPUs on Windows systems due to
+lack of a Windows ROCm library.</p>
+</li>
+<li>
+<p><strong>Visual C++ Libraries</strong></p>
+<p><em>Windows users</em> must install the free
+<a href="https://learn.microsoft.com/en-US/cpp/windows/latest-supported-vc-redist?view=msvc-170">Visual C++ libraries from Microsoft</a></p>
+</li>
+<li>
+<p><strong>The Xcode command line tools</strong></p>
+<p>for <em>Macintosh users</em>. Instructions are available at
+<a href="https://www.freecodecamp.org/news/install-xcode-command-line-tools/">Free Code Camp</a></p>
+<ul>
+<li><em>Macintosh users</em> may also need to run the <code>Install Certificates</code> command
+  if model downloads give lots of certificate errors. Run:
+  <code>/Applications/Python\ 3.10/Install\ Certificates.command</code></li>
+</ul>
+</li>
+</ul>
+<h3 id="installation-walkthrough">Installation Walkthrough<a class="headerlink" href="#installation-walkthrough" title="Permanent link">#</a></h3>
+<p>To install InvokeAI with virtual environments and the PIP package
+manager, please follow these steps:</p>
 <ol>
 <li>
 <p>Please make sure you are using Python 3.9 or 3.10. The rest of the install
@@ -1158,62 +1280,118 @@ please follow these steps:</p>
 </code></pre></div>
 </li>
 <li>
-<p>Clone the <a href="https://github.com/invoke-ai/InvokeAI">InvokeAI</a> source code from
-    GitHub:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/invoke-ai/InvokeAI.git
+<p>Create a directory to contain your InvokeAI library, configuration
+    files, and models. This is known as the "runtime" or "root"
+    directory, and often lives in your home directory under the name <code>invokeai</code>.</p>
+<p>Please keep in mind the disk space requirements - you will need at
+least 20GB for the models and the virtual environment.  From now
+on we will refer to this directory as <code>INVOKEAI_ROOT</code>. For convenience,
+the steps below create a shell variable of that name which contains the
+path to <code>HOME/invokeai</code>.</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Linux/Mac</label><label for="__tabbed_1_2">Windows (Powershell)</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">INVOKEAI_ROOT</span><span class="o">=</span>~/invokeai
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>mkdir<span class="w"> </span><span class="nv">$INVOKEAI_ROOT</span>
 </code></pre></div>
-<p>This will create InvokeAI folder where you will follow the rest of the
-steps.</p>
-</li>
-<li>
-<p>Create a directory of to contain your InvokeAI installation (known as the "runtime"
-    or "root" directory). This is where your models, configs, and outputs will live
-    by default. Please keep in mind the disk space requirements - you will need at
-    least 18GB (as of this writing) for the models and the virtual environment.
-    From now on we will refer to this directory as <code>INVOKEAI_ROOT</code>. This keeps the
-    runtime directory separate from the source code and aids in updating.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">INVOKEAI_ROOT</span><span class="o">=</span><span class="s2">&quot;~/invokeai&quot;</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>mkdir<span class="w"> </span><span class="si">${</span><span class="nv">INVOKEAI_ROOT</span><span class="si">}</span>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>Set-Variable<span class="w"> </span>-Name<span class="w"> </span>INVOKEAI_ROOT<span class="w"> </span>-Value<span class="w"> </span><span class="nv">$Home</span>/invokeai
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>mkdir<span class="w"> </span><span class="nv">$INVOKEAI_ROOT</span>
 </code></pre></div>
-</li>
-<li>
-<p>From within the InvokeAI top-level directory, create and activate a virtual
-    environment named <code>.venv</code> and prompt displaying <code>InvokeAI</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>python<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span><span class="si">${</span><span class="nv">INVOKEAI_ROOT</span><span class="si">}</span>/.venv<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span>--prompt<span class="w"> </span>invokeai<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span>--upgrade-deps<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span>--copies
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="nb">source</span><span class="w"> </span><span class="si">${</span><span class="nv">INVOKEAI_ROOT</span><span class="si">}</span>/.venv/bin/activate
-</code></pre></div>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>You <strong>may</strong> create your virtual environment anywhere on the filesystem.
-But IF you choose a location that is <em>not</em> inside the <code>$INVOKEAI_ROOT</code> directory,
-then you must set the <code>INVOKEAI_ROOT</code> environment variable in your shell environment,
-for example, by editing <code>~/.bashrc</code> or <code>~/.zshrc</code> files, or setting the Windows environment
-variable. Refer to your operating system / shell documentation for the correct way of doing so.</p>
+</div>
+</div>
 </div>
 </li>
 <li>
-<p>Make sure that pip is installed in your virtual environment an up to date:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--upgrade<span class="w"> </span>pip
+<p>Enter the root (invokeai) directory and create a virtual Python
+   environment within it named <code>.venv</code>. If the command <code>python</code>
+   doesn't work, try <code>python3</code>. Note that while you may create the
+   virtual environment anywhere in the file system, we recommend that
+   you create it within the root directory as shown here. This makes
+   it possible for the InvokeAI applications to find the model data
+   and configuration. If you do not choose to install the virtual
+   environment inside the root directory, then you <strong>must</strong> set the
+   <code>INVOKEAI_ROOT</code> environment variable in your shell environment, for
+   example, by editing <code>~/.bashrc</code> or <code>~/.zshrc</code> files, or setting the
+   Windows environment variable using the Advanced System Settings dialogue.
+   Refer to your operating system documentation for details.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>cd $INVOKEAI_ROOT
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>python -m venv .venv --prompt InvokeAI
 </code></pre></div>
 </li>
 <li>
-<p>Install Package</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>pip<span class="w"> </span>install<span class="w"> </span>--use-pep517<span class="w"> </span>.
+<p>Activate the new environment:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">Linux/Mac</label><label for="__tabbed_2_2">Windows</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nb">source</span><span class="w"> </span>.venv/bin/activate
 </code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>.venv\Scripts\activate
+</code></pre></div>
+<p>If you get a permissions error at this point, run this command and try again</p>
+<p><code>Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser</code></p>
+</div>
+</div>
+</div>
+<p>The command-line prompt should change to to show <code>(InvokeAI)</code> at the
+beginning of the prompt. Note that all the following steps should be
+run while inside the INVOKEAI_ROOT directory</p>
+</li>
+<li>
+<p>Make sure that pip is installed in your virtual environment and up to date:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--upgrade<span class="w"> </span>pip
+</code></pre></div>
+</li>
+<li>
+<p>Install the InvokeAI Package. The <code>--extra-index-url</code> option is used to select among
+   CUDA, ROCm and CPU/MPS drivers as shown below:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="3:4"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio" /><input id="__tabbed_3_2" name="__tabbed_3" type="radio" /><input id="__tabbed_3_3" name="__tabbed_3" type="radio" /><input id="__tabbed_3_4" name="__tabbed_3" type="radio" /><div class="tabbed-labels"><label for="__tabbed_3_1">CUDA (NVidia)</label><label for="__tabbed_3_2">ROCm (AMD)</label><label for="__tabbed_3_3">CPU (Intel Macs &amp; non-GPU systems)</label><label for="__tabbed_3_4">MPS (M1 and M2 Macs)</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>pip<span class="w"> </span>install<span class="w"> </span>InvokeAI<span class="o">[</span>xformers<span class="o">]</span><span class="w"> </span>--use-pep517<span class="w"> </span>--extra-index-url<span class="w"> </span>https://download.pytorch.org/whl/cu117
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>pip<span class="w"> </span>install<span class="w"> </span>InvokeAI<span class="w"> </span>--use-pep517<span class="w"> </span>--extra-index-url<span class="w"> </span>https://download.pytorch.org/whl/rocm5.2
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>pip<span class="w"> </span>install<span class="w"> </span>InvokeAI<span class="w"> </span>--use-pep517<span class="w"> </span>--extra-index-url<span class="w"> </span>https://download.pytorch.org/whl/cpu
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>pip<span class="w"> </span>install<span class="w"> </span>InvokeAI<span class="w"> </span>--use-pep517
+</code></pre></div>
+</div>
+</div>
+</div>
+</li>
+<li>
 <p>Deactivate and reactivate your runtime directory so that the invokeai-specific commands
-become available in the environment</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>deactivate &amp;&amp; source ${INVOKEAI_ROOT}/.venv/bin/activate
+    become available in the environment</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="4:2"><input checked="checked" id="__tabbed_4_1" name="__tabbed_4" type="radio" /><input id="__tabbed_4_2" name="__tabbed_4" type="radio" /><div class="tabbed-labels"><label for="__tabbed_4_1">Linux/Macintosh</label><label for="__tabbed_4_2">Windows</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>deactivate<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">source</span><span class="w"> </span>.venv/bin/activate
 </code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>deactivate
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>.venv\Scripts\activate
+</code></pre></div>
+</div>
+</div>
+</div>
 </li>
 <li>
 <p>Set up the runtime directory</p>
 <p>In this step you will initialize your runtime directory with the downloaded
 models, model config files, directory for textual inversion embeddings, and
 your outputs.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>invokeai-configure<span class="w"> </span>--root<span class="w"> </span><span class="si">${</span><span class="nv">INVOKEAI_ROOT</span><span class="si">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>invokeai-configure
 </code></pre></div>
 <p>The script <code>invokeai-configure</code> will interactively guide you through the
 process of downloading and installing the weights files needed for InvokeAI.
@@ -1229,31 +1407,31 @@ the <code>invokeai</code> environment is active and if not, repeat step 5.</p>
 <p>If you have already downloaded the weights file(s) for another Stable
 Diffusion distribution, you may skip this step (by selecting "skip" when
 prompted) and configure InvokeAI to use the previously-downloaded files. The
-process for this is described in <a href="../050_INSTALLING_MODELS/">here</a>.</p>
+process for this is described in <a href="../050_INSTALLING_MODELS/">Installing Models</a>.</p>
 </div>
 </li>
 <li>
 <p>Run the command-line- or the web- interface:</p>
-<p>Activate the environment (with <code>source .venv/bin/activate</code>), and then run
-the script <code>invokeai</code>. If you selected a non-default location for the
-runtime directory, please specify the path with the <code>--root_dir</code> option
-(abbreviated below as <code>--root</code>):</p>
+<p>From within INVOKEAI_ROOT, activate the environment
+(with <code>source .venv/bin/activate</code> or <code>.venv\scripts\activate), and then run
+the script</code>invokeai<code>. If the virtual environment you selected is NOT inside
+INVOKEAI_ROOT, then you must specify the path to the root directory by adding</code>--root_dir \path\to\invokeai` to the commands below:</p>
 <div class="admonition example">
 <div class="admonition warning">
-<p class="admonition-title">Make sure that the virtual environment is activated, which should create <code>(invokeai)</code> in front of your prompt!</p>
+<p class="admonition-title">Make sure that the virtual environment is activated, which should create <code>(.venv)</code> in front of your prompt!</p>
 </div>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">CLI</label><label for="__tabbed_1_2">local Webserver</label><label for="__tabbed_1_3">Public Webserver</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="5:3"><input checked="checked" id="__tabbed_5_1" name="__tabbed_5" type="radio" /><input id="__tabbed_5_2" name="__tabbed_5" type="radio" /><input id="__tabbed_5_3" name="__tabbed_5" type="radio" /><div class="tabbed-labels"><label for="__tabbed_5_1">CLI</label><label for="__tabbed_5_2">local Webserver</label><label for="__tabbed_5_3">Public Webserver</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>invokeai<span class="w"> </span>--root<span class="w"> </span>~/invokeai
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>invokeai
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>invokeai<span class="w"> </span>--web<span class="w"> </span>--root<span class="w"> </span>~/invokeai
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>invokeai<span class="w"> </span>--web
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>invokeai<span class="w"> </span>--web<span class="w"> </span>--host<span class="w"> </span><span class="m">0</span>.0.0.0<span class="w"> </span>--root<span class="w"> </span>~/invokeai
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>invokeai<span class="w"> </span>--web<span class="w"> </span>--host<span class="w"> </span><span class="m">0</span>.0.0.0
 </code></pre></div>
 </div>
 </div>
@@ -1263,18 +1441,17 @@ runtime directory, please specify the path with the <code>--root_dir</code> opti
 </div>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>You can permanently set the location of the runtime directory by setting the environment variable <code>INVOKEAI_ROOT</code> to the path of the directory. As mentioned previously, this is
-<strong>required</strong> if your virtual environment is located outside of your runtime directory.</p>
+<p>You can permanently set the location of the runtime directory
+by setting the environment variable <code>INVOKEAI_ROOT</code> to the
+path of the directory. As mentioned previously, this is
+<em>highly recommended*</em> if your virtual environment is located outside of
+your runtime directory.</p>
 </div>
 </li>
 <li>
 <p>Render away!</p>
 <p>Browse the <a href="../../features/CLI/">features</a> section to learn about all the
 things you can do with InvokeAI.</p>
-<p>Note that some GPUs are slow to warm up. In particular, when using an AMD
-card with the ROCm driver, you may have to wait for over a minute the first
-time you try to generate an image. Fortunately, after the warm-up period
-rendering will be fast.</p>
 </li>
 <li>
 <p>Subsequently, to relaunch the script, activate the virtual environment, and
@@ -1282,17 +1459,104 @@ rendering will be fast.</p>
     environment you will most likeley receive a <code>command not found</code> error.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>Do not move the runtime directory after installation. The virtual environment has absolute paths in it that get confused if the directory is moved.</p>
+<p>Do not move the runtime directory after installation. The virtual environment will get confused if the directory is moved.</p>
 </div>
 </li>
+<li>
+<p>Other scripts</p>
+<p>The <a href="../../features/TEXTUAL_INVERSION/">Textual Inversion</a> script can be launched with the command:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>invokeai-ti<span class="w"> </span>--gui
+</code></pre></div>
+<p>Similarly, the <a href="../../features/MODEL_MERGING/">Model Merging</a> script can be launched with the command:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>invokeai-merge<span class="w"> </span>--gui
+</code></pre></div>
+<p>Leave off the <code>--gui</code> option to run the script using command-line arguments. Pass the <code>--help</code> argument
+to get usage instructions.</p>
+</li>
 </ol>
+<h3 id="developer-install">Developer Install<a class="headerlink" href="#developer-install" title="Permanent link">#</a></h3>
+<p>If you have an interest in how InvokeAI works, or you would like to
+add features or bugfixes, you are encouraged to install the source
+code for InvokeAI. For this to work, you will need to install the
+<code>git</code> source code management program. If it is not already installed
+on your system, please see the <a href="https://github.com/git-guides/install-git">Git Installation
+Guide</a></p>
+<ol>
+<li>
+<p>From the command line, run this command:
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/invoke-ai/InvokeAI.git
+</code></pre></div></p>
+<p>This will create a directory named <code>InvokeAI</code> and populate it with the
+full source code from the InvokeAI repository.</p>
+</li>
+<li>
+<p>Activate the InvokeAI virtual environment as per step (4) of the manual
+installation protocol (important!)</p>
+</li>
+<li>
+<p>Enter the InvokeAI repository directory and run one of these
+   commands, based on your GPU:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="6:4"><input checked="checked" id="__tabbed_6_1" name="__tabbed_6" type="radio" /><input id="__tabbed_6_2" name="__tabbed_6" type="radio" /><input id="__tabbed_6_3" name="__tabbed_6" type="radio" /><input id="__tabbed_6_4" name="__tabbed_6" type="radio" /><div class="tabbed-labels"><label for="__tabbed_6_1">CUDA (NVidia)</label><label for="__tabbed_6_2">ROCm (AMD)</label><label for="__tabbed_6_3">CPU (Intel Macs &amp; non-GPU systems)</label><label for="__tabbed_6_4">MPS (M1 and M2 Macs)</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.<span class="o">[</span>xformers<span class="o">]</span><span class="w"> </span>--use-pep517<span class="w"> </span>--extra-index-url<span class="w"> </span>https://download.pytorch.org/whl/cu117
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.<span class="w"> </span>--use-pep517<span class="w"> </span>--extra-index-url<span class="w"> </span>https://download.pytorch.org/whl/rocm5.2
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.<span class="w"> </span>--use-pep517<span class="w"> </span>--extra-index-url<span class="w"> </span>https://download.pytorch.org/whl/cpu
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.<span class="w"> </span>--use-pep517
+</code></pre></div>
+</div>
+</div>
+</div>
+<p>Be sure to pass <code>-e</code> (for an editable install) and don't forget the
+dot ("."). It is part of the command.</p>
+<p>You can now run <code>invokeai</code> and its related commands. The code will be
+read from the repository, so that you can edit the .py source files
+and watch the code's behavior change.</p>
+</li>
+<li>
+<p>If you wish to contribute to the InvokeAI project, you are
+    encouraged to establish a GitHub account and "fork"
+    <a href="https://github.com/invoke-ai/InvokeAI">https://github.com/invoke-ai/InvokeAI</a> into your own copy of the
+    repository. You can then use GitHub functions to create and submit
+    pull requests to contribute improvements to the project.</p>
+<p>Please see <a href="../../#contributing">Contributing</a> for hints
+on getting started.</p>
+</li>
+</ol>
+<h3 id="unsupported-conda-install">Unsupported Conda Install<a class="headerlink" href="#unsupported-conda-install" title="Permanent link">#</a></h3>
+<p>Congratulations, you found the "secret" Conda installation
+instructions. If you really <strong>really</strong> want to use Conda with InvokeAI
+you can do so using this unsupported recipe:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>mkdir ~/invokeai
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>conda create -n invokeai python=3.10
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>conda activate invokeai
+<a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a>pip install InvokeAI[xformers] --use-pep517 --extra-index-url https://download.pytorch.org/whl/cu117
+<a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a>invokeai-configure --root ~/invokeai
+<a id="__codelineno-24-6" name="__codelineno-24-6" href="#__codelineno-24-6"></a>invokeai --root ~/invokeai --web
+</code></pre></div>
+<p>The <code>pip install</code> command shown in this recipe is for Linux/Windows
+systems with an NVIDIA GPU. See step (6) above for the command to use
+with other platforms/GPU combinations. If you don't wish to pass the
+<code>--root</code> argument to <code>invokeai</code> with each launch, you may set the
+environment variable INVOKEAI_ROOT to point to the installation directory.</p>
+<p>Note that if you run into problems with the Conda installation, the InvokeAI
+staff will <strong>not</strong> be able to help you out. Caveat Emptor!</p>
 
   <hr>
 <div class="md-source-file">
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">February 3, 2023</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">February 11, 2023</span>
       
         <br>
         Created:
@@ -1342,13 +1606,13 @@ rendering will be fast.</p>
       
       
         
-        <a href="../040_INSTALL_DOCKER/" class="md-footer__link md-footer__link--next" aria-label="Next: Installing with Docker" rel="next">
+        <a href="../030_INSTALL_CUDA_AND_ROCM/" class="md-footer__link md-footer__link--next" aria-label="Next: NVIDIA Cuda / AMD ROCm" rel="next">
           <div class="md-footer__title">
             <div class="md-ellipsis">
               <span class="md-footer__direction">
                 Next
               </span>
-              Installing with Docker
+              NVIDIA Cuda / AMD ROCm
             </div>
           </div>
           <div class="md-footer__button md-icon">
