@@ -2,197 +2,197 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://invoke-ai.github.io/InvokeAI/</loc>
-         <lastmod>2023-02-19</lastmod>
+         <lastmod>2023-02-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://invoke-ai.github.io/InvokeAI/CHANGELOG/</loc>
-         <lastmod>2023-02-19</lastmod>
+         <lastmod>2023-02-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://invoke-ai.github.io/InvokeAI/features/</loc>
-         <lastmod>2023-02-19</lastmod>
+         <lastmod>2023-02-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://invoke-ai.github.io/InvokeAI/features/CLI/</loc>
-         <lastmod>2023-02-19</lastmod>
+         <lastmod>2023-02-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://invoke-ai.github.io/InvokeAI/features/CONCEPTS/</loc>
-         <lastmod>2023-02-19</lastmod>
+         <lastmod>2023-02-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://invoke-ai.github.io/InvokeAI/features/EMBIGGEN/</loc>
-         <lastmod>2023-02-19</lastmod>
+         <lastmod>2023-02-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://invoke-ai.github.io/InvokeAI/features/IMG2IMG/</loc>
-         <lastmod>2023-02-19</lastmod>
+         <lastmod>2023-02-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://invoke-ai.github.io/InvokeAI/features/INPAINTING/</loc>
-         <lastmod>2023-02-19</lastmod>
+         <lastmod>2023-02-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://invoke-ai.github.io/InvokeAI/features/MODEL_MERGING/</loc>
-         <lastmod>2023-02-19</lastmod>
+         <lastmod>2023-02-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://invoke-ai.github.io/InvokeAI/features/NSFW/</loc>
-         <lastmod>2023-02-19</lastmod>
+         <lastmod>2023-02-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://invoke-ai.github.io/InvokeAI/features/OTHER/</loc>
-         <lastmod>2023-02-19</lastmod>
+         <lastmod>2023-02-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://invoke-ai.github.io/InvokeAI/features/OUTPAINTING/</loc>
-         <lastmod>2023-02-19</lastmod>
+         <lastmod>2023-02-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://invoke-ai.github.io/InvokeAI/features/POSTPROCESS/</loc>
-         <lastmod>2023-02-19</lastmod>
+         <lastmod>2023-02-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://invoke-ai.github.io/InvokeAI/features/PROMPTS/</loc>
-         <lastmod>2023-02-19</lastmod>
+         <lastmod>2023-02-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://invoke-ai.github.io/InvokeAI/features/TEXTUAL_INVERSION/</loc>
-         <lastmod>2023-02-19</lastmod>
+         <lastmod>2023-02-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://invoke-ai.github.io/InvokeAI/features/UNIFIED_CANVAS/</loc>
-         <lastmod>2023-02-19</lastmod>
+         <lastmod>2023-02-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://invoke-ai.github.io/InvokeAI/features/VARIATIONS/</loc>
-         <lastmod>2023-02-19</lastmod>
+         <lastmod>2023-02-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://invoke-ai.github.io/InvokeAI/features/WEB/</loc>
-         <lastmod>2023-02-19</lastmod>
+         <lastmod>2023-02-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://invoke-ai.github.io/InvokeAI/features/WEBUIHOTKEYS/</loc>
-         <lastmod>2023-02-19</lastmod>
+         <lastmod>2023-02-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://invoke-ai.github.io/InvokeAI/help/SAMPLER_CONVERGENCE/</loc>
-         <lastmod>2023-02-19</lastmod>
+         <lastmod>2023-02-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://invoke-ai.github.io/InvokeAI/help/deprecated/TROUBLESHOOT/</loc>
-         <lastmod>2023-02-19</lastmod>
+         <lastmod>2023-02-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://invoke-ai.github.io/InvokeAI/installation/</loc>
-         <lastmod>2023-02-19</lastmod>
+         <lastmod>2023-02-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://invoke-ai.github.io/InvokeAI/installation/010_INSTALL_AUTOMATED/</loc>
-         <lastmod>2023-02-19</lastmod>
+         <lastmod>2023-02-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://invoke-ai.github.io/InvokeAI/installation/020_INSTALL_MANUAL/</loc>
-         <lastmod>2023-02-19</lastmod>
+         <lastmod>2023-02-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://invoke-ai.github.io/InvokeAI/installation/030_INSTALL_CUDA_AND_ROCM/</loc>
-         <lastmod>2023-02-19</lastmod>
+         <lastmod>2023-02-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://invoke-ai.github.io/InvokeAI/installation/040_INSTALL_DOCKER/</loc>
-         <lastmod>2023-02-19</lastmod>
+         <lastmod>2023-02-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://invoke-ai.github.io/InvokeAI/installation/050_INSTALLING_MODELS/</loc>
-         <lastmod>2023-02-19</lastmod>
+         <lastmod>2023-02-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://invoke-ai.github.io/InvokeAI/installation/060_INSTALL_PATCHMATCH/</loc>
-         <lastmod>2023-02-19</lastmod>
+         <lastmod>2023-02-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://invoke-ai.github.io/InvokeAI/installation/070_INSTALL_XFORMERS/</loc>
-         <lastmod>2023-02-19</lastmod>
+         <lastmod>2023-02-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://invoke-ai.github.io/InvokeAI/installation/Developers_documentation/BUILDING_BINARY_INSTALLERS/</loc>
-         <lastmod>2023-02-19</lastmod>
+         <lastmod>2023-02-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://invoke-ai.github.io/InvokeAI/installation/deprecated_documentation/INSTALL_BINARY/</loc>
-         <lastmod>2023-02-19</lastmod>
+         <lastmod>2023-02-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://invoke-ai.github.io/InvokeAI/installation/deprecated_documentation/INSTALL_JUPYTER/</loc>
-         <lastmod>2023-02-19</lastmod>
+         <lastmod>2023-02-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://invoke-ai.github.io/InvokeAI/installation/deprecated_documentation/INSTALL_LINUX/</loc>
-         <lastmod>2023-02-19</lastmod>
+         <lastmod>2023-02-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://invoke-ai.github.io/InvokeAI/installation/deprecated_documentation/INSTALL_MAC/</loc>
-         <lastmod>2023-02-19</lastmod>
+         <lastmod>2023-02-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://invoke-ai.github.io/InvokeAI/installation/deprecated_documentation/INSTALL_PCP/</loc>
-         <lastmod>2023-02-19</lastmod>
+         <lastmod>2023-02-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://invoke-ai.github.io/InvokeAI/installation/deprecated_documentation/INSTALL_SOURCE/</loc>
-         <lastmod>2023-02-19</lastmod>
+         <lastmod>2023-02-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://invoke-ai.github.io/InvokeAI/installation/deprecated_documentation/INSTALL_WINDOWS/</loc>
-         <lastmod>2023-02-19</lastmod>
+         <lastmod>2023-02-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://invoke-ai.github.io/InvokeAI/other/CONTRIBUTORS/</loc>
-         <lastmod>2023-02-19</lastmod>
+         <lastmod>2023-02-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://invoke-ai.github.io/InvokeAI/other/README-CompViz/</loc>
-         <lastmod>2023-02-19</lastmod>
+         <lastmod>2023-02-23</lastmod>
          <changefreq>daily</changefreq>
     </url>
 </urlset>

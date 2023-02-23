@@ -1914,6 +1914,18 @@ and 480 (height).</p>
 <td><code>None</code></td>
 <td>Save the image from every nth step into an "intermediates" folder inside the output directory</td>
 </tr>
+<tr>
+<td><code>--h_symmetry_time_pct &lt;float&gt;</code></td>
+<td></td>
+<td><code>None</code></td>
+<td>Create symmetry along the X axis at the desired percent complete of the generation process. (Must be between 0.0 and 1.0; set to a very small number like 0.0001 for just after the first step of generation.)</td>
+</tr>
+<tr>
+<td><code>--v_symmetry_time_pct &lt;float&gt;</code></td>
+<td></td>
+<td><code>None</code></td>
+<td>Create symmetry along the Y axis at the desired percent complete of the generation process. (Must be between 0.0 and 1.0; set to a very small number like 0.0001 for just after the first step of generation.)</td>
+</tr>
 </tbody>
 </table>
 <div class="admonition note">
@@ -2258,7 +2270,7 @@ to complete pathnames for you. This is most handy for the <code>-I</code> (init 
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">February 8, 2023</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">February 20, 2023</span>
       
         <br>
         Created:
