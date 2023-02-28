@@ -10,14 +10,14 @@
         <meta name="author" content="mauwii">
       
       
-        <link rel="canonical" href="https://invoke-ai.github.io/InvokeAI/other/TRANSLATION/">
+        <link rel="canonical" href="https://invoke-ai.github.io/InvokeAI/contributing/ARCHITECTURE/">
       
       <link rel="icon" href="../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-8.5.10">
     
     
       
-        <title>Translation - InvokeAI Stable Diffusion Toolkit Docs</title>
+        <title>Invoke.AI Architecture - InvokeAI Stable Diffusion Toolkit Docs</title>
       
     
     
@@ -70,7 +70,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#translation" class="md-skip">
+        <a href="#invokeai-architecture" class="md-skip">
           Skip to content
         </a>
       
@@ -103,7 +103,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Translation
+              Invoke.AI Architecture
             
           </span>
         </div>
@@ -225,13 +225,15 @@
         
   
   
+    
+  
 
 
   
   
   
     <li class="md-tabs__item">
-      <a href="../../contributing/ARCHITECTURE/" class="md-tabs__link">
+      <a href="./" class="md-tabs__link md-tabs__link--active">
         Contributing
       </a>
     </li>
@@ -289,15 +291,13 @@
         
   
   
-    
-  
 
 
   
   
   
     <li class="md-tabs__item">
-      <a href="../CONTRIBUTORS/" class="md-tabs__link md-tabs__link--active">
+      <a href="../../other/CONTRIBUTORS/" class="md-tabs__link">
         Other
       </a>
     </li>
@@ -386,12 +386,14 @@
 
   
   
+    
+  
   
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" checked>
       
       
       
@@ -412,11 +414,120 @@
               
   
   
+    
   
-    <li class="md-nav__item">
-      <a href="../../contributing/ARCHITECTURE/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Invoke.AI Architecture
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         Invoke.AI Architecture
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#applications" class="md-nav__link">
+    Applications
+  </a>
+  
+    <nav class="md-nav" aria-label="Applications">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#web-ui" class="md-nav__link">
+    Web UI
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cli" class="md-nav__link">
+    CLI
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#invoke" class="md-nav__link">
+    Invoke
+  </a>
+  
+    <nav class="md-nav" aria-label="Invoke">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#invoker" class="md-nav__link">
+    Invoker
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sessions" class="md-nav__link">
+    Sessions
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#invocations" class="md-nav__link">
+    Invocations
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#services" class="md-nav__link">
+    Services
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ai-core" class="md-nav__link">
+    AI Core
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -428,7 +539,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../contributing/INVOCATIONS/" class="md-nav__link">
+      <a href="../INVOCATIONS/" class="md-nav__link">
         Invocations
       </a>
     </li>
@@ -1139,14 +1250,12 @@
 
   
   
-    
-  
   
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_7" type="checkbox" id="__nav_7" checked>
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_7" type="checkbox" id="__nav_7" >
       
       
       
@@ -1169,7 +1278,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../CONTRIBUTORS/" class="md-nav__link">
+      <a href="../../other/CONTRIBUTORS/" class="md-nav__link">
         Contributors
       </a>
     </li>
@@ -1183,7 +1292,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../README-CompViz/" class="md-nav__link">
+      <a href="../../other/README-CompViz/" class="md-nav__link">
         CompViz-Readme
       </a>
     </li>
@@ -1195,66 +1304,11 @@
               
   
   
-    
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          Translation
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../other/TRANSLATION/" class="md-nav__link">
         Translation
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#contributing" class="md-nav__link">
-    Contributing
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#help-questions" class="md-nav__link">
-    Help &amp; Questions
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#thanks" class="md-nav__link">
-    Thanks
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1280,33 +1334,116 @@
                 
                   
 
-  <a href="https://github.com/invoke-ai/InvokeAI/edit/main/docs/other/TRANSLATION.md" title="Edit this page" class="md-content__button md-icon">
+  <a href="https://github.com/invoke-ai/InvokeAI/edit/main/docs/contributing/ARCHITECTURE.md" title="Edit this page" class="md-content__button md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8 12h8v2H8v-2m2 8H6V4h7v5h5v3.1l2-2V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4v-2m-2-2h4.1l.9-.9V16H8v2m12.2-5c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1 2.1 2.1Z"/></svg>
   </a>
 
 
-<h1 id="translation">Translation<a class="headerlink" href="#translation" title="Permanent link">#</a></h1>
-<p>InvokeAI uses <a href="https://weblate.org">Weblate</a> for translation. Weblate is a FOSS project providing a scalable translation service. Weblate automates the tedious parts of managing translation of a growing project, and the service is generously provided at no cost to FOSS projects like InvokeAI.</p>
-<h2 id="contributing">Contributing<a class="headerlink" href="#contributing" title="Permanent link">#</a></h2>
-<p>If you'd like to contribute by adding or updating a translation, please visit our <a href="https://hosted.weblate.org/engage/invokeai/">Weblate project</a>. You'll need to sign in with your GitHub account (a number of other accounts are supported, including Google).</p>
-<p>Once signed in, select a language and then the Web UI component. From here you can Browse and Translate strings from English to your chosen language. Zen mode offers a simpler translation experience.</p>
-<p>Your changes will be attributed to you in the automated PR process; you don't need to do anything else.</p>
-<h2 id="help-questions">Help &amp; Questions<a class="headerlink" href="#help-questions" title="Permanent link">#</a></h2>
-<p>Please check Weblate's <a href="https://docs.weblate.org/en/latest/index.html">documentation</a> or ping <a class="magiclink magiclink-github magiclink-mention" href="https://github.com/psychedelicious" title="GitHub User: psychedelicious">@psychedelicious</a> or <a class="magiclink magiclink-github magiclink-mention" href="https://github.com/blessedcoolant" title="GitHub User: blessedcoolant">@blessedcoolant</a> on Discord if you have any questions.</p>
-<h2 id="thanks">Thanks<a class="headerlink" href="#thanks" title="Permanent link">#</a></h2>
-<p>Thanks to the InvokeAI community for their efforts to translate the project!</p>
+<h1 id="invokeai-architecture">Invoke.AI Architecture<a class="headerlink" href="#invokeai-architecture" title="Permanent link">#</a></h1>
+<pre class="mermaid"><code>flowchart TB
+
+  subgraph apps[Applications]
+    webui[WebUI]
+    cli[CLI]
+
+  subgraph webapi[Web API]
+    api[HTTP API]
+    sio[Socket.IO]
+  end
+
+  end
+
+  subgraph invoke[Invoke]
+    direction LR
+    invoker
+    services
+    sessions
+    invocations
+  end
+
+  subgraph core[AI Core]
+    Generate
+  end
+
+  webui --&gt; webapi
+  webapi --&gt; invoke
+  cli --&gt; invoke
+
+  invoker --&gt; services &amp; sessions
+  invocations --&gt; services
+  sessions --&gt; invocations
+
+  services --&gt; core
+
+  %% Styles
+  classDef sg fill:#5028C8,font-weight:bold,stroke-width:2,color:#fff,stroke:#14141A
+  classDef default stroke-width:2px,stroke:#F6B314,color:#fff,fill:#14141A
+
+  class apps,webapi,invoke,core sg
+</code></pre>
+<h2 id="applications">Applications<a class="headerlink" href="#applications" title="Permanent link">#</a></h2>
+<p>Applications are built on top of the invoke framework. They should construct <code>invoker</code> and then interact through it. They should avoid interacting directly with core code in order to support a variety of configurations.</p>
+<h3 id="web-ui">Web UI<a class="headerlink" href="#web-ui" title="Permanent link">#</a></h3>
+<p>The Web UI is built on top of an HTTP API built with <a href="https://fastapi.tiangolo.com/">FastAPI</a> and <a href="https://socket.io/">Socket.IO</a>. The frontend code is found in <code>/frontend</code> and the backend code is found in <code>/ldm/invoke/app/api_app.py</code> and <code>/ldm/invoke/app/api/</code>. The code is further organized as such:</p>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>api_app.py</td>
+<td>Sets up the API app, annotates the OpenAPI spec with additional data, and runs the API</td>
+</tr>
+<tr>
+<td>dependencies</td>
+<td>Creates all invoker services and the invoker, and provides them to the API</td>
+</tr>
+<tr>
+<td>events</td>
+<td>An eventing system that could in the future be adapted to support horizontal scale-out</td>
+</tr>
+<tr>
+<td>sockets</td>
+<td>The Socket.IO interface - handles listening to and emitting session events (events are defined in the events service module)</td>
+</tr>
+<tr>
+<td>routers</td>
+<td>API definitions for different areas of API functionality</td>
+</tr>
+</tbody>
+</table>
+<h3 id="cli">CLI<a class="headerlink" href="#cli" title="Permanent link">#</a></h3>
+<p>The CLI is built automatically from invocation metadata, and also supports invocation piping and auto-linking. Code is available in <code>/ldm/invoke/app/cli_app.py</code>.</p>
+<h2 id="invoke">Invoke<a class="headerlink" href="#invoke" title="Permanent link">#</a></h2>
+<p>The Invoke framework provides the interface to the underlying AI systems and is built with flexibility and extensibility in mind. There are four major concepts: invoker, sessions, invocations, and services.</p>
+<h3 id="invoker">Invoker<a class="headerlink" href="#invoker" title="Permanent link">#</a></h3>
+<p>The invoker (<code>/ldm/invoke/app/services/invoker.py</code>) is the primary interface through which applications interact with the framework. Its primary purpose is to create, manage, and invoke sessions. It also maintains two sets of services:
+- <strong>invocation services</strong>, which are used by invocations to interact with core functionality.
+- <strong>invoker services</strong>, which are used by the invoker to manage sessions and manage the invocation queue.</p>
+<h3 id="sessions">Sessions<a class="headerlink" href="#sessions" title="Permanent link">#</a></h3>
+<p>Invocations and links between them form a graph, which is maintained in a session. Sessions can be queued for invocation, which will execute their graph (either the next ready invocation, or all invocations). Sessions also maintain execution history for the graph (including storage of any outputs). An invocation may be added to a session at any time, and there is capability to add and entire graph at once, as well as to automatically link new invocations to previous invocations. Invocations can not be deleted or modified once added.</p>
+<p>The session graph does not support looping. This is left as an application problem to prevent additional complexity in the graph.</p>
+<h3 id="invocations">Invocations<a class="headerlink" href="#invocations" title="Permanent link">#</a></h3>
+<p>Invocations represent individual units of execution, with inputs and outputs. All invocations are located in <code>/ldm/invoke/app/invocations</code>, and are all automatically discovered and made available in the applications. These are the primary way to expose new functionality in Invoke.AI, and the <a href="../INVOCATIONS/">implementation guide</a> explains how to add new invocations.</p>
+<h3 id="services">Services<a class="headerlink" href="#services" title="Permanent link">#</a></h3>
+<p>Services provide invocations access AI Core functionality and other necessary functionality (e.g. image storage). These are available in <code>/ldm/invoke/app/services</code>. As a general rule, new services should provide an interface as an abstract base class, and may provide a lightweight local implementation by default in their module. The goal for all services should be to enable the usage of different implementations (e.g. using cloud storage for image storage), but should not load any module dependencies unless that implementation has been used (i.e. don't import anything that won't be used, especially if it's expensive to import).</p>
+<h2 id="ai-core">AI Core<a class="headerlink" href="#ai-core" title="Permanent link">#</a></h2>
+<p>The AI Core is represented by the rest of the code base (i.e. the code outside of <code>/ldm/invoke/app/</code>).</p>
 
   <hr>
 <div class="md-source-file">
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">February 23, 2023</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">December 1, 2022</span>
       
         <br>
         Created:
-        <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">February 23, 2023</span>
+        <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">December 1, 2022</span>
       
     
   </small>
@@ -1336,7 +1473,7 @@
     <nav class="md-footer__inner md-grid" aria-label="Footer" >
       
         
-        <a href="../README-CompViz/" class="md-footer__link md-footer__link--prev" aria-label="Previous: CompViz-Readme" rel="prev">
+        <a href="../../CHANGELOG/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Changelog" rel="prev">
           <div class="md-footer__button md-icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
           </div>
@@ -1345,11 +1482,26 @@
               <span class="md-footer__direction">
                 Previous
               </span>
-              CompViz-Readme
+              Changelog
             </div>
           </div>
         </a>
       
+      
+        
+        <a href="../INVOCATIONS/" class="md-footer__link md-footer__link--next" aria-label="Next: Invocations" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              Invocations
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+          </div>
+        </a>
       
     </nav>
   
