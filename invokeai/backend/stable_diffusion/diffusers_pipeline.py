@@ -578,7 +578,7 @@ class StableDiffusionGeneratorPipeline(StableDiffusionPipeline):
                     total_step_count=len(timesteps),
                 )
 
-                predicted_original = getattr(step_output, "pred_original_sample", None)
+                predicted_original = getattr(step_output, "pred_original_sample", None) or getattr(step_output, "noise_sample", None)
 
                 # TODO resuscitate attention map saving
                 # if i == len(timesteps)-1 and extra_conditioning_info is not None:
@@ -619,7 +619,7 @@ class StableDiffusionGeneratorPipeline(StableDiffusionPipeline):
         latent_model_input = self.scheduler.scale_model_input(latents, timestep)
 
         # predict the noise residual
-        noise_pred = self.invokeai_diffuser.do_diffusion_step(
+        noise_pred, model_output = self.invokeai_diffuser.do_diffusion_step(
             latent_model_input,
             t,
             conditioning_data.unconditioned_embeddings,
@@ -633,6 +633,23 @@ class StableDiffusionGeneratorPipeline(StableDiffusionPipeline):
         step_output = self.scheduler.step(
             noise_pred, timestep, latents, **conditioning_data.scheduler_args
         )
+
+        # fudge the pred_original_sample
+        if getattr(step_output, 'pred_original_sample', None) is None:
+            scheduler = self.scheduler
+            sample = step_output.prev_sample
+            sigma_index = (scheduler.timesteps == timestep).nonzero().item()
+            sigma = scheduler.sigmas[sigma_index]
+            # 1. compute predicted original sample (x_0) from sigma-scaled predicted noise
+            if scheduler.config.prediction_type == "epsilon":
+                pred_original_sample = sample - sigma * model_output
+            elif scheduler.config.prediction_type == "v_prediction":
+                # * c_out + input * c_skip
+                pred_original_sample = model_output * (-sigma / (sigma**2 + 1) ** 0.5) + (sample / (sigma**2 + 1))
+            elif scheduler.config.prediction_type == "sample":
+                pred_original_sample = model_output
+            setattr(step_output, pred_original_sample)
+
 
         # TODO: this additional_guidance extension point feels redundant with InvokeAIDiffusionComponent.
         #    But the way things are now, scheduler runs _after_ that, so there was
