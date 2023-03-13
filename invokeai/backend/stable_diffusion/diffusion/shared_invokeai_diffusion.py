@@ -229,7 +229,7 @@ class InvokeAIDiffuserComponent:
             unconditioned_next_x, conditioned_next_x, unconditional_guidance_scale
         )
 
-        return combined_next_x
+        return combined_next_x, conditioned_next_x
 
     def do_latent_postprocessing(
         self,
