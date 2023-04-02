@@ -436,6 +436,20 @@
 
             
           
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/LOCAL_DEVELOPMENT/" class="md-nav__link">
+        Local Development
+      </a>
+    </li>
+  
+
+            
+          
         </ul>
       </nav>
     </li>
@@ -1439,11 +1453,14 @@ for is that the the model <code>config</code> option must be set up to use
 used by Stable Diffusion 1.4 and 1.5.</p>
 <p>After installation, your <code>models.yaml</code> should contain an entry that looks like
 this one:</p>
-<p>inpainting-1.5: weights: models/ldm/stable-diffusion-v1/sd-v1-5-inpainting.ckpt
-description: SD inpainting v1.5 config:
-configs/stable-diffusion/v1-inpainting-inference.yaml vae:
-models/ldm/stable-diffusion-v1/vae-ft-mse-840000-ema-pruned.ckpt width: 512
-height: 512</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>inpainting-1.5:
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>  weights: models/ldm/stable-diffusion-v1/sd-v1-5-inpainting.ckpt
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>  description: SD inpainting v1.5
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>  config: configs/stable-diffusion/v1-inpainting-inference.yaml
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>  vae: models/ldm/stable-diffusion-v1/vae-ft-mse-840000-ema-pruned.ckpt
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>  width: 512
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>  height: 512
+</code></pre></div>
 <p>As shown in the example, you may include a VAE fine-tuning weights file as well.
 This is strongly recommended.</p>
 <p>To use the custom inpainting model, launch <code>invoke.py</code> with the argument
@@ -1580,7 +1597,7 @@ with the surrounding unmasked regions as well.</p>
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">December 15, 2022</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">March 11, 2023</span>
       
         <br>
         Created:
