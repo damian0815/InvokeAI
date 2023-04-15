@@ -504,6 +504,26 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#schema-generation" class="md-nav__link">
+    Schema Generation
+  </a>
+  
+    <nav class="md-nav" aria-label="Schema Generation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#required-properties" class="md-nav__link">
+    Required Properties
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1321,9 +1341,17 @@
 
 
 <h1 id="invocations">Invocations<a class="headerlink" href="#invocations" title="Permanent link">#</a></h1>
-<p>Invocations represent a single operation, its inputs, and its outputs. These operations and their outputs can be chained together to generate and modify images.</p>
+<p>Invocations represent a single operation, its inputs, and its outputs. These
+operations and their outputs can be chained together to generate and modify
+images.</p>
 <h2 id="creating-a-new-invocation">Creating a new invocation<a class="headerlink" href="#creating-a-new-invocation" title="Permanent link">#</a></h2>
-<p>To create a new invocation, either find the appropriate module file in <code>/ldm/invoke/app/invocations</code> to add your invocation to, or create a new one in that folder. All invocations in that folder will be discovered and made available to the CLI and API automatically. Invocations make use of <a href="https://docs.python.org/3/library/typing.html">typing</a> and <a href="https://pydantic-docs.helpmanual.io/">pydantic</a> for validation and integration into the CLI and API.</p>
+<p>To create a new invocation, either find the appropriate module file in
+<code>/ldm/invoke/app/invocations</code> to add your invocation to, or create a new one in
+that folder. All invocations in that folder will be discovered and made
+available to the CLI and API automatically. Invocations make use of
+<a href="https://docs.python.org/3/library/typing.html">typing</a> and
+<a href="https://pydantic-docs.helpmanual.io/">pydantic</a> for validation and integration
+into the CLI and API.</p>
 <p>An invocation looks like this:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">class</span> <span class="nc">UpscaleInvocation</span><span class="p">(</span><span class="n">BaseInvocation</span><span class="p">):</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Upscales an image.&quot;&quot;&quot;</span>
@@ -1355,28 +1383,63 @@
 </code></pre></div>
 <p>Each portion is important to implement correctly.</p>
 <h3 id="class-definition-and-type">Class definition and type<a class="headerlink" href="#class-definition-and-type" title="Permanent link">#</a></h3>
-<p><div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">class</span> <span class="nc">UpscaleInvocation</span><span class="p">(</span><span class="n">BaseInvocation</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">class</span> <span class="nc">UpscaleInvocation</span><span class="p">(</span><span class="n">BaseInvocation</span><span class="p">):</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Upscales an image.&quot;&quot;&quot;</span>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="nb">type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;upscale&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;upscale&#39;</span>
 </code></pre></div>
-All invocations must derive from <code>BaseInvocation</code>. They should have a docstring that declares what they do in a single, short line. They should also have a <code>type</code> with a type hint that's <code>Literal["command_name"]</code>, where <code>command_name</code> is what the user will type on the CLI or use in the API to create this invocation. The <code>command_name</code> must be unique. The <code>type</code> must be assigned to the value of the literal in the type hint.</p>
+<p>All invocations must derive from <code>BaseInvocation</code>. They should have a docstring
+that declares what they do in a single, short line. They should also have a
+<code>type</code> with a type hint that's <code>Literal["command_name"]</code>, where <code>command_name</code>
+is what the user will type on the CLI or use in the API to create this
+invocation. The <code>command_name</code> must be unique. The <code>type</code> must be assigned to
+the value of the literal in the type hint.</p>
 <h3 id="inputs">Inputs<a class="headerlink" href="#inputs" title="Permanent link">#</a></h3>
-<p><div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>    <span class="c1"># Inputs</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>    <span class="c1"># Inputs</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="n">image</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ImageField</span><span class="p">,</span><span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;The input image&quot;</span><span class="p">)</span>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    <span class="n">strength</span><span class="p">:</span> <span class="nb">float</span>               <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span> <span class="n">gt</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">le</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The strength&quot;</span><span class="p">)</span>
 <a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="n">level</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">4</span><span class="p">]</span>           <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The upscale level&quot;</span><span class="p">)</span>
 </code></pre></div>
-Inputs consist of three parts: a name, a type hint, and a <code>Field</code> with default, description, and validation information. For example:
-| Part | Value | Description |
-| ---- | ----- | ----------- |
-| Name | <code>strength</code> | This field is referred to as <code>strength</code> |
-| Type Hint | <code>float</code> | This field must be of type <code>float</code> |
-| Field | <code>Field(default=0.75, gt=0, le=1, description="The strength")</code> | The default value is <code>0.75</code>, the value must be in the range (0,1], and help text will show "The strength" for this field. |</p>
-<p>Notice that <code>image</code> has type <code>Union[ImageField,None]</code>. The <code>Union</code> allows this field to be parsed with <code>None</code> as a value, which enables linking to previous invocations. All fields should either provide a default value or allow <code>None</code> as a value, so that they can be overwritten with a linked output from another invocation.</p>
-<p>The special type <code>ImageField</code> is also used here. All images are passed as <code>ImageField</code>, which protects them from pydantic validation errors (since images only ever come from links).</p>
-<p>Finally, note that for all linking, the <code>type</code> of the linked fields must match. If the <code>name</code> also matches, then the field can be <strong>automatically linked</strong> to a previous invocation by name and matching.</p>
+<p>Inputs consist of three parts: a name, a type hint, and a <code>Field</code> with default,
+description, and validation information. For example:</p>
+<table>
+<thead>
+<tr>
+<th>Part</th>
+<th>Value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Name</td>
+<td><code>strength</code></td>
+<td>This field is referred to as <code>strength</code></td>
+</tr>
+<tr>
+<td>Type Hint</td>
+<td><code>float</code></td>
+<td>This field must be of type <code>float</code></td>
+</tr>
+<tr>
+<td>Field</td>
+<td><code>Field(default=0.75, gt=0, le=1, description="The strength")</code></td>
+<td>The default value is <code>0.75</code>, the value must be in the range (0,1], and help text will show "The strength" for this field.</td>
+</tr>
+</tbody>
+</table>
+<p>Notice that <code>image</code> has type <code>Union[ImageField,None]</code>. The <code>Union</code> allows this
+field to be parsed with <code>None</code> as a value, which enables linking to previous
+invocations. All fields should either provide a default value or allow <code>None</code> as
+a value, so that they can be overwritten with a linked output from another
+invocation.</p>
+<p>The special type <code>ImageField</code> is also used here. All images are passed as
+<code>ImageField</code>, which protects them from pydantic validation errors (since images
+only ever come from links).</p>
+<p>Finally, note that for all linking, the <code>type</code> of the linked fields must match.
+If the <code>name</code> also matches, then the field can be <strong>automatically linked</strong> to a
+previous invocation by name and matching.</p>
 <h3 id="invoke-function">Invoke Function<a class="headerlink" href="#invoke-function" title="Permanent link">#</a></h3>
-<p><div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>    <span class="k">def</span> <span class="nf">invoke</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">InvocationContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ImageOutput</span><span class="p">:</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>    <span class="k">def</span> <span class="nf">invoke</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">InvocationContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ImageOutput</span><span class="p">:</span>
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>        <span class="n">image</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">images</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">image_type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">image_name</span><span class="p">)</span>
 <a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>        <span class="n">results</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">generate</span><span class="o">.</span><span class="n">upscale_and_reconstruct</span><span class="p">(</span>
 <a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>            <span class="n">image_list</span>     <span class="o">=</span> <span class="p">[[</span><span class="n">image</span><span class="p">,</span> <span class="mi">0</span><span class="p">]],</span>
@@ -1394,24 +1457,75 @@ Inputs consist of three parts: a name, a type hint, and a <code>Field</code> wit
 <a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>            <span class="n">image</span> <span class="o">=</span> <span class="n">ImageField</span><span class="p">(</span><span class="n">image_type</span> <span class="o">=</span> <span class="n">image_type</span><span class="p">,</span> <span class="n">image_name</span> <span class="o">=</span> <span class="n">image_name</span><span class="p">)</span>
 <a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>        <span class="p">)</span>
 </code></pre></div>
-The <code>invoke</code> function is the last portion of an invocation. It is provided an <code>InvocationContext</code> which contains services to perform work as well as a <code>session_id</code> for use as needed. It should return a class with output values that derives from <code>BaseInvocationOutput</code>.</p>
-<p>Before being called, the invocation will have all of its fields set from defaults, inputs, and finally links (overriding in that order).</p>
-<p>Assume that this invocation may be running simultaneously with other invocations, may be running on another machine, or in other interesting scenarios. If you need functionality, please provide it as a service in the <code>InvocationServices</code> class, and make sure it can be overridden.</p>
+<p>The <code>invoke</code> function is the last portion of an invocation. It is provided an
+<code>InvocationContext</code> which contains services to perform work as well as a
+<code>session_id</code> for use as needed. It should return a class with output values that
+derives from <code>BaseInvocationOutput</code>.</p>
+<p>Before being called, the invocation will have all of its fields set from
+defaults, inputs, and finally links (overriding in that order).</p>
+<p>Assume that this invocation may be running simultaneously with other
+invocations, may be running on another machine, or in other interesting
+scenarios. If you need functionality, please provide it as a service in the
+<code>InvocationServices</code> class, and make sure it can be overridden.</p>
 <h3 id="outputs">Outputs<a class="headerlink" href="#outputs" title="Permanent link">#</a></h3>
-<p><div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">class</span> <span class="nc">ImageOutput</span><span class="p">(</span><span class="n">BaseInvocationOutput</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">class</span> <span class="nc">ImageOutput</span><span class="p">(</span><span class="n">BaseInvocationOutput</span><span class="p">):</span>
 <a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for invocations that output an image&quot;&quot;&quot;</span>
 <a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    <span class="nb">type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;image&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;image&#39;</span>
 <a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
 <a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="n">image</span><span class="p">:</span> <span class="n">ImageField</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The output image&quot;</span><span class="p">)</span>
 </code></pre></div>
-Output classes look like an invocation class without the invoke method. Prefer to use an existing output class if available, and prefer to name inputs the same as outputs when possible, to promote automatic invocation linking.</p>
+<p>Output classes look like an invocation class without the invoke method. Prefer
+to use an existing output class if available, and prefer to name inputs the same
+as outputs when possible, to promote automatic invocation linking.</p>
+<h2 id="schema-generation">Schema Generation<a class="headerlink" href="#schema-generation" title="Permanent link">#</a></h2>
+<p>Invocation, output and related classes are used to generate an OpenAPI schema.</p>
+<h3 id="required-properties">Required Properties<a class="headerlink" href="#required-properties" title="Permanent link">#</a></h3>
+<p>The schema generation treat all properties with default values as optional. This
+makes sense internally, but when when using these classes via the generated
+schema, we end up with e.g. the <code>ImageOutput</code> class having its <code>image</code> property
+marked as optional.</p>
+<p>We know that this property will always be present, so the additional logic
+needed to always check if the property exists adds a lot of extraneous cruft.</p>
+<p>To fix this, we can leverage <code>pydantic</code>'s
+<a href="https://docs.pydantic.dev/usage/schema/#schema-customization">schema customisation</a>
+to mark properties that we know will always be present as required.</p>
+<p>Here's that <code>ImageOutput</code> class, without the needed schema customisation:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">class</span> <span class="nc">ImageOutput</span><span class="p">(</span><span class="n">BaseInvocationOutput</span><span class="p">):</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for invocations that output an image&quot;&quot;&quot;</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="nb">type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;image&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;image&quot;</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="n">image</span><span class="p">:</span>      <span class="n">ImageField</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The output image&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p>The generated OpenAPI schema, and all clients/types generated from it, will have
+the <code>type</code> and <code>image</code> properties marked as optional, even though we know they
+will always have a value by the time we can interact with them via the API.</p>
+<p>Here's the same class, but with the schema customisation added:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">class</span> <span class="nc">ImageOutput</span><span class="p">(</span><span class="n">BaseInvocationOutput</span><span class="p">):</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for invocations that output an image&quot;&quot;&quot;</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    <span class="nb">type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;image&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;image&quot;</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    <span class="n">image</span><span class="p">:</span>      <span class="n">ImageField</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The output image&quot;</span><span class="p">)</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>    <span class="k">class</span> <span class="nc">Config</span><span class="p">:</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>        <span class="n">schema_extra</span> <span class="o">=</span> <span class="p">{</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>            <span class="s1">&#39;required&#39;</span><span class="p">:</span> <span class="p">[</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>                <span class="s1">&#39;type&#39;</span><span class="p">,</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>                <span class="s1">&#39;image&#39;</span><span class="p">,</span>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>            <span class="p">]</span>
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>        <span class="p">}</span>
+</code></pre></div>
+<p>The resultant schema (and any API client or types generated from it) will now
+have see <code>type</code> as string literal <code>"image"</code> and <code>image</code> as an <code>ImageField</code>
+object.</p>
+<p>See this <code>pydantic</code> issue for discussion on this solution:
+<a href="https://github.com/pydantic/pydantic/discussions/4577">https://github.com/pydantic/pydantic/discussions/4577</a></p>
 
   <hr>
 <div class="md-source-file">
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">December 1, 2022</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">April 3, 2023</span>
       
         <br>
         Created:
