@@ -14,6 +14,7 @@ from transformers import CLIPTokenizer
 from compel import Compel
 from compel.prompt_parser import FlattenedPrompt, Blend, Fragment, CrossAttentionControlSubstitute, PromptParser, \
     Conjunction
+import torch
 from .devices import torch_dtype
 from .generator.diffusers_pipeline import StableDiffusionGeneratorPipeline
 from ..models.diffusion.shared_invokeai_diffusion import InvokeAIDiffuserComponent
@@ -42,6 +43,7 @@ def get_uc_and_c_and_ec(prompt_string,
     compel = Compel(tokenizer=model.tokenizer,
                     text_encoder=model.text_encoder,
                     textual_inversion_manager=model.textual_inversion_manager,
+                    #truncate_long_prompts=False,
                     dtype_for_device_getter=torch_dtype)
 
     # get rid of any newline characters
@@ -79,8 +81,17 @@ def get_uc_and_c_and_ec(prompt_string,
     with InvokeAIDiffuserComponent.custom_attention_context(model.unet,
                                                             extra_conditioning_info=lora_conditioning_ec,
                                                             step_count=-1):
-        c, options = compel.build_conditioning_tensor_for_prompt_object(positive_prompt)
+        prompt_splits = positive_prompt_string.split(";")
+        c = None
+        options = None
+        for split in prompt_splits:
+            split_conjunction = Compel.parse_prompt_string(split)
+            split_prompt_object = split_conjunction.prompts[0]
+            this_c, options = compel.build_conditioning_tensor_for_prompt_object(split_prompt_object)
+            c = this_c if c is None else torch.cat([c, this_c], dim=1)
         uc, _ = compel.build_conditioning_tensor_for_prompt_object(negative_prompt)
+
+    [c, uc] = compel.pad_conditioning_tensors_to_same_length([c, uc])
 
     # now build the "real" ec
     ec = InvokeAIDiffuserComponent.ExtraConditioningInfo(tokens_count_including_eos_bos=tokens_count,
