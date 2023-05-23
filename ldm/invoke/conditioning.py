@@ -76,7 +76,7 @@ def get_uc_and_c_and_ec(prompt_string,
                                                           if blend_mode is BlendMode.CONCAT
                                                           else skip_normalize_legacy_blend))
     if negative_conjunction is None:
-        negative_conjunction = Compel.parse_prompt_string(positive_prompt_string)
+        negative_conjunction = Compel.parse_prompt_string(negative_prompt_string)
     negative_prompt: FlattenedPrompt | Blend = negative_conjunction.prompts[0]
 
     tokens_count = get_max_token_count(model.tokenizer, positive_prompt)
