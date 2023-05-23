@@ -12,6 +12,7 @@ from typing import Union, Optional, Any
 from transformers import CLIPTokenizer
 
 from compel import Compel
+from compel.compel import BlendMode
 from compel.prompt_parser import FlattenedPrompt, Blend, Fragment, CrossAttentionControlSubstitute, PromptParser, \
     Conjunction
 import torch
@@ -40,9 +41,11 @@ def get_uc_and_c_and_ec(prompt_string,
     # this might take a couple of seconds the first time a textual inversion is used.
     model.textual_inversion_manager.create_deferred_token_ids_for_any_trigger_terms(prompt_string)
 
+    blend_mode = BlendMode.CONCAT
     compel = Compel(tokenizer=model.tokenizer,
                     text_encoder=model.text_encoder,
                     textual_inversion_manager=model.textual_inversion_manager,
+                    blend_mode=blend_mode,
                     #truncate_long_prompts=False,
                     dtype_for_device_getter=torch_dtype)
 
@@ -50,7 +53,10 @@ def get_uc_and_c_and_ec(prompt_string,
     prompt_string = prompt_string.replace("\n", " ")
     positive_prompt_string, negative_prompt_string = split_prompt_to_positive_and_negative(prompt_string)
 
-    legacy_blend = try_parse_legacy_blend(positive_prompt_string, skip_normalize_legacy_blend)
+    legacy_blend = try_parse_legacy_blend(positive_prompt_string,
+                                          skip_normalize=(False
+                                                          if blend_mode is BlendMode.CONCAT
+                                                          else skip_normalize_legacy_blend))
     positive_conjunction: Conjunction
     if legacy_blend is not None:
         positive_conjunction = legacy_blend
@@ -81,14 +87,7 @@ def get_uc_and_c_and_ec(prompt_string,
     with InvokeAIDiffuserComponent.custom_attention_context(model.unet,
                                                             extra_conditioning_info=lora_conditioning_ec,
                                                             step_count=-1):
-        prompt_splits = positive_prompt_string.split(";")
-        c = None
-        options = None
-        for split in prompt_splits:
-            split_conjunction = Compel.parse_prompt_string(split)
-            split_prompt_object = split_conjunction.prompts[0]
-            this_c, options = compel.build_conditioning_tensor_for_prompt_object(split_prompt_object)
-            c = this_c if c is None else torch.cat([c, this_c], dim=1)
+        c, options = compel.build_conditioning_tensor_for_prompt_object(positive_prompt)
         uc, _ = compel.build_conditioning_tensor_for_prompt_object(negative_prompt)
 
     [c, uc] = compel.pad_conditioning_tensors_to_same_length([c, uc])
