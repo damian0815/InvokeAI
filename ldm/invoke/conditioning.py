@@ -54,7 +54,7 @@ def get_uc_and_c_and_ec(prompt_string,
     positive_prompt_string, negative_prompt_string = split_prompt_to_positive_and_negative(prompt_string)
 
     legacy_blend = try_parse_legacy_blend(positive_prompt_string,
-                                          skip_normalize=(False
+                                          skip_normalize=(True
                                                           if blend_mode is BlendMode.CONCAT
                                                           else skip_normalize_legacy_blend))
     positive_conjunction: Conjunction

@@ -17,7 +17,7 @@ import warnings
 with warnings.catch_warnings():
     warnings.filterwarnings("ignore", category=UserWarning)
     import torch
-    
+
 import cv2
 import diffusers
 import numpy as np
@@ -1009,7 +1009,7 @@ class Generate:
         model_file_path = Path(Globals.root,'.last_model')
         with open(model_file_path,'w') as f:
             f.write(model_name)
-        
+
     def load_huggingface_concepts(self, concepts: list[str]):
         self.model.textual_inversion_manager.load_huggingface_concepts(concepts)
 
@@ -1188,7 +1188,8 @@ class Generate:
             # the k-diffusers implementation nor included in EDM (Karras 2022), but we can
             # provide an alias for compatibility.
             k_dpmpp_2=diffusers.DPMSolverMultistepScheduler,
-            k_euler=diffusers.EulerDiscreteScheduler,
+            #k_euler=diffusers.EulerDiscreteScheduler,
+            k_euler=diffusers.DDPMScheduler,
             k_euler_a=diffusers.EulerAncestralDiscreteScheduler,
             k_heun=diffusers.HeunDiscreteScheduler,
             k_lms=diffusers.LMSDiscreteScheduler,

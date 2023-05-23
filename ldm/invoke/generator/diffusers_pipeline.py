@@ -474,6 +474,7 @@ class StableDiffusionGeneratorPipeline(StableDiffusionPipeline):
         if additional_guidance is None:
             additional_guidance = []
         extra_conditioning_info = conditioning_data.extra
+        #torch.save('/tmp/invokeai-timesteps.pickle')
         with InvokeAIDiffuserComponent.custom_attention_context(self.invokeai_diffuser.model,
                                                                 extra_conditioning_info=extra_conditioning_info,
                                                                 step_count=len(self.scheduler.timesteps)
@@ -496,6 +497,7 @@ class StableDiffusionGeneratorPipeline(StableDiffusionPipeline):
                                         total_step_count=len(timesteps),
                                         additional_guidance=additional_guidance)
                 latents = step_output.prev_sample
+                #torch.save(f'/tmp/invokeai-latents-step{i:04}.pickle')
 
                 latents = self.invokeai_diffuser.do_latent_postprocessing(
                     postprocessing_settings=conditioning_data.postprocessing_settings,
