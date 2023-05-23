@@ -53,16 +53,13 @@ def get_uc_and_c_and_ec(prompt_string,
     prompt_string = prompt_string.replace("\n", " ")
     positive_prompt_string, negative_prompt_string = split_prompt_to_positive_and_negative(prompt_string)
 
-    legacy_blend = try_parse_legacy_blend(positive_prompt_string,
+    positive_conjunction = try_parse_legacy_blend(positive_prompt_string,
                                           skip_normalize=(True
                                                           if blend_mode is BlendMode.CONCAT
                                                           else skip_normalize_legacy_blend))
-    positive_conjunction: Conjunction
-    if legacy_blend is not None:
-        positive_conjunction = legacy_blend
-    else:
+    if positive_conjunction is None:
         positive_conjunction = Compel.parse_prompt_string(positive_prompt_string)
-    positive_prompt = positive_conjunction.prompts[0]
+    positive_prompt: FlattenedPrompt | Blend  = positive_conjunction.prompts[0]
 
     should_use_lora_manager = True
     lora_weights = positive_conjunction.lora_weights
@@ -74,7 +71,12 @@ def get_uc_and_c_and_ec(prompt_string,
     if model.lora_manager and should_use_lora_manager:
         lora_conditions = model.lora_manager.set_loras_conditions(lora_weights)
 
-    negative_conjunction = Compel.parse_prompt_string(negative_prompt_string)
+    negative_conjunction = try_parse_legacy_blend(negative_prompt_string,
+                                          skip_normalize=(True
+                                                          if blend_mode is BlendMode.CONCAT
+                                                          else skip_normalize_legacy_blend))
+    if negative_conjunction is None:
+        negative_conjunction = Compel.parse_prompt_string(positive_prompt_string)
     negative_prompt: FlattenedPrompt | Blend = negative_conjunction.prompts[0]
 
     tokens_count = get_max_token_count(model.tokenizer, positive_prompt)
