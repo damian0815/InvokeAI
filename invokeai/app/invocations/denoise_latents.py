@@ -7,6 +7,7 @@ from typing import Any, Dict, Iterator, List, Optional, Tuple, Union
 import torch
 import torchvision
 import torchvision.transforms as T
+from diffusers import FlowMatchEulerDiscreteScheduler
 from diffusers.configuration_utils import ConfigMixin
 from diffusers.models.adapter import T2IAdapter
 from diffusers.models.unets.unet_2d_condition import UNet2DConditionModel
@@ -117,6 +118,15 @@ def get_scheduler(
             scheduler_config["algorithm_type"] = "dpmsolver++"
 
     scheduler = scheduler_class.from_config(scheduler_config)
+    if scheduler_class is FlowMatchEulerDiscreteScheduler:
+        # hack for SD2-flowmatch
+        scheduler.init_noise_sigma = 1
+        scheduler.scale_model_input = lambda x, t: x
+        def add_noise(self, latents: torch.Tensor, noise: torch.Tensor, timesteps: torch.Tensor) -> torch.Tensor:
+            alpha = (timesteps / self.config.num_train_timesteps).view(-1, 1, 1, 1).to(latents.device, dtype=latents.dtype)
+            x_t = alpha * noise + (1 - alpha) * latents
+            return x_t
+        scheduler.add_noise = add_noise.__get__(scheduler, FlowMatchEulerDiscreteScheduler)
 
     # hack copied over from generate.py
     if not hasattr(scheduler, "uses_inpainting_model"):
