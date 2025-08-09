@@ -737,7 +737,8 @@ class DenoiseLatentsInvocation(BaseInvocation):
 
         # get start timestep index
         t_start_val = int(round(scheduler.config["num_train_timesteps"] * (1 - denoising_start)))
-        t_start_idx = len(list(filter(lambda ts: ts >= t_start_val, _timesteps)))
+        t_start_idx = max(0, len(list(filter(lambda ts: ts >= t_start_val, _timesteps))) - 1)
+        #t_start_idx = 0
 
         # get end timestep index
         t_end_val = int(round(scheduler.config["num_train_timesteps"] * (1 - denoising_end)))
