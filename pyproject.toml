@@ -38,19 +38,18 @@ dependencies = [
   "compel==2.1.1",
   "diffusers[torch]==0.33.0",
   "gguf",
-  "mediapipe==0.10.14",                   # needed for "mediapipeface" controlnet model
+  "mediapipe==0.10.14", # needed for "mediapipeface" controlnet model
   "numpy<2.0.0",
   "onnx==1.16.1",
   "onnxruntime==1.19.2",
   "opencv-contrib-python",
   "safetensors",
-  "sentencepiece==0.2.0",                 # 0.2.1 coredumps windows when loading t5 tokenizer
+  "sentencepiece==0.2.0", # 0.2.1 coredumps windows when loading t5 tokenizer
   "spandrel",
-  "torch~=2.7.0",                         # torch and related dependencies are loosely pinned, will respect requirement of `diffusers[torch]`
-  "torchsde",                             # diffusers needs this for SDE solvers, but it is not an explicit dep of diffusers
+  "torch~=2.7.0", # torch and related dependencies are loosely pinned, will respect requirement of `diffusers[torch]`
+  "torchsde", # diffusers needs this for SDE solvers, but it is not an explicit dep of diffusers
   "torchvision",
   "transformers>=4.56.0",
-
   # Core application dependencies, pinned for reproducible builds.
   "fastapi-events",
   "fastapi",
@@ -59,7 +58,6 @@ dependencies = [
   "pydantic",
   "python-socketio",
   "uvicorn[standard]",
-
   # Auxiliary dependencies, pinned only if necessary.
   "blake3",
   "Deprecated",
@@ -74,6 +72,7 @@ dependencies = [
   "requests",
   "semver~=3.0.1",
   "PyWavelets",
+  "notebook>=7.4.7",
 ]
 
 [project.optional-dependencies]

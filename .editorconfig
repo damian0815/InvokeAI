@@ -10,3 +10,6 @@ trim_trailing_whitespace = true
 # Python
 [*.py]
 indent_size = 4
+
+[*.ipynb]
+indent_size = 4
