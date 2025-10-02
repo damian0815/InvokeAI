@@ -112,7 +112,14 @@ class CompelInvocation(BaseInvocation):
             if context.config.get().log_tokenization:
                 log_tokenization_for_conjunction(conjunction, patched_tokenizer)
 
-            c, _options = compel.build_conditioning_tensor_for_conjunction(conjunction)
+            c, tokenization, _options = compel.build_conditioning_tensor_for_conjunction(conjunction, return_tokenization=True)
+            tokens = tokenization[0]
+            if hasattr(tokenizer, 'eos_token_id') and tokenizer.eos_token_id is not None:
+                # trim tokens after eos
+                eos_index = torch.where(tokens[0] == tokenizer.eos_token_id)[0][0]
+                tokens = tokens[:, :eos_index+1]
+                tokens[0, 0] = -1
+                tokens[0, -1] = -1
 
         del compel
         del patched_tokenizer
@@ -122,14 +129,17 @@ class CompelInvocation(BaseInvocation):
         del text_encoder_info
 
         c = c.detach().to("cpu")
+        tokens = tokens.detach().to("cpu")
 
         conditioning_data = ConditioningFieldData(conditionings=[BasicConditioningInfo(embeds=c)])
 
         conditioning_name = context.conditioning.save(conditioning_data)
+        tokens_name = context.tensors.save(tokens)
         return ConditioningOutput(
             conditioning=ConditioningField(
                 conditioning_name=conditioning_name,
                 mask=self.mask,
+                tokens_name=TensorField(tensor_name=tokens_name)
             )
         )
 

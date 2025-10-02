@@ -239,13 +239,19 @@ class ImageOutput(BaseInvocationOutput):
     """Base class for nodes that output a single image"""
 
     image: ImageField = OutputField(description="The output image")
+    attention_maps: list[ImageField] = OutputField(description="Image representing attention maps, if available", default=None)
     width: int = OutputField(description="The width of the image in pixels")
     height: int = OutputField(description="The height of the image in pixels")
 
     @classmethod
-    def build(cls, image_dto: ImageDTO) -> "ImageOutput":
+    def build(cls, image_dto: ImageDTO, attention_maps_image_dtos: Optional[list[ImageDTO]]) -> "ImageOutput":
+        attention_maps = [
+            ImageField(image_name=dto.image_name)
+            for dto in attention_maps_image_dtos
+        ] if attention_maps_image_dtos else None
         return cls(
             image=ImageField(image_name=image_dto.image_name),
+            attention_maps=attention_maps,
             width=image_dto.width,
             height=image_dto.height,
         )
@@ -344,13 +350,15 @@ class LatentsOutput(BaseInvocationOutput):
     """Base class for nodes that output a single latents tensor"""
 
     latents: LatentsField = OutputField(description=FieldDescriptions.latents)
+    attention_maps: Optional[list[LatentsField]] = OutputField(description=FieldDescriptions.attention_maps)
     width: int = OutputField(description=FieldDescriptions.width)
     height: int = OutputField(description=FieldDescriptions.height)
 
     @classmethod
-    def build(cls, latents_name: str, latents: torch.Tensor, seed: Optional[int] = None) -> "LatentsOutput":
+    def build(cls, latents_name: str, latents: torch.Tensor, seed: Optional[int] = None, attention_maps_names: Optional[list[str]] = None) -> "LatentsOutput":
         return cls(
             latents=LatentsField(latents_name=latents_name, seed=seed),
+            attention_maps=[LatentsField(latents_name=n) for n in attention_maps_names] if attention_maps_names else None,
             width=latents.size()[3] * LATENT_SCALE_FACTOR,
             height=latents.size()[2] * LATENT_SCALE_FACTOR,
         )

@@ -5077,6 +5077,11 @@ export type components = {
              * @default null
              */
             mask?: components["schemas"]["TensorField"] | null;
+            /**
+             * @description The name of the tensor containing the token ids used to create the conditioning.
+             * @default null
+             */
+            tokens_name?: components["schemas"]["TensorField"] | null;
         };
         /**
          * Conditioning Primitive
@@ -7350,6 +7355,12 @@ export type components = {
             /** @description The output image */
             image: components["schemas"]["ImageField"];
             /**
+             * Attention Maps
+             * @description Image representing attention maps, if available
+             * @default null
+             */
+            attention_maps: components["schemas"]["ImageField"][];
+            /**
              * Width
              * @description The width of the image in pixels
              */
@@ -7450,6 +7461,12 @@ export type components = {
         FaceOffOutput: {
             /** @description The output image */
             image: components["schemas"]["ImageField"];
+            /**
+             * Attention Maps
+             * @description Image representing attention maps, if available
+             * @default null
+             */
+            attention_maps: components["schemas"]["ImageField"][];
             /**
              * Width
              * @description The width of the image in pixels
@@ -11100,6 +11117,12 @@ export type components = {
             /** @description The output image */
             image: components["schemas"]["ImageField"];
             /**
+             * Attention Maps
+             * @description Image representing attention maps, if available
+             * @default null
+             */
+            attention_maps: components["schemas"]["ImageField"][];
+            /**
              * Width
              * @description The width of the image in pixels
              */
@@ -13804,6 +13827,11 @@ export type components = {
             /** @description Latents tensor */
             latents: components["schemas"]["LatentsField"];
             /**
+             * Attention Maps
+             * @description Per-token attention maps
+             */
+            attention_maps: components["schemas"]["LatentsField"][] | null;
+            /**
              * Width
              * @description Width of output (px)
              */
@@ -13821,6 +13849,11 @@ export type components = {
         LatentsOutput: {
             /** @description Latents tensor */
             latents: components["schemas"]["LatentsField"];
+            /**
+             * Attention Maps
+             * @description Per-token attention maps
+             */
+            attention_maps: components["schemas"]["LatentsField"][] | null;
             /**
              * Width
              * @description Width of output (px)
@@ -13875,6 +13908,12 @@ export type components = {
              * @default null
              */
             latents?: components["schemas"]["LatentsField"] | null;
+            /**
+             * Attention Maps
+             * @description Per-token attention maps
+             * @default null
+             */
+            attention_maps?: components["schemas"]["LatentsField"][] | null;
             /**
              * @description VAE
              * @default null

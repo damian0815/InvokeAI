@@ -1,5 +1,6 @@
 from contextlib import nullcontext
 
+import PIL.Image
 import torch
 from diffusers.image_processor import VaeImageProcessor
 from diffusers.models.attention_processor import (
@@ -42,6 +43,10 @@ class LatentsToImageInvocation(BaseInvocation, WithMetadata, WithBoard):
 
     latents: LatentsField = InputField(
         description=FieldDescriptions.latents,
+        input=Input.Connection,
+    )
+    attention_maps: list[LatentsField] = InputField(
+        description=FieldDescriptions.attention_maps,
         input=Input.Connection,
     )
     vae: VAEField = InputField(
@@ -132,4 +137,11 @@ class LatentsToImageInvocation(BaseInvocation, WithMetadata, WithBoard):
 
         image_dto = context.images.save(image=image)
 
-        return ImageOutput.build(image_dto)
+        attention_maps_image_dtos = []
+        for attention_maps_field in self.attention_maps:
+            attention_maps = context.tensors.load(attention_maps_field.latents_name)
+            attention_maps = attention_maps.mul(0xff).byte()
+            attention_maps_image = context.images.save(image=PIL.Image.fromarray(attention_maps.numpy(), mode='L'))
+            attention_maps_image_dtos.append(attention_maps_image)
+
+        return ImageOutput.build(image_dto, attention_maps_image_dtos=attention_maps_image_dtos)

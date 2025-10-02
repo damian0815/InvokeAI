@@ -20,6 +20,7 @@ from pydantic import field_validator
 from torchvision.transforms.functional import resize as tv_resize
 from transformers import CLIPVisionModelWithProjection
 
+from invokeai.app.invocations.attention_map_collector import collect_attention_maps
 from invokeai.app.invocations.baseinvocation import BaseInvocation, invocation
 from invokeai.app.invocations.constants import LATENT_SCALE_FACTOR
 from invokeai.app.invocations.controlnet import ControlField
@@ -390,7 +391,7 @@ class DenoiseLatentsInvocation(BaseInvocation):
             uncond_regions=uncond_regions,
             cond_regions=cond_regions,
             guidance_scale=cfg_scale,
-            guidance_rescale_multiplier=cfg_rescale_multiplier,
+            guidance_rescale_multiplier=cfg_rescale_multiplier
         )
         return conditioning_data
 
@@ -1009,6 +1010,7 @@ class DenoiseLatentsInvocation(BaseInvocation):
                 del lora_info
             return
 
+
         with (
             ExitStack() as exit_stack,
             context.models.load(self.unet.unet).model_on_device() as (cached_weights, unet),
@@ -1021,7 +1023,7 @@ class DenoiseLatentsInvocation(BaseInvocation):
                 prefix="lora_unet_",
                 dtype=unet.dtype,
                 cached_weights=cached_weights,
-            ),
+            )
         ):
             assert isinstance(unet, UNet2DConditionModel)
             latents = latents.to(device=device, dtype=unet.dtype)
@@ -1085,26 +1087,50 @@ class DenoiseLatentsInvocation(BaseInvocation):
                 seed=seed,
             )
 
-            result_latents = pipeline.latents_from_embeddings(
-                latents=latents,
-                timesteps=timesteps,
-                init_timestep=init_timestep,
-                noise=noise,
-                seed=seed,
-                mask=mask,
-                masked_latents=masked_latents,
-                is_gradient_mask=gradient_mask,
-                scheduler_step_kwargs=scheduler_step_kwargs,
-                conditioning_data=conditioning_data,
-                control_data=controlnet_data,
-                ip_adapter_data=ip_adapter_data,
-                t2i_adapter_data=t2i_adapter_data,
-                callback=step_callback,
-            )
+            with collect_attention_maps(unet, text_encoder_hidden_size=conditioning_data.cond_text.embeds.shape[-1]) as attention_map_collector:
+                result_latents = pipeline.latents_from_embeddings(
+                    latents=latents,
+                    timesteps=timesteps,
+                    init_timestep=init_timestep,
+                    noise=noise,
+                    seed=seed,
+                    mask=mask,
+                    masked_latents=masked_latents,
+                    is_gradient_mask=gradient_mask,
+                    scheduler_step_kwargs=scheduler_step_kwargs,
+                    conditioning_data=conditioning_data,
+                    control_data=controlnet_data,
+                    ip_adapter_data=ip_adapter_data,
+                    t2i_adapter_data=t2i_adapter_data,
+                    callback=step_callback,
+                )
+
+                uncond_tokens = context.tensors.load(self.negative_conditioning.tokens_name.tensor_name)
+                cond_tokens = context.tensors.load(self.positive_conditioning.tokens_name.tensor_name)
+                eos_token_index = [
+                    uncond_tokens.shape[1],
+                    cond_tokens.shape[1],
+                ]
+                drop_eos_bos = (uncond_tokens[0, 0] == -1).item()
+                attention_maps = [
+                    attention_map_collector.get_stacked_maps(
+                        latents_width=latents.shape[-1],
+                        latents_height=latents.shape[-2],
+                        prompt_index=prompt_index,
+                        eos_token_index=eos_token_index[prompt_index],
+                        drop_bos_eos=drop_eos_bos,
+                        merge_timesteps=True)
+                    for prompt_index in range(2)
+                ]
 
         # https://discuss.huggingface.co/t/memory-usage-by-later-pipeline-stages/23699
         result_latents = result_latents.to("cpu")
+        attention_maps = [m.to("cpu") for m in attention_maps]
         TorchDevice.empty_cache()
 
         name = context.tensors.save(tensor=result_latents)
-        return LatentsOutput.build(latents_name=name, latents=result_latents, seed=None)
+        attention_maps_names = [
+            context.tensors.save(tensor=maps)
+            for i, maps in enumerate(attention_maps)
+        ]
+        return LatentsOutput.build(latents_name=name, latents=result_latents, seed=None, attention_maps_names=attention_maps_names)

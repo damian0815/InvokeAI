@@ -188,6 +188,7 @@ class FieldDescriptions:
     t2i_adapter = "T2I-Adapter(s) to apply"
     denoised_latents = "Denoised latents tensor"
     latents = "Latents tensor"
+    attention_maps = "Per-token attention maps"
     strength = "Strength of denoising (proportional to steps)"
     metadata = "Optional metadata to be saved with the image"
     metadata_collection = "Collection of Metadata"
@@ -335,6 +336,10 @@ class ConditioningField(BaseModel):
         default=None,
         description="The mask associated with this conditioning tensor. Excluded regions should be set to False, "
         "included regions should be set to True.",
+    )
+    tokens_name: Optional[TensorField] = Field(
+        default=None,
+        description="The name of the tensor containing the token ids used to create the conditioning."
     )
 
 
