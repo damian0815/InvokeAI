@@ -54,12 +54,34 @@ export const ImageTokenization = memo(() => {
 
 
 const Tokens = ({ tokens, luminanceValues }: { tokens: string[] | undefined; luminanceValues: number[] }) => {
+  const getHeatmapColor = (value: number): string => {
+    // Heatmap: blue (0) -> purple (0.5) -> red (1)
+    // Blue: (0, 0, 255), Purple: (128, 0, 255), Red: (255, 0, 0)
+    let r: number, g: number, b: number;
+    
+    if (value < 0.5) {
+      // Blue to Purple (0 to 0.5)
+      const t = value * 2; // Normalize to 0-1
+      r = Math.round(128 * t);
+      g = 0;
+      b = 255;
+    } else {
+      // Purple to Red (0.5 to 1)
+      const t = (value - 0.5) * 2; // Normalize to 0-1
+      r = Math.round(128 + 127 * t);
+      g = 0;
+      b = Math.round(255 * (1 - t));
+    }
+    
+    return `rgb(${r}, ${g}, ${b})`;
+  };
+
   return <Box mb={2} maxH={24} overflowY="auto">
     <Flex gap={2} flexWrap="wrap">
       {tokens && tokens.map((token, index) => {
-        const luminance = luminanceValues[index] || 0;
-        const bgColor = `rgba(255, 255, 0, ${luminance})`; // Yellow with varying opacity
-        const textColor = luminance > 0.5 ? "base.900" : "base.800";
+        const luminance = Math.pow(luminanceValues[index] || 0, 2);
+        const bgColor = luminance > 0 ? getHeatmapColor(luminance) : "base.800";
+        const textColor = "white";
         
         return (
           <Box
@@ -67,7 +89,7 @@ const Tokens = ({ tokens, luminanceValues }: { tokens: string[] | undefined; lum
             px={2}
             py={1}
             borderRadius="base"
-            bg={luminance > 0 ? bgColor : "base.200"}
+            bg={bgColor}
             color={textColor}
             fontSize="xs"
             maxW="max-content"
@@ -86,6 +108,7 @@ const ImageTokenizationContent = memo(({ image, metadata, fittedDims }: { image:
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [luminanceValues, setLuminanceValues] = useState<number[]>([]);
   const [attentionMapData, setAttentionMapData] = useState<ImageData | null>(null);
+  const [crosshairPos, setCrosshairPos] = useState<{ x: number; y: number } | null>(null);
 
   const attentionMapsDTO = useImageDTO(metadata["attention_maps"]["collection"][1]["image_name"]);
 
@@ -142,6 +165,9 @@ const ImageTokenizationContent = memo(({ image, metadata, fittedDims }: { image:
     const attentionX = Math.floor(imageX / 8);
     const attentionY = Math.floor(imageY / 8);
 
+    // Update crosshair position
+    setCrosshairPos({ x: attentionX, y: attentionY });
+
     // Get attention map dimensions
     const attentionWidth = attentionMapData.width;
     const attentionHeightPerToken = attentionMapData.height / tokenCount;
@@ -173,39 +199,79 @@ const ImageTokenizationContent = memo(({ image, metadata, fittedDims }: { image:
 
   const handleMouseLeave = useCallback(() => {
     setLuminanceValues([]);
+    setCrosshairPos(null);
   }, []);
 
-  return <>
-    <canvas ref={canvasRef} style={{ display: 'none' }} />
-    {tokens && <Tokens tokens={tokens} luminanceValues={luminanceValues} />}
-    <Image
-      id="image"
-      src={image.image_url}
-      fallbackSrc={image.thumbnail_url}
-      crossOrigin={crossOrigin}
-      w={fittedDims.width}
-      h={fittedDims.height}
-      maxW="full"
-      maxH="full"
-      objectFit="cover"
-      objectPosition="top left"
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      cursor="crosshair"
-    />
-    {attentionMapsDTO && <Image
-      id="tokenization-attention-map"
-      src={attentionMapsDTO.image_url}
-      fallbackSrc={attentionMapsDTO.thumbnail_url}
-      crossOrigin={crossOrigin}
-      w={fittedDims.width}
-      h={fittedDims.height}
-      maxW="full"
-      maxH="full"
-      objectFit="cover"
-      objectPosition="top left"
-    />}
-    <pre>{JSON.stringify(metadata)}</pre>
-  </>
+  return (
+    <Flex flexDir="column" w="full" h="full" gap={2}>
+      <canvas ref={canvasRef} style={{ display: 'none' }} />
+      {tokens && <Tokens tokens={tokens} luminanceValues={luminanceValues} />}
+      <Flex gap={4} alignItems="flex-start">
+        <Image
+          id="image"
+          src={image.image_url}
+          fallbackSrc={image.thumbnail_url}
+          crossOrigin={crossOrigin}
+          w={fittedDims.width}
+          h={fittedDims.height}
+          maxW="full"
+          maxH="full"
+          objectFit="cover"
+          objectPosition="top left"
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
+          cursor="crosshair"
+        />
+        {attentionMapsDTO && attentionMapData && (
+          <Box position="relative" flexShrink={0}>
+            <Image
+              id="tokenization-attention-map"
+              src={attentionMapsDTO.image_url}
+              fallbackSrc={attentionMapsDTO.thumbnail_url}
+              crossOrigin={crossOrigin}
+              w={attentionMapsDTO.width}
+              h={attentionMapsDTO.height}
+              objectFit="none"
+              objectPosition="top left"
+            />
+            {crosshairPos && Array.from({ length: tokenCount }, (_, tokenIdx) => {
+              const attentionHeightPerToken = attentionMapData.height / tokenCount;
+              const yOffset = tokenIdx * attentionHeightPerToken;
+              
+              return (
+                <Box
+                  key={tokenIdx}
+                  position="absolute"
+                  left={`${crosshairPos.x}px`}
+                  top={`${yOffset + crosshairPos.y}px`}
+                  w="1px"
+                  h="1px"
+                  pointerEvents="none"
+                  _before={{
+                    content: '""',
+                    position: 'absolute',
+                    left: '-5px',
+                    top: '0',
+                    width: '11px',
+                    height: '1px',
+                    bg: 'red.500',
+                  }}
+                  _after={{
+                    content: '""',
+                    position: 'absolute',
+                    left: '0',
+                    top: '-5px',
+                    width: '1px',
+                    height: '11px',
+                    bg: 'red.500',
+                  }}
+                />
+              );
+            })}
+          </Box>
+        )}
+      </Flex>
+    </Flex>
+  );
 });
 ImageTokenization.displayName = 'ImageTokenization';
