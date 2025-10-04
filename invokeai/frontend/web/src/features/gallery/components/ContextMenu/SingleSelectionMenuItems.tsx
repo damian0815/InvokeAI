@@ -12,6 +12,7 @@ import { ContextMenuItemNewLayerFromImageSubMenu } from 'features/gallery/compon
 import { ContextMenuItemOpenInNewTab } from 'features/gallery/components/ContextMenu/MenuItems/ContextMenuItemOpenInNewTab';
 import { ContextMenuItemOpenInViewer } from 'features/gallery/components/ContextMenu/MenuItems/ContextMenuItemOpenInViewer';
 import { ContextMenuItemSelectForCompare } from 'features/gallery/components/ContextMenu/MenuItems/ContextMenuItemSelectForCompare';
+import { ContextMenuItemShowTokenization } from 'features/gallery/components/ContextMenu/MenuItems/ContextMenuItemShowTokenization';
 import { ContextMenuItemSendToUpscale } from 'features/gallery/components/ContextMenu/MenuItems/ContextMenuItemSendToUpscale';
 import { ContextMenuItemSendToVideo } from 'features/gallery/components/ContextMenu/MenuItems/ContextMenuItemSendToVideo';
 import { ContextMenuItemStarUnstar } from 'features/gallery/components/ContextMenu/MenuItems/ContextMenuItemStarUnstar';
@@ -57,6 +58,7 @@ const SingleSelectionMenuItems = ({ imageDTO }: SingleSelectionMenuItemsProps) =
       <ContextMenuItemNewCanvasFromImageSubMenu />
       {tab === 'canvas' && <ContextMenuItemNewLayerFromImageSubMenu />}
       <MenuDivider />
+      <ContextMenuItemShowTokenization />
       <ContextMenuItemChangeBoard />
       <ContextMenuItemStarUnstar />
       {(tab === 'canvas' || tab === 'generate' || tab === 'workflows' || tab === 'upscaling') &&

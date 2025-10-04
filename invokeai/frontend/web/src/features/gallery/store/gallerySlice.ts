@@ -61,6 +61,9 @@ const slice = createSlice({
     imageToCompareChanged: (state, action: PayloadAction<string | null>) => {
       state.imageToCompare = action.payload;
     },
+    imageToTokenizeChanged: (state, action: PayloadAction<string | null>) => {
+      state.imageToTokenize = action.payload;
+    },
     comparisonModeChanged: (state, action: PayloadAction<ComparisonMode>) => {
       state.comparisonMode = action.payload;
     },
@@ -162,6 +165,7 @@ export const {
   boardSearchTextChanged,
   alwaysShowImageSizeBadgeChanged,
   imageToCompareChanged,
+  imageToTokenizeChanged,
   comparisonModeChanged,
   comparedImagesSwapped,
   comparisonFitChanged,

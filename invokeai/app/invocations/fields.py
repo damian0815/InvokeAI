@@ -337,9 +337,9 @@ class ConditioningField(BaseModel):
         description="The mask associated with this conditioning tensor. Excluded regions should be set to False, "
         "included regions should be set to True.",
     )
-    tokens_name: Optional[TensorField] = Field(
+    tokenization: Optional[list[str]] = Field(
         default=None,
-        description="The name of the tensor containing the token ids used to create the conditioning."
+        description="List of strings representing single tokens in the prompt."
     )
 
 

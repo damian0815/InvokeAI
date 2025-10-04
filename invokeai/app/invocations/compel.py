@@ -113,13 +113,7 @@ class CompelInvocation(BaseInvocation):
                 log_tokenization_for_conjunction(conjunction, patched_tokenizer)
 
             c, tokenization, _options = compel.build_conditioning_tensor_for_conjunction(conjunction, return_tokenization=True)
-            tokens = tokenization[0]
-            if hasattr(tokenizer, 'eos_token_id') and tokenizer.eos_token_id is not None:
-                # trim tokens after eos
-                eos_index = torch.where(tokens[0] == tokenizer.eos_token_id)[0][0]
-                tokens = tokens[:, :eos_index+1]
-                tokens[0, 0] = -1
-                tokens[0, -1] = -1
+            tokenization = _get_clean_tokens(tokenization, tokenizer)
 
         del compel
         del patched_tokenizer
@@ -129,17 +123,15 @@ class CompelInvocation(BaseInvocation):
         del text_encoder_info
 
         c = c.detach().to("cpu")
-        tokens = tokens.detach().to("cpu")
 
         conditioning_data = ConditioningFieldData(conditionings=[BasicConditioningInfo(embeds=c)])
 
         conditioning_name = context.conditioning.save(conditioning_data)
-        tokens_name = context.tensors.save(tokens)
         return ConditioningOutput(
             conditioning=ConditioningField(
                 conditioning_name=conditioning_name,
                 mask=self.mask,
-                tokens_name=TensorField(tensor_name=tokens_name)
+                tokenization=tokenization
             )
         )
 
@@ -541,3 +533,25 @@ def log_tokenization_for_text(
     if discarded != "":
         print(f"\n>> [TOKENLOG] Tokens Discarded ({totalTokens - usedTokens}):")
         print(f"{discarded}\x1b[0m")
+
+
+def _get_clean_tokens(tokenization: list[torch.Tensor], tokenizer: CLIPTokenizer) -> List[str]:
+    tokens = tokenizer.convert_ids_to_tokens(tokenization[0][0].tolist())
+    seen_eos = False
+    tokens_cleaned = []
+    # cleanup: standardise eos/bos/pad, suppress chains of '<eos>' or 0 (padding)
+    for i, t in enumerate(tokens):
+        if t == tokenizer.eos_token or tokenization[0][0][i] == 0:
+            if seen_eos:
+                continue
+            tokens_cleaned.append('<eos>')
+            seen_eos = True
+        else:
+            seen_eos = False
+            if t == tokenizer.bos_token:
+                tokens_cleaned.append('<bos>')
+            elif t == tokenizer.pad_token:
+                tokens_cleaned.append('<pad>')
+            else:
+                tokens_cleaned.append(t)
+    return tokens_cleaned

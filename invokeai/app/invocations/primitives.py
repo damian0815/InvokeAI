@@ -1,5 +1,5 @@
 # Copyright (c) 2023 Kyle Schouviller (https://github.com/kyle0654)
-
+import json
 from typing import Optional
 
 import torch
@@ -346,23 +346,22 @@ class LatentsOutput(BaseInvocationOutput):
     latents: LatentsField = OutputField(description=FieldDescriptions.latents)
     width: int = OutputField(description=FieldDescriptions.width)
     height: int = OutputField(description=FieldDescriptions.height)
-    attention_maps: Optional[dict[str, ImageField]] = OutputField(description=FieldDescriptions.attention_maps, default=None)
-    tokenization: Optional[dict[str, list[str]]] = OutputField(description="Prompt tokenization", default=None)
+    attention_maps: Optional[ImageCollectionOutput] = OutputField(description=FieldDescriptions.attention_maps, default=None)
+    tokenization_metadata: Optional[StringOutput] = OutputField(description="Tokenization metadata", default=None)
 
     @classmethod
     def build(cls, latents_name: str, latents: torch.Tensor, seed: Optional[int] = None,
-              attention_map_image_dtos: Optional[dict[str, ImageDTO]]=None,
+              attention_map_image_dtos: Optional[list[ImageDTO]]=None,
               tokenization: Optional[dict[str, list[str]]]=None) -> "LatentsOutput":
-        attention_maps = {
-            k: ImageField(image_name=dto.image_name)
-            for k, dto in attention_map_image_dtos.items()
-        } if attention_map_image_dtos else None
+        attention_maps = [ImageField(image_name=dto.image_name)
+            for dto in attention_map_image_dtos
+        ] if attention_map_image_dtos else None
         return cls(
             latents=LatentsField(latents_name=latents_name, seed=seed),
             width=latents.size()[3] * LATENT_SCALE_FACTOR,
             height=latents.size()[2] * LATENT_SCALE_FACTOR,
-            attention_maps=attention_maps,
-            tokenization=tokenization,
+            attention_maps=ImageCollectionOutput(collection=attention_maps),
+            tokenization_metadata=StringOutput(value=json.dumps(tokenization)) if tokenization else None,
         )
 
 

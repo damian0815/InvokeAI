@@ -48,6 +48,7 @@ const ImageMetadataViewer = ({ image }: ImageMetadataViewerProps) => {
           <Tab>{t('metadata.imageDetails')}</Tab>
           <Tab>{t('metadata.workflow')}</Tab>
           <Tab>{t('nodes.graph')}</Tab>
+          <Tab>{t('metadata.tokenization')}</Tab>
         </TabList>
 
         <TabPanels>

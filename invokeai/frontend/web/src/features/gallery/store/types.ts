@@ -32,6 +32,7 @@ export const zGalleryState = z.object({
   searchTerm: z.string(),
   alwaysShowImageSizeBadge: z.boolean(),
   imageToCompare: z.string().nullable(),
+  imageToTokenize: z.string().nullable(),
   comparisonMode: zComparisonMode,
   comparisonFit: zComparisonFit,
   shouldShowArchivedBoards: z.boolean(),

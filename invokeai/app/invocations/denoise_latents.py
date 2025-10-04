@@ -1116,11 +1116,11 @@ class DenoiseLatentsInvocation(BaseInvocation):
                 uncond_tokens = get_tokens(self.negative_conditioning)
                 cond_tokens = get_tokens(self.positive_conditioning)
                 eos_token_index = [
-                    None if uncond_tokens is None else uncond_tokens.shape[1]-1,
-                    None if cond_tokens is None else cond_tokens.shape[1]-1,
+                    None if uncond_tokens is None else (-1 if "<eos>" not in uncond_tokens else uncond_tokens.index("<eos>")),
+                    None if cond_tokens is None else (-1 if "<eos>" not in cond_tokens else cond_tokens.index("<eos>"))
                 ]
                 # eos/bos have been replaced by -1
-                drop_eos_bos = (uncond_tokens[0, 0] == -1).item()
+                drop_eos_bos = False if cond_tokens is None else (uncond_tokens[-1] == "<eos>")
                 attention_maps = [
                     attention_map_collector.get_stacked_maps(
                         latents_width=latents.shape[-1],
@@ -1141,11 +1141,13 @@ class DenoiseLatentsInvocation(BaseInvocation):
 
         # save attention map images
         attention_map_image_dtos = []
+        # negative = index 0, positive = index 1
         for attention_map in attention_maps:
             attention_map = attention_map.mul(0xff).byte()
             attention_map_image = context.images.save(image=PIL.Image.fromarray(attention_map.numpy(), mode='L'))
             attention_map_image_dtos.append(attention_map_image)
-        attention_maps_dict = {"negative": attention_maps[0], "positive": attention_maps[1]}
         tokenization_dict = {"negative": uncond_tokens, "positive": cond_tokens}
 
-        return LatentsOutput.build(latents_name=name, latents=result_latents, seed=None, attention_map_image_dtos=attention_map_image_dtos)
+        return LatentsOutput.build(latents_name=name, latents=result_latents, seed=None,
+                                   attention_map_image_dtos=attention_map_image_dtos,
+                                   tokenization=tokenization_dict)

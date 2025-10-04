@@ -5078,10 +5078,11 @@ export type components = {
              */
             mask?: components["schemas"]["TensorField"] | null;
             /**
-             * @description The name of the tensor containing the token ids used to create the conditioning.
+             * Tokenization
+             * @description List of strings representing single tokens in the prompt.
              * @default null
              */
-            tokens_name?: components["schemas"]["TensorField"] | null;
+            tokenization?: string[] | null;
         };
         /**
          * Conditioning Primitive
@@ -13809,12 +13810,6 @@ export type components = {
             /** @description Latents tensor */
             latents: components["schemas"]["LatentsField"];
             /**
-             * Attention Maps
-             * @description Per-token attention maps
-             * @default null
-             */
-            attention_maps__: components["schemas"]["ImageField"][] | null;
-            /**
              * Width
              * @description Width of output (px)
              */
@@ -13824,6 +13819,16 @@ export type components = {
              * @description Height of output (px)
              */
             height: number;
+            /**
+             * @description Per-token attention maps
+             * @default null
+             */
+            attention_maps: components["schemas"]["ImageCollectionOutput"] | null;
+            /**
+             * @description Tokenization metadata
+             * @default null
+             */
+            tokenization_metadata: components["schemas"]["StringOutput"] | null;
         };
         /**
          * LatentsOutput
@@ -13833,12 +13838,6 @@ export type components = {
             /** @description Latents tensor */
             latents: components["schemas"]["LatentsField"];
             /**
-             * Attention Maps
-             * @description Per-token attention maps
-             * @default null
-             */
-            attention_maps__: components["schemas"]["ImageField"][] | null;
-            /**
              * Width
              * @description Width of output (px)
              */
@@ -13848,6 +13847,16 @@ export type components = {
              * @description Height of output (px)
              */
             height: number;
+            /**
+             * @description Per-token attention maps
+             * @default null
+             */
+            attention_maps: components["schemas"]["ImageCollectionOutput"] | null;
+            /**
+             * @description Tokenization metadata
+             * @default null
+             */
+            tokenization_metadata: components["schemas"]["StringOutput"] | null;
             /**
              * type
              * @default latents_output
