@@ -95,13 +95,20 @@ class CrossAttentionMapCollector:
             maps = torch.swapdims(maps, 0, 1)  # [B, steps, heads, (H*W), N]
             assert len(maps.shape) == 5  # [B, steps, heads, (H*W), N]
 
-            maps = maps[prompt_index:prompt_index + 1, ...]  # [1, steps, heads, (H*W), N]
+            maps = maps[prompt_index:prompt_index + 1, ...] # only one batch slot
 
             # drop padding tokens, bos, eos
             if eos_token_index is not None:
-                maps = maps[..., :eos_token_index + 1]  # [B, steps, heads, (H*W), N]
+                maps = maps[..., :eos_token_index + 1]
                 if drop_bos_eos:
-                    maps = maps[..., 1:-1]  # [B, steps, heads, (H*W), N]
+                    if maps.shape[-1] > 2:
+                        # drop EOS and BOS
+                        maps = maps[..., 1:-1]
+                    elif maps.shape[-1] == 2:
+                        # drop BOS, keep EOS (must output at least 1 map)
+                        maps = maps[..., 1:]
+                    else:
+                        raise RuntimeError("maps are missing for bos and/or eos tokens")
 
             # merge all heads together by averaging
             maps = torch.mean(maps, dim=2)  # now [B, steps, (H*W), N]

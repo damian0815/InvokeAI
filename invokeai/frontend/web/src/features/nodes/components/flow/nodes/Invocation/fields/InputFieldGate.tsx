@@ -71,6 +71,7 @@ const Fallback = memo(
       <InputFieldWrapper>
         <Flex w="full" px={1} py={1}>
           <Text fontWeight="semibold" color="error.300" whiteSpace="pre">
+            input:
             {label}
           </Text>
         </Flex>

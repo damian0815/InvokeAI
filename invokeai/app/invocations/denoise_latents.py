@@ -4,6 +4,7 @@ import os
 from contextlib import ExitStack
 from typing import Any, Dict, Iterator, List, Optional, Tuple, Union
 
+import PIL
 import torch
 import torchvision
 import torchvision.transforms as T
@@ -1105,12 +1106,20 @@ class DenoiseLatentsInvocation(BaseInvocation):
                     callback=step_callback,
                 )
 
-                uncond_tokens = context.tensors.load(self.negative_conditioning.tokens_name.tensor_name)
-                cond_tokens = context.tensors.load(self.positive_conditioning.tokens_name.tensor_name)
+                def get_tokens(conditioning: ConditioningField | list[ConditioningField] | None) -> Optional[list[str]]:
+                    if conditioning is None:
+                        return None
+                    if type(conditioning) is list:
+                        conditioning = conditioning[0]
+                    return conditioning.tokenization
+
+                uncond_tokens = get_tokens(self.negative_conditioning)
+                cond_tokens = get_tokens(self.positive_conditioning)
                 eos_token_index = [
-                    uncond_tokens.shape[1],
-                    cond_tokens.shape[1],
+                    None if uncond_tokens is None else uncond_tokens.shape[1]-1,
+                    None if cond_tokens is None else cond_tokens.shape[1]-1,
                 ]
+                # eos/bos have been replaced by -1
                 drop_eos_bos = (uncond_tokens[0, 0] == -1).item()
                 attention_maps = [
                     attention_map_collector.get_stacked_maps(
@@ -1129,8 +1138,14 @@ class DenoiseLatentsInvocation(BaseInvocation):
         TorchDevice.empty_cache()
 
         name = context.tensors.save(tensor=result_latents)
-        attention_maps_names = [
-            context.tensors.save(tensor=maps)
-            for i, maps in enumerate(attention_maps)
-        ]
-        return LatentsOutput.build(latents_name=name, latents=result_latents, seed=None, attention_maps_names=attention_maps_names)
+
+        # save attention map images
+        attention_map_image_dtos = []
+        for attention_map in attention_maps:
+            attention_map = attention_map.mul(0xff).byte()
+            attention_map_image = context.images.save(image=PIL.Image.fromarray(attention_map.numpy(), mode='L'))
+            attention_map_image_dtos.append(attention_map_image)
+        attention_maps_dict = {"negative": attention_maps[0], "positive": attention_maps[1]}
+        tokenization_dict = {"negative": uncond_tokens, "positive": cond_tokens}
+
+        return LatentsOutput.build(latents_name=name, latents=result_latents, seed=None, attention_map_image_dtos=attention_map_image_dtos)

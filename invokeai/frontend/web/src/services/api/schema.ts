@@ -7355,12 +7355,6 @@ export type components = {
             /** @description The output image */
             image: components["schemas"]["ImageField"];
             /**
-             * Attention Maps
-             * @description Image representing attention maps, if available
-             * @default null
-             */
-            attention_maps: components["schemas"]["ImageField"][];
-            /**
              * Width
              * @description The width of the image in pixels
              */
@@ -7461,12 +7455,6 @@ export type components = {
         FaceOffOutput: {
             /** @description The output image */
             image: components["schemas"]["ImageField"];
-            /**
-             * Attention Maps
-             * @description Image representing attention maps, if available
-             * @default null
-             */
-            attention_maps: components["schemas"]["ImageField"][];
             /**
              * Width
              * @description The width of the image in pixels
@@ -11117,12 +11105,6 @@ export type components = {
             /** @description The output image */
             image: components["schemas"]["ImageField"];
             /**
-             * Attention Maps
-             * @description Image representing attention maps, if available
-             * @default null
-             */
-            attention_maps: components["schemas"]["ImageField"][];
-            /**
              * Width
              * @description The width of the image in pixels
              */
@@ -13829,8 +13811,9 @@ export type components = {
             /**
              * Attention Maps
              * @description Per-token attention maps
+             * @default null
              */
-            attention_maps: components["schemas"]["LatentsField"][] | null;
+            attention_maps__: components["schemas"]["ImageField"][] | null;
             /**
              * Width
              * @description Width of output (px)
@@ -13852,8 +13835,9 @@ export type components = {
             /**
              * Attention Maps
              * @description Per-token attention maps
+             * @default null
              */
-            attention_maps: components["schemas"]["LatentsField"][] | null;
+            attention_maps__: components["schemas"]["ImageField"][] | null;
             /**
              * Width
              * @description Width of output (px)
@@ -13908,12 +13892,6 @@ export type components = {
              * @default null
              */
             latents?: components["schemas"]["LatentsField"] | null;
-            /**
-             * Attention Maps
-             * @description Per-token attention maps
-             * @default null
-             */
-            attention_maps?: components["schemas"]["LatentsField"][] | null;
             /**
              * @description VAE
              * @default null

@@ -31,6 +31,7 @@ const Fallback = memo(({ fieldName }: Props) => {
     <OutputFieldWrapper>
       <FormControl isInvalid={true} alignItems="stretch" justifyContent="space-between" gap={2} h="full" w="full">
         <FormLabel display="flex" alignItems="center" h="full" color="error.300" mb={0} px={1} gap={2}>
+          output: 
           {t('nodes.unexpectedField_withName', { name })}
         </FormLabel>
       </FormControl>

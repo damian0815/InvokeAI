@@ -5,7 +5,7 @@ import { CanvasAlertsInvocationProgress } from 'features/controlLayers/component
 import { DndImage } from 'features/dnd/DndImage';
 import ImageMetadataViewer from 'features/gallery/components/ImageMetadataViewer/ImageMetadataViewer';
 import NextPrevItemButtons from 'features/gallery/components/NextPrevItemButtons';
-import { selectShouldShowItemDetails, selectShouldShowProgressInViewer } from 'features/ui/store/uiSelectors';
+import { selectShouldShowItemDetails, selectShouldShowProgressInViewer, selectShouldShowTokenization } from 'features/ui/store/uiSelectors';
 import type { AnimationProps } from 'framer-motion';
 import { AnimatePresence, motion } from 'framer-motion';
 import { memo, useCallback, useRef, useState } from 'react';
@@ -19,6 +19,7 @@ import { ProgressIndicator } from './ProgressIndicator2';
 export const CurrentImagePreview = memo(({ imageDTO }: { imageDTO: ImageDTO | null }) => {
   const shouldShowItemDetails = useAppSelector(selectShouldShowItemDetails);
   const shouldShowProgressInViewer = useAppSelector(selectShouldShowProgressInViewer);
+  const shouldShowTokenization = useAppSelector(selectShouldShowTokenization);
   const { onLoadImage, $progressEvent, $progressImage } = useImageViewerContext();
   const progressEvent = useStore($progressEvent);
   const progressImage = useStore($progressImage);
