@@ -12,9 +12,7 @@ import { useStore } from '@nanostores/react';
 import { fitDimsToContainer } from "./common";
 import { TokenizationToolbar } from "./TokenizationToolbar";
 
-
 export const ImageTokenization = memo(() => {
-  const crossOrigin = useStore($crossOrigin);
 
   const [rect, setRect] = useState<DOMRect | null>(null);
   const ref = useRef<HTMLDivElement | null>(null);
@@ -23,7 +21,7 @@ export const ImageTokenization = memo(() => {
   const { metadata, isLoading } = useDebouncedMetadata(imageDTO?.image_name);
 
   // Ref callback runs synchronously when the DOM node is attached, ensuring we have a measurement before
-  // the comparison content is rendered.
+  // the tokenization content is rendered.
   const measureNode = useCallback((node: HTMLDivElement) => {
     if (node) {
       ref.current = node;
@@ -45,23 +43,8 @@ export const ImageTokenization = memo(() => {
       <Divider />
       <Flex w="full" h="full" position="relative">
         <Box ref={measureNode} w="full" h="full" overflow="hidden">
-          {imageDTO && 
-            <Image  
-              id="tokenization-image"
-              src={imageDTO.image_url}
-              fallbackSrc={imageDTO.thumbnail_url}
-              crossOrigin={crossOrigin}
-              w={fittedDims.width}
-              h={fittedDims.height}
-              maxW="full"
-              maxH="full"
-              objectFit="cover"
-              objectPosition="top left"
-            />
-          }
-          <pre>{JSON.stringify(metadata)}</pre>
+          {imageDTO && metadata && metadata["attention_maps"] && metadata["tokenization"] && <ImageTokenizationContent image={imageDTO} metadata={metadata} fittedDims={fittedDims} />}
         </Box>
-        <ImageComparisonDroppable />
       </Flex>
     </Flex>
   );
@@ -69,4 +52,61 @@ export const ImageTokenization = memo(() => {
 
 });
 
+
+const Tags = ({ tags }: { tags: string[] | undefined }) => {
+  return <Box mb={2} maxH={24} overflowY="auto">
+    <Flex gap={2} flexWrap="wrap">
+      {tags && tags.map((tag, index) => <Box
+        key={index}
+        px={2}
+        py={1}
+        borderRadius="base"
+        bg="base.200"
+        color="base.800"
+        fontSize="xs"
+        maxW="max-content"
+      >
+        {tag}
+      </Box>)}
+    </Flex>
+  </Box>;
+}
+
+const ImageTokenizationContent = memo(({ image, metadata, fittedDims }: { image: any; metadata: any; fittedDims: Dimensions }) => {
+  const crossOrigin = useStore($crossOrigin);
+
+  const attentionMapsDTO = useImageDTO(metadata["attention_maps"]["collection"][1]["image_name"]);
+
+  const tokens = JSON.parse(metadata["tokenization"]["value"] || '[]');
+  console.log(attentionMapsDTO, tokens)
+
+  return <>
+    <Tags tags={tokens['positive']} />
+    <Image
+      id="tokenization-image"
+      src={image.image_url}
+      fallbackSrc={image.thumbnail_url}
+      crossOrigin={crossOrigin}
+      w={fittedDims.width}
+      h={fittedDims.height}
+      maxW="full"
+      maxH="full"
+      objectFit="cover"
+      objectPosition="top left"
+    />
+    {attentionMapsDTO && <Image
+      id="tokenization-attention-map"
+      src={attentionMapsDTO.image_url}
+      fallbackSrc={attentionMapsDTO.thumbnail_url}
+      crossOrigin={crossOrigin}
+      w={fittedDims.width}
+      h={fittedDims.height}
+      maxW="full"
+      maxH="full"
+      objectFit="cover"
+      objectPosition="top left"
+    />}
+    <pre>{JSON.stringify(metadata)}</pre>
+  </>
+});
 ImageTokenization.displayName = 'ImageTokenization';
