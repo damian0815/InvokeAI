@@ -1,5 +1,5 @@
 import { Flex, Divider, Box, Image } from "@invoke-ai/ui-library";
-import { memo, useCallback, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ImageComparisonDroppable } from "./ImageComparisonDroppable";
 import { useImageDTO } from "services/api/endpoints/images";
 import { useAppSelector } from "app/store/storeHooks";
@@ -53,37 +53,133 @@ export const ImageTokenization = memo(() => {
 });
 
 
-const Tags = ({ tags }: { tags: string[] | undefined }) => {
+const Tokens = ({ tokens, luminanceValues }: { tokens: string[] | undefined; luminanceValues: number[] }) => {
   return <Box mb={2} maxH={24} overflowY="auto">
     <Flex gap={2} flexWrap="wrap">
-      {tags && tags.map((tag, index) => <Box
-        key={index}
-        px={2}
-        py={1}
-        borderRadius="base"
-        bg="base.200"
-        color="base.800"
-        fontSize="xs"
-        maxW="max-content"
-      >
-        {tag}
-      </Box>)}
+      {tokens && tokens.map((token, index) => {
+        const luminance = luminanceValues[index] || 0;
+        const bgColor = `rgba(255, 255, 0, ${luminance})`; // Yellow with varying opacity
+        const textColor = luminance > 0.5 ? "base.900" : "base.800";
+        
+        return (
+          <Box
+            key={index}
+            px={2}
+            py={1}
+            borderRadius="base"
+            bg={luminance > 0 ? bgColor : "base.200"}
+            color={textColor}
+            fontSize="xs"
+            maxW="max-content"
+            transition="background-color 0.1s ease"
+          >
+            {token}
+          </Box>
+        );
+      })}
     </Flex>
   </Box>;
 }
 
 const ImageTokenizationContent = memo(({ image, metadata, fittedDims }: { image: any; metadata: any; fittedDims: Dimensions }) => {
   const crossOrigin = useStore($crossOrigin);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [luminanceValues, setLuminanceValues] = useState<number[]>([]);
+  const [attentionMapData, setAttentionMapData] = useState<ImageData | null>(null);
 
   const attentionMapsDTO = useImageDTO(metadata["attention_maps"]["collection"][1]["image_name"]);
 
-  const tokens = JSON.parse(metadata["tokenization"]["value"] || '[]');
-  console.log(attentionMapsDTO, tokens)
+  const extractTokens = (metadata: any, key: 'positive' | 'negative'): string[] | undefined => {
+    const unfilteredTokens = JSON.parse(metadata["tokenization"]["value"]);
+
+    if (!unfilteredTokens) {
+      return undefined;
+    }
+    // drop '<bos>' and '<eos>' tokens if present
+    return unfilteredTokens[key].filter((token: string) => token !== '<bos>' && token !== '<eos>');
+  }
+  const tokens = extractTokens(metadata, 'positive');
+
+  const tokenCount = tokens?.length || 0;
+
+  // Load attention maps image onto canvas when available
+  useEffect(() => {
+    if (!attentionMapsDTO?.image_url || !canvasRef.current) return;
+
+    const img = new window.Image();
+    img.crossOrigin = crossOrigin || 'anonymous';
+    img.src = attentionMapsDTO.image_url;
+    
+    img.onload = () => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d', { willReadFrequently: true });
+      if (!ctx) return;
+
+      ctx.drawImage(img, 0, 0);
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      setAttentionMapData(imageData);
+    };
+  }, [attentionMapsDTO?.image_url, crossOrigin]);
+
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLImageElement>) => {
+    if (!attentionMapData || tokenCount === 0 || !image) return;
+
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    // Convert from display coordinates to image coordinates
+    const scaleX = image.width / rect.width;
+    const scaleY = image.height / rect.height;
+    const imageX = x * scaleX;
+    const imageY = y * scaleY;
+
+    // Convert to attention map coordinates (8x downsampled)
+    const attentionX = Math.floor(imageX / 8);
+    const attentionY = Math.floor(imageY / 8);
+
+    // Get attention map dimensions
+    const attentionWidth = attentionMapData.width;
+    const attentionHeightPerToken = attentionMapData.height / tokenCount;
+
+    // Extract luminance for each token
+    const newLuminanceValues: number[] = [];
+    for (let tokenIdx = 0; tokenIdx < tokenCount; tokenIdx++) {
+      const tokenAttentionY = Math.floor(tokenIdx * attentionHeightPerToken + attentionY);
+      
+      // Bounds check
+      if (attentionX >= 0 && attentionX < attentionWidth && 
+          tokenAttentionY >= 0 && tokenAttentionY < attentionMapData.height) {
+        
+        const pixelIndex = (tokenAttentionY * attentionWidth + attentionX) * 4;
+        const r = attentionMapData.data[pixelIndex] ?? 0;
+        const g = attentionMapData.data[pixelIndex + 1] ?? 0;
+        const b = attentionMapData.data[pixelIndex + 2] ?? 0;
+        
+        // Calculate relative luminance (normalized to 0-1)
+        const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+        newLuminanceValues.push(luminance);
+      } else {
+        newLuminanceValues.push(0);
+      }
+    }
+    
+    setLuminanceValues(newLuminanceValues);
+  }, [attentionMapData, tokenCount, image]);
+
+  const handleMouseLeave = useCallback(() => {
+    setLuminanceValues([]);
+  }, []);
 
   return <>
-    <Tags tags={tokens['positive']} />
+    <canvas ref={canvasRef} style={{ display: 'none' }} />
+    {tokens && <Tokens tokens={tokens} luminanceValues={luminanceValues} />}
     <Image
-      id="tokenization-image"
+      id="image"
       src={image.image_url}
       fallbackSrc={image.thumbnail_url}
       crossOrigin={crossOrigin}
@@ -93,6 +189,9 @@ const ImageTokenizationContent = memo(({ image, metadata, fittedDims }: { image:
       maxH="full"
       objectFit="cover"
       objectPosition="top left"
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      cursor="crosshair"
     />
     {attentionMapsDTO && <Image
       id="tokenization-attention-map"
