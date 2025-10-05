@@ -7,8 +7,8 @@ import {
   Tooltip,
 } from '@invoke-ai/ui-library';
 import { useAppDispatch, useAppSelector } from 'app/store/storeHooks';
-import { selectTokenizationDisplayMode } from 'features/gallery/store/gallerySelectors';
-import { tokenizationDisplayModeChanged } from 'features/gallery/store/gallerySlice';
+import { selectTokenizationAttentionOverlayMode, selectTokenizationDisplayMode } from 'features/gallery/store/gallerySelectors';
+import { tokenizationAttentionOverlayModeChanged,tokenizationDisplayModeChanged } from 'features/gallery/store/gallerySlice';
 import { memo, useCallback } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { Trans, useTranslation } from 'react-i18next';
@@ -17,6 +17,15 @@ import { PiQuestion } from 'react-icons/pi';
 export const TokenizationToolbar = memo(() => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
+
+  const attentionOverlayMode = useAppSelector(selectTokenizationAttentionOverlayMode);
+  const setTokenizationAttentionOverlayModeMultiply = useCallback(() => {
+    dispatch(tokenizationAttentionOverlayModeChanged('multiply'));
+  }, [dispatch]);
+  const setTokenizationAttentionOverlayModeYellow = useCallback(() => {
+    dispatch(tokenizationAttentionOverlayModeChanged('yellow'));
+  }, [dispatch]);
+
   const tokenizationPrompt = useAppSelector(selectTokenizationDisplayMode);
   const setTokenizationDisplayPositivePrompt = useCallback(() => {
     dispatch(tokenizationDisplayModeChanged('positive'));
@@ -46,6 +55,24 @@ export const TokenizationToolbar = memo(() => {
             colorScheme={tokenizationPrompt === 'negative' ? 'invokeBlue' : 'base'}
           >
             {t('gallery.tokenizationNegative')}
+          </Button>
+        </ButtonGroup>
+      </Flex>
+            <Flex flex={1} justifyContent="center">
+        <ButtonGroup size="sm" variant="outline" alignItems="center">
+          <Button
+            flexShrink={0}
+            onClick={setTokenizationAttentionOverlayModeYellow}
+            colorScheme={attentionOverlayMode === 'yellow' ? 'invokeBlue' : 'base'}
+          >
+            {t('gallery.tokenizationOverlayYellow')}
+          </Button>
+          <Button
+            flexShrink={0}
+            onClick={setTokenizationAttentionOverlayModeMultiply}
+            colorScheme={attentionOverlayMode === 'multiply' ? 'invokeBlue' : 'base'}
+          >
+            {t('gallery.tokenizationOverlayMultiply')}
           </Button>
         </ButtonGroup>
       </Flex>

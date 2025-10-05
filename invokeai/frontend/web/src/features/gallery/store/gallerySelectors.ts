@@ -82,6 +82,7 @@ export const selectComparisonMode = createSelector(selectGallerySlice, (gallery)
 export const selectComparisonFit = createSelector(selectGallerySlice, (gallery) => gallery.comparisonFit);
 export const selectImageToCompare = createSelector(selectGallerySlice, (gallery) => gallery.imageToCompare);
 export const selectTokenizationDisplayMode = createSelector(selectGallerySlice, (gallery) => gallery.tokenizationDisplayMode);
+export const selectTokenizationAttentionOverlayMode = createSelector(selectGallerySlice, (gallery) => gallery.tokenizationAttentionOverlayMode);
 export const selectAlwaysShouldImageSizeBadge = createSelector(
   selectGallerySlice,
   (gallery) => gallery.alwaysShowImageSizeBadge

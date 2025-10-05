@@ -12,9 +12,9 @@ import { ContextMenuItemNewLayerFromImageSubMenu } from 'features/gallery/compon
 import { ContextMenuItemOpenInNewTab } from 'features/gallery/components/ContextMenu/MenuItems/ContextMenuItemOpenInNewTab';
 import { ContextMenuItemOpenInViewer } from 'features/gallery/components/ContextMenu/MenuItems/ContextMenuItemOpenInViewer';
 import { ContextMenuItemSelectForCompare } from 'features/gallery/components/ContextMenu/MenuItems/ContextMenuItemSelectForCompare';
-import { ContextMenuItemShowTokenization } from 'features/gallery/components/ContextMenu/MenuItems/ContextMenuItemShowTokenization';
 import { ContextMenuItemSendToUpscale } from 'features/gallery/components/ContextMenu/MenuItems/ContextMenuItemSendToUpscale';
 import { ContextMenuItemSendToVideo } from 'features/gallery/components/ContextMenu/MenuItems/ContextMenuItemSendToVideo';
+import { ContextMenuItemShowTokenization } from 'features/gallery/components/ContextMenu/MenuItems/ContextMenuItemShowTokenization';
 import { ContextMenuItemStarUnstar } from 'features/gallery/components/ContextMenu/MenuItems/ContextMenuItemStarUnstar';
 import { ContextMenuItemUseAsPromptTemplate } from 'features/gallery/components/ContextMenu/MenuItems/ContextMenuItemUseAsPromptTemplate';
 import { ContextMenuItemUseAsRefImage } from 'features/gallery/components/ContextMenu/MenuItems/ContextMenuItemUseAsRefImage';

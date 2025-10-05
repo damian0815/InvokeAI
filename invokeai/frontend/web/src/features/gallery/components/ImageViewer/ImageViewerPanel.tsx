@@ -5,9 +5,9 @@ import { memo } from 'react';
 
 import { ImageViewerContextProvider } from './context';
 import { ImageComparison } from './ImageComparison';
+import { ImageTokenization } from './ImageTokenization';
 import { ImageViewer } from './ImageViewer';
 import { VideoViewer } from './VideoViewer';
-import { ImageTokenization } from './ImageTokenization';
 
 const selectIsComparing = createSelector(
   [selectLastSelectedItem, selectImageToCompare],

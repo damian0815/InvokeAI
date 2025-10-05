@@ -3,9 +3,9 @@ import { useAppDispatch, useAppSelector } from 'app/store/storeHooks';
 import { useItemDTOContext } from 'features/gallery/contexts/ItemDTOContext';
 import { selectTokenizationDisplayMode } from 'features/gallery/store/gallerySelectors';
 import { tokenizationDisplayModeChanged } from 'features/gallery/store/gallerySlice';
-import { memo, useCallback, useMemo } from 'react';
+import { memo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { PiImagesBold, PiCoinVerticalBold } from 'react-icons/pi';
+import { PiCoinVerticalBold } from 'react-icons/pi';
 import { isImageDTO } from 'services/api/types';
 
 export const ContextMenuItemShowTokenization = memo(() => {

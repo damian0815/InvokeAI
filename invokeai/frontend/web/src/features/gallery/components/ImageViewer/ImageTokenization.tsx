@@ -1,13 +1,13 @@
-import { Flex, Divider, Box, Image } from "@invoke-ai/ui-library";
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useImageDTO } from "services/api/endpoints/images";
-import { useAppSelector } from "app/store/storeHooks";
-
-import { selectLastSelectedItem, selectTokenizationDisplayMode } from 'features/gallery/store/gallerySelectors';
-import { useDebouncedMetadata } from "services/api/hooks/useDebouncedMetadata";
+import { Box, Divider, Flex, Image } from "@invoke-ai/ui-library";
+import { useStore } from '@nanostores/react';
 import type { Dimensions } from "@xyflow/react";
 import { $crossOrigin } from 'app/store/nanostores/authToken';
-import { useStore } from '@nanostores/react';
+import { useAppSelector } from "app/store/storeHooks";
+import { selectLastSelectedItem, selectTokenizationDisplayMode } from 'features/gallery/store/gallerySelectors';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useImageDTO } from "services/api/endpoints/images";
+import { useDebouncedMetadata } from "services/api/hooks/useDebouncedMetadata";
+
 import { fitDimsToContainer } from "./common";
 import { TokenizationToolbar } from "./TokenizationToolbar";
 
@@ -53,12 +53,22 @@ export const ImageTokenization = memo(() => {
 });
 
 
-const Tokens = ({ tokens, luminanceValues }: { tokens: string[] | undefined; luminanceValues: number[] }) => {
+const Tokens = ({ 
+  tokens, 
+  luminanceValues, 
+  highlightedTokenIdx,
+  onTokenHover
+}: { 
+  tokens: string[] | undefined; 
+  luminanceValues: number[];
+  highlightedTokenIdx: number | null;
+  onTokenHover: (index: number | null) => void;
+}) => {
   const getHeatmapColor = (value: number): string => {
     // Heatmap: blue (0) -> purple (0.5) -> red (1)
     // Blue: (0, 0, 255), Purple: (128, 0, 255), Red: (255, 0, 0)
     // First 10% fades alpha from 0 to 100%
-    let r: number, g: number, b: number, alpha: number;
+    let r: number; let g: number; let b: number; let alpha: number;
 
     // Alpha fade in first 20%
     const alphaFadeInRange = 0.2;
@@ -91,6 +101,7 @@ const Tokens = ({ tokens, luminanceValues }: { tokens: string[] | undefined; lum
         const luminance = Math.pow(luminanceValues[index] || 0, 1);
         const bgColor = luminance > 0 ? getHeatmapColor(luminance) : "base.800";
         const textColor = "white";
+        const isHighlighted = highlightedTokenIdx === index;
         
         return (
           <Box
@@ -102,7 +113,14 @@ const Tokens = ({ tokens, luminanceValues }: { tokens: string[] | undefined; lum
             color={textColor}
             fontSize="xs"
             maxW="max-content"
-            transition="background-color 0.1s ease"
+            transition="all 0.1s ease"
+            onMouseEnter={() => onTokenHover(index)}
+            onMouseLeave={() => onTokenHover(null)}
+            cursor="pointer"
+            border="2px solid"
+            borderColor={isHighlighted ? "yellow.400" : "transparent"}
+            transform={isHighlighted ? "scale(1.1)" : "scale(1)"}
+            zIndex={isHighlighted ? 10 : 1}
           >
             {token}
           </Box>
@@ -118,9 +136,10 @@ const ImageTokenizationContent = memo(({ image, metadata, fittedDims }: { image:
   const [luminanceValues, setLuminanceValues] = useState<number[]>([]);
   const [attentionMapData, setAttentionMapData] = useState<ImageData | null>(null);
   const [crosshairPos, setCrosshairPos] = useState<{ x: number; y: number } | null>(null);
+  const [hoveredTokenIdx, setHoveredTokenIdx] = useState<number | null>(null);
   const tokenizationDisplayMode = useAppSelector(selectTokenizationDisplayMode);
 
-  const attentionMapsDTO = useImageDTO(metadata["attention_maps"]["collection"][tokenizationDisplayMode == 'positive' ? 1 : 0]["image_name"]);
+  const attentionMapsDTO = useImageDTO(metadata["attention_maps"]["collection"][tokenizationDisplayMode === 'positive' ? 1 : 0]["image_name"]);
 
   const extractTokens = (metadata: any, key: 'positive' | 'negative'): string[] | undefined => {
     const allPromptsUnfilteredTokens = JSON.parse(metadata["tokenization"]["value"]);
@@ -128,7 +147,7 @@ const ImageTokenizationContent = memo(({ image, metadata, fittedDims }: { image:
     if (!allPromptsUnfilteredTokens) {
       return undefined;
     }
-    var promptUnfilteredTokens = allPromptsUnfilteredTokens[key];
+    let promptUnfilteredTokens = allPromptsUnfilteredTokens[key];
     if (!promptUnfilteredTokens || promptUnfilteredTokens.length === 0) {
       return undefined;
     }
@@ -234,26 +253,135 @@ const ImageTokenizationContent = memo(({ image, metadata, fittedDims }: { image:
   const columnCount = Math.ceil(tokenCount / tokensPerColumn);
   const attentionHeightPerToken = attentionMapData ? attentionMapData.height / tokenCount : 0;
 
+  // Store refs to column canvases
+  const columnCanvasRefs = useRef<(HTMLCanvasElement | null)[]>([]);
+
+  // Draw column canvases when attention map data is loaded
+  useEffect(() => {
+    if (!attentionMapsDTO?.image_url || !attentionMapData) {
+return;
+}
+
+    const img = new window.Image();
+    img.crossOrigin = crossOrigin || 'anonymous';
+    img.src = attentionMapsDTO.image_url;
+
+    img.onload = () => {
+      for (let colIdx = 0; colIdx < columnCount; colIdx++) {
+        const canvas = columnCanvasRefs.current[colIdx];
+        if (!canvas) {
+continue;
+}
+
+        const startTokenIdx = colIdx * tokensPerColumn;
+        const endTokenIdx = Math.min(startTokenIdx + tokensPerColumn, tokenCount);
+        const tokensInColumn = endTokenIdx - startTokenIdx;
+        const columnHeight = tokensInColumn * attentionHeightPerToken;
+
+        canvas.width = attentionMapData.width;
+        canvas.height = columnHeight;
+
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+continue;
+}
+
+        const sourceY = startTokenIdx * attentionHeightPerToken;
+        ctx.drawImage(
+          img,
+          0, sourceY, attentionMapData.width, columnHeight,
+          0, 0, attentionMapData.width, columnHeight
+        );
+      }
+    };
+  }, [attentionMapsDTO?.image_url, attentionMapData, columnCount, tokensPerColumn, tokenCount, attentionHeightPerToken, crossOrigin]);
+
   return (
     <Flex flexDir="column" w="full" h="full" gap={2}>
       <canvas ref={canvasRef} style={{ display: 'none' }} />
-      {tokens && <Tokens tokens={tokens} luminanceValues={luminanceValues} />}
-      <Flex gap={4} alignItems="flex-start">
-        <Image
-          id="image"
-          src={image.image_url}
-          fallbackSrc={image.thumbnail_url}
-          crossOrigin={crossOrigin}
-          w={fittedDims.width}
-          h={fittedDims.height}
-          maxW="full"
-          maxH="full"
-          objectFit="cover"
-          objectPosition="top left"
-          onMouseMove={handleMouseMove}
-          onMouseLeave={handleMouseLeave}
-          cursor="crosshair"
-        />
+      {tokens && <Tokens 
+        tokens={tokens} 
+        luminanceValues={luminanceValues}
+        highlightedTokenIdx={hoveredTokenIdx}
+        onTokenHover={setHoveredTokenIdx}
+      />}
+      <Flex gap={4} alignItems="flex-start" position="relative">
+        <Box position="relative">
+          <Image
+            id="image"
+            src={image.image_url}
+            fallbackSrc={image.thumbnail_url}
+            crossOrigin={crossOrigin}
+            w={fittedDims.width}
+            h={fittedDims.height}
+            maxW="full"
+            maxH="full"
+            objectFit="cover"
+            objectPosition="top left"
+            onMouseMove={handleMouseMove}
+            onMouseLeave={handleMouseLeave}
+            cursor="crosshair"
+          />
+          {/* Overlay attention map when hovering over a token */}
+          {hoveredTokenIdx !== null && attentionMapData && (
+            <canvas
+              ref={(overlayCanvas: HTMLCanvasElement | null) => {
+                if (!overlayCanvas || !attentionMapsDTO) {
+return;
+}
+                
+                const width = attentionMapData.width;
+                const heightPerToken = attentionMapData.height / tokenCount;
+                
+                overlayCanvas.width = width;
+                overlayCanvas.height = heightPerToken;
+                
+                const ctx = overlayCanvas.getContext('2d');
+                if (!ctx) {
+return;
+}
+                
+                const sourceY = hoveredTokenIdx * heightPerToken;
+                const img = new window.Image();
+                img.crossOrigin = crossOrigin || 'anonymous';
+                img.src = attentionMapsDTO.image_url;
+                img.onload = () => {
+                  // Draw the grayscale attention map
+                  ctx.drawImage(
+                    img,
+                    0, sourceY, width, heightPerToken,
+                    0, 0, width, heightPerToken
+                  );
+                  
+                  // Apply yellow tint to make it more visible
+                  const imageData = ctx.getImageData(0, 0, width, heightPerToken);
+                  const data = imageData.data;
+                  
+                  for (let i = 0; i < data.length; i += 4) {
+                    const luminance = data[i] ?? 0; // Grayscale, so R=G=B
+                    // Convert to yellow gradient
+                    data[i] = Math.min(255, luminance * 1.5);     // R - boost red
+                    data[i + 1] = Math.min(255, luminance * 1.5); // G - boost green
+                    data[i + 2] = 0;                               // B - no blue = yellow
+                    data[i + 3] = Math.min(255, luminance * 2);   // A - boost alpha for visibility
+                  }
+                  
+                  ctx.putImageData(imageData, 0, 0);
+                };
+              }}
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: `${fittedDims.width}px`,
+                height: `${fittedDims.height}px`,
+                pointerEvents: 'none',
+                opacity: 0.8,
+                imageRendering: 'pixelated'
+              }}
+            />
+          )}
+        </Box>
         {attentionMapsDTO && attentionMapData && (
           <Flex gap={2} flexWrap="wrap" maxH={fittedDims.height} overflow="auto">
             {Array.from({ length: columnCount }, (_, colIdx) => {
@@ -265,32 +393,41 @@ const ImageTokenizationContent = memo(({ image, metadata, fittedDims }: { image:
               return (
                 <Box key={colIdx} position="relative" flexShrink={0}>
                   <canvas
-                    ref={(canvas: HTMLCanvasElement | null) => {
-                      if (!canvas || !attentionMapsDTO) return;
-                      canvas.width = attentionMapsDTO.width;
-                      canvas.height = columnHeight;
-                      const ctx = canvas.getContext('2d');
-                      if (!ctx) return;
-                      
-                      // Draw the slice of the attention map for this column
-                      const sourceY = startTokenIdx * attentionHeightPerToken;
-                      const img = new window.Image();
-                      img.crossOrigin = crossOrigin || 'anonymous';
-                      img.src = attentionMapsDTO.image_url;
-                      img.onload = () => {
-                        ctx.drawImage(
-                          img,
-                          0, sourceY, attentionMapsDTO.width, columnHeight,
-                          0, 0, attentionMapsDTO.width, columnHeight
-                        );
-                      };
+                    ref={(canvas) => {
+                      columnCanvasRefs.current[colIdx] = canvas;
                     }}
                     style={{
                       width: `${attentionMapsDTO.width}px`,
                       height: `${columnHeight}px`,
-                      display: 'block'
+                      display: 'block',
+                      cursor: 'pointer'
+                    }}
+                    onMouseMove={(e) => {
+                      // Calculate which token in this column is being hovered
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      const y = e.clientY - rect.top;
+                      const localTokenIdx = Math.floor((y / columnHeight) * tokensInColumn);
+                      const globalTokenIdx = startTokenIdx + localTokenIdx;
+                      setHoveredTokenIdx(globalTokenIdx);
+                    }}
+                    onMouseLeave={() => {
+                      setHoveredTokenIdx(null);
                     }}
                   />
+                  {/* Yellow border around the hovered token's attention map */}
+                  {hoveredTokenIdx !== null && hoveredTokenIdx >= startTokenIdx && hoveredTokenIdx < endTokenIdx && (
+                    <Box
+                      position="absolute"
+                      left={0}
+                      top={`${(hoveredTokenIdx - startTokenIdx) * attentionHeightPerToken}px`}
+                      width="100%"
+                      height={`${attentionHeightPerToken}px`}
+                      border="2px solid"
+                      borderColor="yellow.400"
+                      pointerEvents="none"
+                      boxSizing="border-box"
+                    />
+                  )}
                   {crosshairPos && Array.from({ length: tokensInColumn }, (_, localTokenIdx) => {
                     const globalTokenIdx = startTokenIdx + localTokenIdx;
                     const yOffset = localTokenIdx * attentionHeightPerToken;

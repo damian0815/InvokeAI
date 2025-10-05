@@ -32,6 +32,7 @@ const getInitialState = (): GalleryState => ({
   comparisonMode: 'slider',
   comparisonFit: 'fill',
   tokenizationDisplayMode: null,
+  tokenizationAttentionOverlayMode: 'yellow',
   shouldShowArchivedBoards: false,
   boardsListOrderBy: 'created_at',
   boardsListOrderDir: 'DESC',
@@ -67,6 +68,9 @@ const slice = createSlice({
     },
     tokenizationDisplayModeChanged: (state, action: PayloadAction<'positive' | 'negative' | null>) => {
       state.tokenizationDisplayMode = action.payload
+    },
+    tokenizationAttentionOverlayModeChanged: (state, action: PayloadAction<'yellow' | 'multiply'>) => {
+      state.tokenizationAttentionOverlayMode = action.payload
     },
     comparisonModeCycled: (state) => {
       switch (state.comparisonMode) {
@@ -168,6 +172,7 @@ export const {
   imageToCompareChanged,
   comparisonModeChanged,
   tokenizationDisplayModeChanged,
+  tokenizationAttentionOverlayModeChanged,
   comparedImagesSwapped,
   comparisonFitChanged,
   comparisonModeCycled,

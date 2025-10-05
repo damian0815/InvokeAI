@@ -431,7 +431,11 @@
         "move": "Move",
         "useForPromptGeneration": "Use for Prompt Generation",
         "videos": "Videos",
-        "videosTab": "Videos you've created and saved within Invoke."
+        "videosTab": "Videos you've created and saved within Invoke.",
+        "tokenizationExit": "Exit Tokenization",
+        "tokenizationHelp": "Press <Kbd>Esc</Kbd> to exit.",
+        "tokenizationPositive": "Positive Prompt",
+        "tokenizationNegative": "Negative Prompt"
     },
     "hotkeys": {
         "hotkeys": "Hotkeys",
