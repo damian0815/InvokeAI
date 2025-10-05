@@ -133,18 +133,21 @@ class CrossAttentionMapCollector:
                 maps = torchvision_resize(maps, [latents_height, latents_width], InterpolationMode.BICUBIC)
                 maps = maps.reshape(bsz, num_steps, num_tokens, latents_height, latents_width)
 
-            # normalize
+            # normalize in [N, H, W] where N=tokens
             maps_min = torch.amin(maps, dim=(-3, -2, -1), keepdim=True)
             maps_range = torch.amax(maps, dim=(-3, -2, -1), keepdim=True) - maps_min
             # print(f"map {key} size {[this_maps_width, this_maps_height]} range {[maps_min, maps_min + maps_range]}")
             maps_normalized = (maps - maps_min) / maps_range
             # expand to (-0.1, 1.1) and clamp
-            maps_normalized_expanded = maps_normalized * 1.1 - 0.05
-            maps_normalized_expanded_clamped = torch.clamp(maps_normalized_expanded, 0, 1)
+            # maps_normalized = maps_normalized * 1.1 - 0.05
+            # maps_normalized = torch.clamp(maps_normalized, 0, 1)
             # maps_normalized_expanded_clamped = maps
 
+            # increase contrast
+            maps_normalized = torch.pow(maps_normalized, 2)
+
             # stack tokens vertically
-            maps_stacked = torch.reshape(maps_normalized_expanded_clamped,
+            maps_stacked = torch.reshape(maps_normalized,
                                          [bsz, num_steps, num_tokens * latents_height, latents_width])
             # map_stacked is [B, steps, (H*W), N]
             if merge_timesteps:

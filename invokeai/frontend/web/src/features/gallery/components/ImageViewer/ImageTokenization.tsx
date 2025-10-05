@@ -79,7 +79,7 @@ const Tokens = ({ tokens, luminanceValues }: { tokens: string[] | undefined; lum
   return <Box mb={2} maxH={24} overflowY="auto">
     <Flex gap={2} flexWrap="wrap">
       {tokens && tokens.map((token, index) => {
-        const luminance = Math.pow(luminanceValues[index] || 0, 3);
+        const luminance = Math.pow(luminanceValues[index] || 0, 1);
         const bgColor = luminance > 0 ? getHeatmapColor(luminance) : "base.800";
         const textColor = "white";
         
