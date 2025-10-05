@@ -82,10 +82,21 @@ class CrossAttentionMapCollector:
 
     def get_stacked_maps(self, latents_width: int, latents_height: int,
                          prompt_index: int, eos_token_index: int = None, drop_bos_eos=True,
-                         merge_timesteps=False) -> torch.Tensor:
+                         merge_timesteps=False, timestep_weighting_alpha=0, timestep_weighting_beta=1,
+                         contrast_boost_pow=2) -> torch.Tensor:
         """
         Scale all collected attention maps to the same size, blend them together and return as an image.
         latents_width and latents_height are the width and height of the latent space, e.g. 64x64 for 512x512 images with 8x downsampling.
+        :param latents_width: The width of the latent space.
+        :param latents_height: The height of the latent space.
+        :param prompt_index: The index of the prompt to visualize.
+        :param eos_token_index: The index of the end-of-sequence token - map stacking will be truncated to this index if provided.
+        :param drop_bos_eos: If True, drop the the 0th and last token maps (BOS and EOS). Only applied if eos_token_index is provided. It's up to you to determine if your tokenizer actually outputs BOS/EOS.
+        :param merge_timesteps: If True, blend all timesteps together, producing a single map per token. If False, stack timesteps horizontally, producing a grid.
+        :param timestep_weighting_alpha: If merge_timesteps is True, this controls the weighting of timesteps (0 means equal weighting, 1 means linear ramp such that later timesteps carry more weight that earlier).
+        :param timestep_weighting_beta: If merge_timesteps is True, this controls the sharpness of the weighting curve (1 means linear, >1 means later timesteps are weighted more strongly).
+        :param contrast_boost_pow: If >1, increase the contrast of the attention maps by raising them to this power.
+        :param _
         :return: An image containing a vertical stack of blended attention maps, one for each requested token.
         """
         maps_dict = self.get_attention_maps()
@@ -138,20 +149,27 @@ class CrossAttentionMapCollector:
             maps_range = torch.amax(maps, dim=(-3, -2, -1), keepdim=True) - maps_min
             # print(f"map {key} size {[this_maps_width, this_maps_height]} range {[maps_min, maps_min + maps_range]}")
             maps_normalized = (maps - maps_min) / maps_range
-            # expand to (-0.1, 1.1) and clamp
-            # maps_normalized = maps_normalized * 1.1 - 0.05
-            # maps_normalized = torch.clamp(maps_normalized, 0, 1)
-            # maps_normalized_expanded_clamped = maps
 
             # increase contrast
-            maps_normalized = torch.pow(maps_normalized, 2)
+            maps_normalized = torch.pow(maps_normalized, contrast_boost_pow)
 
             # stack tokens vertically
             maps_stacked = torch.reshape(maps_normalized,
                                          [bsz, num_steps, num_tokens * latents_height, latents_width])
             # map_stacked is [B, steps, (H*W), N]
             if merge_timesteps:
-                maps_stacked = torch.mean(maps_stacked, dim=1, keepdim=False)
+                # blend steps together, producing a single map per token
+                num_steps = maps_stacked.shape[1]
+                ramp = torch.linspace(0, 1, steps=num_steps,
+                                      dtype=maps_stacked.dtype, device=maps_stacked.device)
+                ramp_curve = ramp.pow(timestep_weighting_beta)
+
+                weights = (1 - timestep_weighting_alpha) * torch.ones(num_steps,
+                                                                      dtype=maps_stacked.dtype,
+                                                                      device=maps_stacked.device) / num_steps \
+                          + timestep_weighting_alpha * ramp_curve / ramp_curve.sum()
+                weights = weights / weights.sum()  # Ensure weights sum to 1
+                maps_stacked = torch.tensordot(maps_stacked, weights, dims=([1], [0]))
             else:
                 # stack steps horizontally, producing a grid
                 maps_stacked = maps_stacked.permute(0, 2, 1, 3).reshape(maps_stacked.shape[0], maps_stacked.shape[2],

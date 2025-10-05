@@ -1128,7 +1128,10 @@ class DenoiseLatentsInvocation(BaseInvocation):
                         prompt_index=prompt_index,
                         eos_token_index=eos_token_index[prompt_index],
                         drop_bos_eos=drop_eos_bos,
-                        merge_timesteps=True)
+                        merge_timesteps=True,
+                        timestep_weighting_alpha=0.8,
+                        timestep_weighting_beta=2.0,
+                    )
                     for prompt_index in range(2)
                 ]
 
