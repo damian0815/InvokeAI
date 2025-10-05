@@ -20,7 +20,7 @@ def collect_attention_maps(unet, text_encoder_hidden_size: int):
 
 
 class CrossAttentionMapCollector:
-    def __init__(self, unet, text_encoder_hidden_size: int, verbose: bool=True) -> None:
+    def __init__(self, unet, text_encoder_hidden_size: int, verbose: bool=True, every_n_steps: int=None) -> None:
         self.unet = unet
         self.text_encoder_hidden_size = text_encoder_hidden_size
         self.attention_maps = defaultdict(list)
@@ -34,6 +34,10 @@ class CrossAttentionMapCollector:
 
         def _sdp_with_map_saving(query, key, value, attn_mask=None, dropout_p=0.0, is_causal=False, scale=None, enable_gqa=False, target: CrossAttentionMapCollector=None, map_name: str=""):
             attn_output, attn_weights = _scaled_dot_product_attention_with_weight_return(query, key, value, attn_mask=attn_mask, dropout_p=dropout_p, is_causal=is_causal, scale=scale, enable_gqa=enable_gqa)
+            # merge all heads together by averaging
+            # attn_weights has shape [B, num_heads, (H*W), num_tokens]
+            attn_weights = torch.mean(attn_weights, dim=1)  # now [B, (H*W), N]
+            # maps = torch.mean(maps, dim=1, keepdim=True)
             if self.verbose and map_name not in target.attention_maps:
                 # log on first addition
                 print(f"storing maps of size {attn_weights.shape} for '{map_name}'")
@@ -102,9 +106,9 @@ class CrossAttentionMapCollector:
         maps_dict = self.get_attention_maps()
         merged = None
         for key, maps in maps_dict.items():
-            maps = torch.stack(maps, dim=0)  # [steps, B, heads, (H*W), N]
-            maps = torch.swapdims(maps, 0, 1)  # [B, steps, heads, (H*W), N]
-            assert len(maps.shape) == 5  # [B, steps, heads, (H*W), N]
+            maps = torch.stack(maps, dim=0)  # [steps, B, (H*W), N]
+            maps = torch.swapdims(maps, 0, 1)  # [B, steps, (H*W), N]
+            assert len(maps.shape) == 4  # [B, steps, (H*W), N]
 
             maps = maps[prompt_index:prompt_index + 1, ...] # only one batch slot
 
@@ -120,10 +124,6 @@ class CrossAttentionMapCollector:
                         maps = maps[..., 1:]
                     else:
                         raise RuntimeError("maps are missing for bos and/or eos tokens")
-
-            # merge all heads together by averaging
-            maps = torch.mean(maps, dim=2)  # now [B, steps, (H*W), N]
-            # maps = torch.mean(maps, dim=1, keepdim=True)
 
             # maps has shape [B, steps, (H*W), N] for N tokens
             # but we want [B, steps, N, H, W] for torchvision_resize
