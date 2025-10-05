@@ -31,6 +31,7 @@ const getInitialState = (): GalleryState => ({
   imageToCompare: null,
   comparisonMode: 'slider',
   comparisonFit: 'fill',
+  tokenizationDisplayMode: null,
   shouldShowArchivedBoards: false,
   boardsListOrderBy: 'created_at',
   boardsListOrderDir: 'DESC',
@@ -61,14 +62,11 @@ const slice = createSlice({
     imageToCompareChanged: (state, action: PayloadAction<string | null>) => {
       state.imageToCompare = action.payload;
     },
-    imageToTokenizeChanged: (state, action: PayloadAction<string | null>) => {
-      state.imageToTokenize = action.payload;
-    },
     comparisonModeChanged: (state, action: PayloadAction<ComparisonMode>) => {
       state.comparisonMode = action.payload;
     },
-    tokenizationDisplayChanged: (state, action: PayloadAction<'positive' | 'negative'>) => {
-      state.tokenizationPrompt = action.payload
+    tokenizationDisplayModeChanged: (state, action: PayloadAction<'positive' | 'negative' | null>) => {
+      state.tokenizationDisplayMode = action.payload
     },
     comparisonModeCycled: (state) => {
       switch (state.comparisonMode) {
@@ -168,9 +166,8 @@ export const {
   boardSearchTextChanged,
   alwaysShowImageSizeBadgeChanged,
   imageToCompareChanged,
-  imageToTokenizeChanged,
   comparisonModeChanged,
-  tokenizationDisplayChanged,
+  tokenizationDisplayModeChanged,
   comparedImagesSwapped,
   comparisonFitChanged,
   comparisonModeCycled,

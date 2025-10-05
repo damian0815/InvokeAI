@@ -1106,7 +1106,7 @@ class DenoiseLatentsInvocation(BaseInvocation):
                     callback=step_callback,
                 )
 
-                def get_tokens(conditioning: ConditioningField | list[ConditioningField] | None) -> Optional[list[str]]:
+                def get_tokens(conditioning: ConditioningField | list[ConditioningField] | None) -> Optional[list[list[str]]]:
                     if conditioning is None:
                         return None
                     if type(conditioning) is list:
@@ -1115,6 +1115,9 @@ class DenoiseLatentsInvocation(BaseInvocation):
 
                 uncond_tokens = get_tokens(self.negative_conditioning)
                 cond_tokens = get_tokens(self.positive_conditioning)
+                # No long prompt support for now
+                uncond_tokens = uncond_tokens[0] if uncond_tokens is not None else None
+                cond_tokens = cond_tokens[0] if cond_tokens is not None else None
                 eos_token_index = [
                     None if uncond_tokens is None else (-1 if "<eos>" not in uncond_tokens else uncond_tokens.index("<eos>")),
                     None if cond_tokens is None else (-1 if "<eos>" not in cond_tokens else cond_tokens.index("<eos>"))

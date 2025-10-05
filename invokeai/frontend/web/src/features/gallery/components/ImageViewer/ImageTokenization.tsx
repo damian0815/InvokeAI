@@ -1,10 +1,9 @@
 import { Flex, Divider, Box, Image } from "@invoke-ai/ui-library";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ImageComparisonDroppable } from "./ImageComparisonDroppable";
 import { useImageDTO } from "services/api/endpoints/images";
 import { useAppSelector } from "app/store/storeHooks";
 
-import { selectLastSelectedItem, selectTokenizationPrompt } from 'features/gallery/store/gallerySelectors';
+import { selectLastSelectedItem, selectTokenizationDisplayMode } from 'features/gallery/store/gallerySelectors';
 import { useDebouncedMetadata } from "services/api/hooks/useDebouncedMetadata";
 import { Dimensions } from "@xyflow/react";
 import { $crossOrigin } from 'app/store/nanostores/authToken';
@@ -110,21 +109,30 @@ const ImageTokenizationContent = memo(({ image, metadata, fittedDims }: { image:
   const [luminanceValues, setLuminanceValues] = useState<number[]>([]);
   const [attentionMapData, setAttentionMapData] = useState<ImageData | null>(null);
   const [crosshairPos, setCrosshairPos] = useState<{ x: number; y: number } | null>(null);
-  const tokenizationPrompt = useAppSelector(selectTokenizationPrompt);
+  const tokenizationDisplayMode = useAppSelector(selectTokenizationDisplayMode);
 
-  const attentionMapsDTO = useImageDTO(metadata["attention_maps"]["collection"][tokenizationPrompt == 'positive' ? 1 : 0]["image_name"]);
+  const attentionMapsDTO = useImageDTO(metadata["attention_maps"]["collection"][tokenizationDisplayMode == 'positive' ? 1 : 0]["image_name"]);
 
   const extractTokens = (metadata: any, key: 'positive' | 'negative'): string[] | undefined => {
-    const unfilteredTokens = JSON.parse(metadata["tokenization"]["value"]);
+    const allPromptsUnfilteredTokens = JSON.parse(metadata["tokenization"]["value"]);
 
-    if (!unfilteredTokens) {
+    if (!allPromptsUnfilteredTokens) {
       return undefined;
     }
+    var promptUnfilteredTokens = allPromptsUnfilteredTokens[key];
+    if (!promptUnfilteredTokens || promptUnfilteredTokens.length === 0) {
+      return undefined;
+    }
+    // TODO: support multi-chunk (long prompts) - for now just use the first chunk
+    if (Array.isArray(promptUnfilteredTokens[0])) {
+      promptUnfilteredTokens = promptUnfilteredTokens[0];
+    }
     // drop '<bos>' and '<eos>' tokens if present
-    return unfilteredTokens[key].filter((token: string) => token !== '<bos>' && token !== '<eos>');
+    return promptUnfilteredTokens.filter((token: string) => token !== '<bos>' && token !== '<eos>');
   }
-  const tokens = extractTokens(metadata, tokenizationPrompt);
 
+  const tokens = tokenizationDisplayMode ? extractTokens(metadata, tokenizationDisplayMode) : undefined;
+  // Assumption: attention map height is num_tokens * (image height / 8) (8x downsampled)
   const tokenCount = tokens?.length || 0;
 
   // Load attention maps image onto canvas when available

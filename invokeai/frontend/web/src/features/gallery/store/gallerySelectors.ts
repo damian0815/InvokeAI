@@ -81,8 +81,7 @@ export const selectGalleryImageMinimumWidth = createSelector(
 export const selectComparisonMode = createSelector(selectGallerySlice, (gallery) => gallery.comparisonMode);
 export const selectComparisonFit = createSelector(selectGallerySlice, (gallery) => gallery.comparisonFit);
 export const selectImageToCompare = createSelector(selectGallerySlice, (gallery) => gallery.imageToCompare);
-export const selectImageToTokenize = createSelector(selectGallerySlice, (gallery) => gallery.imageToTokenize);
-export const selectTokenizationPrompt = createSelector(selectGallerySlice, (gallery) => gallery.tokenizationPrompt);
+export const selectTokenizationDisplayMode = createSelector(selectGallerySlice, (gallery) => gallery.tokenizationDisplayMode);
 export const selectAlwaysShouldImageSizeBadge = createSelector(
   selectGallerySlice,
   (gallery) => gallery.alwaysShowImageSizeBadge

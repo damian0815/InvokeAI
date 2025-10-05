@@ -337,7 +337,7 @@ class ConditioningField(BaseModel):
         description="The mask associated with this conditioning tensor. Excluded regions should be set to False, "
         "included regions should be set to True.",
     )
-    tokenization: Optional[list[str]] = Field(
+    tokenization: Optional[list[list[str]]] = Field(
         default=None,
         description="List of strings representing single tokens in the prompt."
     )

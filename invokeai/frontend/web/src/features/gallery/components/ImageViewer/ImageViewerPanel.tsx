@@ -1,6 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { useAppSelector } from 'app/store/storeHooks';
-import { selectImageToCompare, selectImageToTokenize, selectLastSelectedItem } from 'features/gallery/store/gallerySelectors';
+import { selectImageToCompare, selectLastSelectedItem, selectTokenizationDisplayMode } from 'features/gallery/store/gallerySelectors';
 import { memo } from 'react';
 
 import { ImageViewerContextProvider } from './context';
@@ -14,8 +14,8 @@ const selectIsComparing = createSelector(
   (lastSelectedImage, imageToCompare) => !!lastSelectedImage && !!imageToCompare
 );
 
-const selectIsTokenizing = createSelector([selectImageToTokenize], 
-  (imageToTokenize) => !!imageToTokenize
+const selectIsTokenizing = createSelector([selectLastSelectedItem, selectTokenizationDisplayMode],
+  (lastSelectedImage, tokenizationDisplayMode) => !!lastSelectedImage && !!tokenizationDisplayMode
 );
 
 export const ImageViewerPanel = memo(() => {

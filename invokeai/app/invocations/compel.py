@@ -535,23 +535,30 @@ def log_tokenization_for_text(
         print(f"{discarded}\x1b[0m")
 
 
-def _get_clean_tokens(tokenization: list[torch.Tensor], tokenizer: CLIPTokenizer) -> List[str]:
+def _get_clean_tokens(tokenization: list[torch.Tensor], tokenizer: CLIPTokenizer) -> List[List[str]]:
+    """
+    standardise eos/bos/pad, suppress chains of '<eos>' or 0 (padding), split to <bos> ... <eos> groups
+    """
     tokens = tokenizer.convert_ids_to_tokens(tokenization[0][0].tolist())
-    seen_eos = False
-    tokens_cleaned = []
-    # cleanup: standardise eos/bos/pad, suppress chains of '<eos>' or 0 (padding)
+    all_tokens_cleaned = []
+    current_tokens_cleaned = []
     for i, t in enumerate(tokens):
-        if t == tokenizer.eos_token or tokenization[0][0][i] == 0:
-            if seen_eos:
-                continue
-            tokens_cleaned.append('<eos>')
-            seen_eos = True
+        if t == tokenizer.eos_token:
+            if current_tokens_cleaned:
+                current_tokens_cleaned.append('<eos>')
+                all_tokens_cleaned.append(current_tokens_cleaned)
+                # start a new group
+                current_tokens_cleaned = []
         else:
-            seen_eos = False
             if t == tokenizer.bos_token:
-                tokens_cleaned.append('<bos>')
+                current_tokens_cleaned.append('<bos>')
+            elif not current_tokens_cleaned:
+                # not in a group and not yet <bos> -> padding -> ignore
+                continue
             elif t == tokenizer.pad_token:
-                tokens_cleaned.append('<pad>')
+                current_tokens_cleaned.append('<pad>')
             else:
-                tokens_cleaned.append(t)
-    return tokens_cleaned
+                current_tokens_cleaned.append(t)
+    if current_tokens_cleaned:
+        all_tokens_cleaned.append(current_tokens_cleaned)
+    return all_tokens_cleaned

@@ -7,8 +7,8 @@ import {
   Tooltip,
 } from '@invoke-ai/ui-library';
 import { useAppDispatch, useAppSelector } from 'app/store/storeHooks';
-import { selectTokenizationPrompt } from 'features/gallery/store/gallerySelectors';
-import { imageToTokenizeChanged, tokenizationDisplayChanged } from 'features/gallery/store/gallerySlice';
+import { selectTokenizationDisplayMode } from 'features/gallery/store/gallerySelectors';
+import { tokenizationDisplayModeChanged } from 'features/gallery/store/gallerySlice';
 import { memo, useCallback } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { Trans, useTranslation } from 'react-i18next';
@@ -17,15 +17,15 @@ import { PiQuestion } from 'react-icons/pi';
 export const TokenizationToolbar = memo(() => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
-  const tokenizationPrompt = useAppSelector(selectTokenizationPrompt);
+  const tokenizationPrompt = useAppSelector(selectTokenizationDisplayMode);
   const setTokenizationDisplayPositivePrompt = useCallback(() => {
-    dispatch(tokenizationDisplayChanged('positive'));
+    dispatch(tokenizationDisplayModeChanged('positive'));
   }, [dispatch]);
   const setTokenizationDisplayNegativePrompt = useCallback(() => {
-    dispatch(tokenizationDisplayChanged('negative'));
+    dispatch(tokenizationDisplayModeChanged('negative'));
   }, [dispatch]);
     const exitTokenization = useCallback(() => {
-    dispatch(imageToTokenizeChanged(null));
+    dispatch(tokenizationDisplayModeChanged(null));
   }, [dispatch]);
   useHotkeys('esc', exitTokenization, [exitTokenization]);
 
