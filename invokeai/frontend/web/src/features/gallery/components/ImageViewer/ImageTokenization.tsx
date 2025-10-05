@@ -4,7 +4,7 @@ import { ImageComparisonDroppable } from "./ImageComparisonDroppable";
 import { useImageDTO } from "services/api/endpoints/images";
 import { useAppSelector } from "app/store/storeHooks";
 
-import { selectImageToTokenize } from 'features/gallery/store/gallerySelectors';
+import { selectImageToTokenize, selectTokenizationPrompt } from 'features/gallery/store/gallerySelectors';
 import { useDebouncedMetadata } from "services/api/hooks/useDebouncedMetadata";
 import { Dimensions } from "@xyflow/react";
 import { $crossOrigin } from 'app/store/nanostores/authToken';
@@ -79,7 +79,7 @@ const Tokens = ({ tokens, luminanceValues }: { tokens: string[] | undefined; lum
   return <Box mb={2} maxH={24} overflowY="auto">
     <Flex gap={2} flexWrap="wrap">
       {tokens && tokens.map((token, index) => {
-        const luminance = Math.pow(luminanceValues[index] || 0, 2);
+        const luminance = Math.pow(luminanceValues[index] || 0, 3);
         const bgColor = luminance > 0 ? getHeatmapColor(luminance) : "base.800";
         const textColor = "white";
         
@@ -109,8 +109,9 @@ const ImageTokenizationContent = memo(({ image, metadata, fittedDims }: { image:
   const [luminanceValues, setLuminanceValues] = useState<number[]>([]);
   const [attentionMapData, setAttentionMapData] = useState<ImageData | null>(null);
   const [crosshairPos, setCrosshairPos] = useState<{ x: number; y: number } | null>(null);
+  const tokenizationPrompt = useAppSelector(selectTokenizationPrompt);
 
-  const attentionMapsDTO = useImageDTO(metadata["attention_maps"]["collection"][1]["image_name"]);
+  const attentionMapsDTO = useImageDTO(metadata["attention_maps"]["collection"][tokenizationPrompt == 'positive' ? 1 : 0]["image_name"]);
 
   const extractTokens = (metadata: any, key: 'positive' | 'negative'): string[] | undefined => {
     const unfilteredTokens = JSON.parse(metadata["tokenization"]["value"]);
@@ -121,7 +122,7 @@ const ImageTokenizationContent = memo(({ image, metadata, fittedDims }: { image:
     // drop '<bos>' and '<eos>' tokens if present
     return unfilteredTokens[key].filter((token: string) => token !== '<bos>' && token !== '<eos>');
   }
-  const tokens = extractTokens(metadata, 'positive');
+  const tokens = extractTokens(metadata, tokenizationPrompt);
 
   const tokenCount = tokens?.length || 0;
 
@@ -202,6 +203,11 @@ const ImageTokenizationContent = memo(({ image, metadata, fittedDims }: { image:
     setCrosshairPos(null);
   }, []);
 
+  // Split tokens into chunks of 8 for column display
+  const tokensPerColumn = 8;
+  const columnCount = Math.ceil(tokenCount / tokensPerColumn);
+  const attentionHeightPerToken = attentionMapData ? attentionMapData.height / tokenCount : 0;
+
   return (
     <Flex flexDir="column" w="full" h="full" gap={2}>
       <canvas ref={canvasRef} style={{ display: 'none' }} />
@@ -223,52 +229,80 @@ const ImageTokenizationContent = memo(({ image, metadata, fittedDims }: { image:
           cursor="crosshair"
         />
         {attentionMapsDTO && attentionMapData && (
-          <Box position="relative" flexShrink={0}>
-            <Image
-              id="tokenization-attention-map"
-              src={attentionMapsDTO.image_url}
-              fallbackSrc={attentionMapsDTO.thumbnail_url}
-              crossOrigin={crossOrigin}
-              w={attentionMapsDTO.width}
-              h={attentionMapsDTO.height}
-              objectFit="none"
-              objectPosition="top left"
-            />
-            {crosshairPos && Array.from({ length: tokenCount }, (_, tokenIdx) => {
-              const attentionHeightPerToken = attentionMapData.height / tokenCount;
-              const yOffset = tokenIdx * attentionHeightPerToken;
+          <Flex gap={2} flexWrap="wrap" maxH={fittedDims.height} overflow="auto">
+            {Array.from({ length: columnCount }, (_, colIdx) => {
+              const startTokenIdx = colIdx * tokensPerColumn;
+              const endTokenIdx = Math.min(startTokenIdx + tokensPerColumn, tokenCount);
+              const tokensInColumn = endTokenIdx - startTokenIdx;
+              const columnHeight = tokensInColumn * attentionHeightPerToken;
               
               return (
-                <Box
-                  key={tokenIdx}
-                  position="absolute"
-                  left={`${crosshairPos.x}px`}
-                  top={`${yOffset + crosshairPos.y}px`}
-                  w="1px"
-                  h="1px"
-                  pointerEvents="none"
-                  _before={{
-                    content: '""',
-                    position: 'absolute',
-                    left: '-5px',
-                    top: '0',
-                    width: '11px',
-                    height: '1px',
-                    bg: 'red.500',
-                  }}
-                  _after={{
-                    content: '""',
-                    position: 'absolute',
-                    left: '0',
-                    top: '-5px',
-                    width: '1px',
-                    height: '11px',
-                    bg: 'red.500',
-                  }}
-                />
+                <Box key={colIdx} position="relative" flexShrink={0}>
+                  <canvas
+                    ref={(canvas: HTMLCanvasElement | null) => {
+                      if (!canvas || !attentionMapsDTO) return;
+                      canvas.width = attentionMapsDTO.width;
+                      canvas.height = columnHeight;
+                      const ctx = canvas.getContext('2d');
+                      if (!ctx) return;
+                      
+                      // Draw the slice of the attention map for this column
+                      const sourceY = startTokenIdx * attentionHeightPerToken;
+                      const img = new window.Image();
+                      img.crossOrigin = crossOrigin || 'anonymous';
+                      img.src = attentionMapsDTO.image_url;
+                      img.onload = () => {
+                        ctx.drawImage(
+                          img,
+                          0, sourceY, attentionMapsDTO.width, columnHeight,
+                          0, 0, attentionMapsDTO.width, columnHeight
+                        );
+                      };
+                    }}
+                    style={{
+                      width: `${attentionMapsDTO.width}px`,
+                      height: `${columnHeight}px`,
+                      display: 'block'
+                    }}
+                  />
+                  {crosshairPos && Array.from({ length: tokensInColumn }, (_, localTokenIdx) => {
+                    const globalTokenIdx = startTokenIdx + localTokenIdx;
+                    const yOffset = localTokenIdx * attentionHeightPerToken;
+                    
+                    return (
+                      <Box
+                        key={globalTokenIdx}
+                        position="absolute"
+                        left={`${crosshairPos.x}px`}
+                        top={`${yOffset + crosshairPos.y}px`}
+                        w="1px"
+                        h="1px"
+                        pointerEvents="none"
+                        _before={{
+                          content: '""',
+                          position: 'absolute',
+                          left: '-5px',
+                          top: '0',
+                          width: '11px',
+                          height: '1px',
+                          bg: 'red.500',
+                        }}
+                        _after={{
+                          content: '""',
+                          position: 'absolute',
+                          left: '0',
+                          top: '-5px',
+                          width: '1px',
+                          height: '11px',
+                          bg: 'red.500',
+                        }}
+                      />
+                    );
+                  })}
+                </Box>
               );
             })}
-          </Box>
+          </Flex>
         )}
       </Flex>
     </Flex>

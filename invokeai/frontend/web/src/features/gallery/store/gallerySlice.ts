@@ -67,6 +67,9 @@ const slice = createSlice({
     comparisonModeChanged: (state, action: PayloadAction<ComparisonMode>) => {
       state.comparisonMode = action.payload;
     },
+    tokenizationDisplayChanged: (state, action: PayloadAction<'positive' | 'negative'>) => {
+      state.tokenizationPrompt = action.payload
+    },
     comparisonModeCycled: (state) => {
       switch (state.comparisonMode) {
         case 'slider':
@@ -167,6 +170,7 @@ export const {
   imageToCompareChanged,
   imageToTokenizeChanged,
   comparisonModeChanged,
+  tokenizationDisplayChanged,
   comparedImagesSwapped,
   comparisonFitChanged,
   comparisonModeCycled,

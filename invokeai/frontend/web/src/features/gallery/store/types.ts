@@ -10,6 +10,8 @@ const zComparisonMode = z.enum(['slider', 'side-by-side', 'hover']);
 export type ComparisonMode = z.infer<typeof zComparisonMode>;
 const zComparisonFit = z.enum(['contain', 'fill']);
 export type ComparisonFit = z.infer<typeof zComparisonFit>;
+const zTokenizationPrompt = z.enum(['positive', 'negative']);
+export type TokenizationPrompt = z.infer<typeof zTokenizationPrompt>;
 const zOrderDir = z.enum(['ASC', 'DESC']);
 export type OrderDir = z.infer<typeof zOrderDir>;
 const zBoardRecordOrderBy = z.enum(['created_at', 'board_name']);
@@ -32,9 +34,10 @@ export const zGalleryState = z.object({
   searchTerm: z.string(),
   alwaysShowImageSizeBadge: z.boolean(),
   imageToCompare: z.string().nullable(),
-  imageToTokenize: z.string().nullable(),
   comparisonMode: zComparisonMode,
   comparisonFit: zComparisonFit,
+  imageToTokenize: z.string().nullable(),
+  tokenizationPrompt: zTokenizationPrompt,
   shouldShowArchivedBoards: z.boolean(),
   boardsListOrderBy: zBoardRecordOrderBy,
   boardsListOrderDir: zOrderDir,
