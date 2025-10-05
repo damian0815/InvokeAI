@@ -7,8 +7,8 @@ import {
   Tooltip,
 } from '@invoke-ai/ui-library';
 import { useAppDispatch, useAppSelector } from 'app/store/storeHooks';
-import { selectTokenizationAttentionOverlayMode, selectTokenizationDisplayMode } from 'features/gallery/store/gallerySelectors';
-import { tokenizationAttentionOverlayModeChanged,tokenizationDisplayModeChanged } from 'features/gallery/store/gallerySlice';
+import { selectTokenizationAttentionOverlayMode, selectTokenizationDisplayMode, selectTokenizationHoverMode } from 'features/gallery/store/gallerySelectors';
+import { tokenizationAttentionOverlayModeChanged, tokenizationDisplayModeChanged, tokenizationHoverModeChanged } from 'features/gallery/store/gallerySlice';
 import { memo, useCallback } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { Trans, useTranslation } from 'react-i18next';
@@ -22,8 +22,19 @@ export const TokenizationToolbar = memo(() => {
   const setTokenizationAttentionOverlayModeMultiply = useCallback(() => {
     dispatch(tokenizationAttentionOverlayModeChanged('multiply'));
   }, [dispatch]);
+  const setTokenizationAttentionOverlayModeMultiplyNormalized = useCallback(() => {
+    dispatch(tokenizationAttentionOverlayModeChanged('multiplyNormalized'));
+  }, [dispatch]);
   const setTokenizationAttentionOverlayModeYellow = useCallback(() => {
     dispatch(tokenizationAttentionOverlayModeChanged('yellow'));
+  }, [dispatch]);
+
+  const hoverMode = useAppSelector(selectTokenizationHoverMode);
+  const setTokenizationHoverModeNormal = useCallback(() => {
+    dispatch(tokenizationHoverModeChanged('hoverNormal'));
+  }, [dispatch]);
+  const setTokenizationHoverModeParticular = useCallback(() => {
+    dispatch(tokenizationHoverModeChanged('hoverParticular'));
   }, [dispatch]);
 
   const tokenizationPrompt = useAppSelector(selectTokenizationDisplayMode);
@@ -73,6 +84,31 @@ export const TokenizationToolbar = memo(() => {
             colorScheme={attentionOverlayMode === 'multiply' ? 'invokeBlue' : 'base'}
           >
             {t('gallery.tokenizationOverlayMultiply')}
+          </Button>
+          <Button
+            flexShrink={0}
+            onClick={setTokenizationAttentionOverlayModeMultiplyNormalized}
+            colorScheme={attentionOverlayMode === 'multiplyNormalized' ? 'invokeBlue' : 'base'}
+          >
+            {t('gallery.tokenizationOverlayMultiplyNormalized')}
+          </Button>
+        </ButtonGroup>
+      </Flex>
+      <Flex flex={1} justifyContent="center">
+        <ButtonGroup size="sm" variant="outline" alignItems="center">
+          <Button
+            flexShrink={0}
+            onClick={setTokenizationHoverModeNormal}
+            colorScheme={hoverMode === 'hoverNormal' ? 'invokeBlue' : 'base'}
+          >
+            {t('gallery.tokenizationHoverNormal')}
+          </Button>
+          <Button
+            flexShrink={0}
+            onClick={setTokenizationHoverModeParticular}
+            colorScheme={hoverMode === 'hoverParticular' ? 'invokeBlue' : 'base'}
+          >
+            {t('gallery.tokenizationHoverParticular')}
           </Button>
         </ButtonGroup>
       </Flex>

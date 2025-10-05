@@ -3,7 +3,7 @@ import { useStore } from '@nanostores/react';
 import type { Dimensions } from "@xyflow/react";
 import { $crossOrigin } from 'app/store/nanostores/authToken';
 import { useAppSelector } from "app/store/storeHooks";
-import { selectLastSelectedItem, selectTokenizationDisplayMode } from 'features/gallery/store/gallerySelectors';
+import { selectLastSelectedItem, selectTokenizationDisplayMode, selectTokenizationAttentionOverlayMode, selectTokenizationHoverMode } from 'features/gallery/store/gallerySelectors';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ImageDTO } from "services/api/types";
 import { useImageDTO } from "services/api/endpoints/images";
@@ -69,6 +69,30 @@ const getHeatmapColor = (value: number): string => {
     r = Math.round(128 + 127 * t);
     g = 0;
     b = Math.round(255 * (1 - t));
+  }
+  
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+};
+
+const getParticularityColor = (value: number): string => {
+  // Green gradient: dark green (0) -> yellow-green (0.5) -> bright yellow (1) with alpha fade in first 20%
+  let r: number; let g: number; let b: number; let alpha: number;
+
+  const alphaFadeInRange = 0.2;
+  alpha = value < alphaFadeInRange ? value / alphaFadeInRange : 1;
+  
+  if (value < 0.5) {
+    // Dark green to Green (0 to 0.5)
+    const t = value * 2;
+    r = 0;
+    g = Math.round(100 + 155 * t); // 100 to 255
+    b = 0;
+  } else {
+    // Green to Yellow (0.5 to 1)
+    const t = (value - 0.5) * 2;
+    r = Math.round(255 * t);
+    g = 255;
+    b = 0;
   }
   
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
@@ -146,6 +170,102 @@ const useLuminanceCalculator = (
   return calculateLuminance;
 };
 
+// Particularity calculators for different algorithms
+const useParticularityCalculator = (
+  attentionMapData: ImageData | null,
+  tokenCount: number,
+  mode: 'optionA' | 'optionB' | 'optionC'
+) => {
+  // Pre-calculate statistics for each token's attention map
+  const tokenStats = useMemo(() => {
+    if (!attentionMapData || tokenCount === 0) {
+      return [];
+    }
+
+    const attentionWidth = attentionMapData.width;
+    const attentionHeightPerToken = attentionMapData.height / tokenCount;
+    const stats: Array<{ mean: number; stdDev: number }> = [];
+
+    for (let tokenIdx = 0; tokenIdx < tokenCount; tokenIdx++) {
+      const values: number[] = [];
+      
+      for (let y = 0; y < attentionHeightPerToken; y++) {
+        for (let x = 0; x < attentionWidth; x++) {
+          const pixelY = Math.floor(tokenIdx * attentionHeightPerToken + y);
+          const pixelIndex = (pixelY * attentionWidth + x) * 4;
+          const r = attentionMapData.data[pixelIndex] ?? 0;
+          const g = attentionMapData.data[pixelIndex + 1] ?? 0;
+          const b = attentionMapData.data[pixelIndex + 2] ?? 0;
+          const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+          values.push(luminance);
+        }
+      }
+
+      // Calculate mean
+      const mean = values.reduce((sum, val) => sum + val, 0) / values.length;
+
+      // Calculate standard deviation
+      const squaredDiffs = values.map(val => Math.pow(val - mean, 2));
+      const variance = squaredDiffs.reduce((sum, val) => sum + val, 0) / values.length;
+      const stdDev = Math.sqrt(variance);
+
+      stats.push({ mean, stdDev });
+    }
+
+    return stats;
+  }, [attentionMapData, tokenCount]);
+
+  const calculateParticularity = useCallback((x: number, y: number): number[] => {
+    if (!attentionMapData || tokenCount === 0 || tokenStats.length === 0) {
+      return [];
+    }
+
+    const attentionWidth = attentionMapData.width;
+    const attentionHeightPerToken = attentionMapData.height / tokenCount;
+    const particularityScores: number[] = [];
+
+    for (let tokenIdx = 0; tokenIdx < tokenCount; tokenIdx++) {
+      const tokenAttentionY = Math.floor(tokenIdx * attentionHeightPerToken + y);
+      
+      if (x >= 0 && x < attentionWidth && 
+          tokenAttentionY >= 0 && tokenAttentionY < attentionMapData.height) {
+        
+        const pixelIndex = (tokenAttentionY * attentionWidth + x) * 4;
+        const r = attentionMapData.data[pixelIndex] ?? 0;
+        const g = attentionMapData.data[pixelIndex + 1] ?? 0;
+        const b = attentionMapData.data[pixelIndex + 2] ?? 0;
+        const localValue = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+        
+        const { mean, stdDev } = tokenStats[tokenIdx]!;
+        
+        let score: number;
+        if (mode === 'optionA') {
+          // Score = localValue / mean (high local value relative to average)
+          // This emphasizes tokens that are strong here vs their own average
+          score = mean > 0.01 ? localValue / mean : 0;
+        } else if (mode === 'optionB') {
+          // Score = localValue * stdDev (high local value AND high variance)
+          // This emphasizes tokens that are both strong and variable
+          score = localValue * stdDev * 2; // Scale up stdDev contribution
+        } else { // optionC
+          // Score = localValue * (localValue - mean) / (stdDev + 0.01)
+          // This is z-score weighted by local value - best for finding particular tokens
+          const zScore = stdDev > 0.01 ? (localValue - mean) / stdDev : 0;
+          score = localValue * Math.max(0, zScore);
+        }
+        
+        particularityScores.push(score);
+      } else {
+        particularityScores.push(0);
+      }
+    }
+    
+    return particularityScores;
+  }, [attentionMapData, tokenCount, tokenStats, mode]);
+
+  return calculateParticularity;
+};
+
 // ============================================================================
 // Sub-Components
 // ============================================================================
@@ -154,28 +274,66 @@ const TokenList = memo(({
   tokens, 
   luminanceValues, 
   hoveredTokenIdx,
-  onTokenHover
+  onTokenHover,
+  hoverMode
 }: { 
   tokens: string[];
   luminanceValues: number[];
   hoveredTokenIdx: number | null;
   onTokenHover: (index: number | null) => void;
+  hoverMode: 'hoverNormal' | 'hoverParticular';
 }) => {
+  const colorFn = hoverMode === 'hoverParticular' ? getParticularityColor : getHeatmapColor;
+  
+  // Helper to determine if we need dark text based on background brightness
+  const getTextColor = (luminance: number, hoverMode: 'hoverNormal' | 'hoverParticular') => {
+    // For particular mode (green to yellow), use dark text when luminance is high
+    if (hoverMode === 'hoverParticular') {
+      return luminance > 0.5 ? 'gray.900' : 'white';
+    }
+    // For normal mode (blue to red), white text is always readable
+    return 'white';
+  };
+  
   return (
     <Box mb={2} overflowY="auto">
-      <Flex gap={2} flexWrap="wrap">
+      <Flex gap={0} flexWrap="wrap">
         {tokens.map((token, index) => {
           const luminance = Math.pow(luminanceValues[index] || 0, 1);
           const isHighlighted = hoveredTokenIdx === index;
           
+          // Check if this token ends with </w> (word boundary marker)
+          const isWordEnd = token.endsWith('</w>');
+          const displayToken = isWordEnd ? token.slice(0, -4) : token; // Remove </w>
+          
+          // Check if previous token was a word end (to determine left spacing)
+          const prevToken = index > 0 ? tokens[index - 1] : null;
+          const prevIsWordEnd = prevToken?.endsWith('</w>') ?? true;
+          
+          // Spacing logic:
+          // - After word boundaries: normal margin and padding
+          // - Mid-word tokens: minimal margin, reduced padding for tight appearance
+          const spacingProps = isWordEnd ? {
+            // Word-ending token: normal right spacing
+            mr: 2,
+            ml: prevIsWordEnd ? 0 : 0, // No extra left margin
+            px: 2,
+            py: 1
+          } : {
+            // Mid-word token: tight spacing
+            mr: 0.5,
+            ml: prevIsWordEnd ? 0 : -0.5, // Slightly negative to bring closer
+            px: 1.5, // Reduced horizontal padding
+            py: 1
+          };
+          
           return (
             <Box
               key={index}
-              px={2}
-              py={1}
+              {...spacingProps}
               borderRadius="base"
-              bg={luminance > 0 ? getHeatmapColor(luminance) : "base.800"}
-              color="white"
+              bg={luminance > 0 ? colorFn(luminance) : "base.800"}
+              color={luminance > 0 ? getTextColor(luminance, hoverMode) : "white"}
               fontSize="xs"
               maxW="max-content"
               transition="all 0.1s ease"
@@ -187,7 +345,7 @@ const TokenList = memo(({
               transform={isHighlighted ? "scale(1.1)" : "scale(1)"}
               zIndex={isHighlighted ? 10 : 1}
             >
-              {token}
+              {displayToken}
             </Box>
           );
         })}
@@ -202,13 +360,17 @@ const AttentionMapOverlay = memo(({
   attentionMapImageUrl,
   attentionMapData,
   tokenCount,
-  fittedDims
+  fittedDims,
+  overlayMode,
+  mainImageUrl
 }: {
   tokenIdx: number;
   attentionMapImageUrl: string;
   attentionMapData: ImageData;
   tokenCount: number;
   fittedDims: Dimensions;
+  overlayMode: 'yellow' | 'multiply' | 'multiplyNormalized';
+  mainImageUrl: string;
 }) => {
   const crossOrigin = useStore($crossOrigin);
   
@@ -231,31 +393,135 @@ const AttentionMapOverlay = memo(({
         }
         
         const sourceY = tokenIdx * heightPerToken;
-        const img = new window.Image();
-        img.crossOrigin = crossOrigin || 'anonymous';
-        img.src = attentionMapImageUrl;
         
-        img.onload = () => {
-          ctx.drawImage(
-            img,
-            0, sourceY, width, heightPerToken,
-            0, 0, width, heightPerToken
-          );
+        if (overlayMode === 'multiply' || overlayMode === 'multiplyNormalized') {
+          // Load both the main image and attention map
+          const mainImg = new window.Image();
+          const attentionImg = new window.Image();
+          mainImg.crossOrigin = crossOrigin || 'anonymous';
+          attentionImg.crossOrigin = crossOrigin || 'anonymous';
+          mainImg.src = mainImageUrl;
+          attentionImg.src = attentionMapImageUrl;
           
-          // Apply yellow tint for visibility
-          const imageData = ctx.getImageData(0, 0, width, heightPerToken);
-          const data = imageData.data;
+          let mainLoaded = false;
+          let attentionLoaded = false;
           
-          for (let i = 0; i < data.length; i += 4) {
-            const luminance = data[i] ?? 0;
-            data[i] = Math.min(255, luminance * 1.5);     // R
-            data[i + 1] = Math.min(255, luminance * 1.5); // G
-            data[i + 2] = 0;                               // B - no blue = yellow
-            data[i + 3] = Math.min(255, luminance * 2);   // A
-          }
+          const tryComposite = () => {
+            if (!mainLoaded || !attentionLoaded) {
+              return;
+            }
+            
+            // Set canvas to full image size
+            overlayCanvas.width = mainImg.width;
+            overlayCanvas.height = mainImg.height;
+            
+            // Draw the main image at full size
+            ctx.drawImage(mainImg, 0, 0);
+            
+            const mainImageData = ctx.getImageData(0, 0, mainImg.width, mainImg.height);
+            
+            // Create a temporary canvas for the attention map slice at full resolution
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = mainImg.width;
+            tempCanvas.height = mainImg.height;
+            const tempCtx = tempCanvas.getContext('2d');
+            if (!tempCtx) {
+              return;
+            }
+            
+            // Draw the attention map slice scaled up to match the main image
+            // The attention map is 8x downsampled, so we need to scale it up 8x
+            tempCtx.drawImage(
+              attentionImg,
+              0, sourceY, width, heightPerToken,
+              0, 0, mainImg.width, mainImg.height
+            );
+            
+            const attentionImageData = tempCtx.getImageData(0, 0, mainImg.width, mainImg.height);
+            
+            const attentionData = attentionImageData.data;
+            
+            // Normalize the attention map only for multiplyNormalized mode
+            if (overlayMode === 'multiplyNormalized') {
+              // Find min and max values in the attention map for normalization
+              let minVal = 255;
+              let maxVal = 0;
+              
+              for (let i = 0; i < attentionData.length; i += 4) {
+                const val = attentionData[i] ?? 0;
+                if (val < minVal) {
+minVal = val;
+}
+                if (val > maxVal) {
+maxVal = val;
+}
+              }
+              
+              // Normalize the attention map
+              const range = maxVal - minVal;
+              if (range > 0) {
+                for (let i = 0; i < attentionData.length; i += 4) {
+                  const normalized = ((attentionData[i]! - minVal) / range) * 255;
+                  attentionData[i] = normalized;
+                  attentionData[i + 1] = normalized;
+                  attentionData[i + 2] = normalized;
+                }
+              }
+            }
+            
+            // Multiply blend: mainColor * (attentionColor / 255)
+            const mainData = mainImageData.data;
+            
+            for (let i = 0; i < mainData.length; i += 4) {
+              // Attention map is grayscale, so we can use any channel
+              const attentionValue = (attentionData[i] ?? 0) / 255;
+              
+              mainData[i] = Math.round(mainData[i]! * attentionValue);     // R
+              mainData[i + 1] = Math.round(mainData[i + 1]! * attentionValue); // G
+              mainData[i + 2] = Math.round(mainData[i + 2]! * attentionValue); // B
+              // Alpha stays at full opacity
+            }
+            
+            ctx.putImageData(mainImageData, 0, 0);
+          };
           
-          ctx.putImageData(imageData, 0, 0);
-        };
+          mainImg.onload = () => {
+            mainLoaded = true;
+            tryComposite();
+          };
+          
+          attentionImg.onload = () => {
+            attentionLoaded = true;
+            tryComposite();
+          };
+        } else {
+          // Yellow overlay mode
+          const img = new window.Image();
+          img.crossOrigin = crossOrigin || 'anonymous';
+          img.src = attentionMapImageUrl;
+          
+          img.onload = () => {
+            ctx.drawImage(
+              img,
+              0, sourceY, width, heightPerToken,
+              0, 0, width, heightPerToken
+            );
+            
+            // Apply yellow tint for visibility
+            const imageData = ctx.getImageData(0, 0, width, heightPerToken);
+            const data = imageData.data;
+            
+            for (let i = 0; i < data.length; i += 4) {
+              const luminance = data[i] ?? 0;
+              data[i] = Math.min(255, luminance * 1.5);     // R
+              data[i + 1] = Math.min(255, luminance * 1.5); // G
+              data[i + 2] = 0;                               // B - no blue = yellow
+              data[i + 3] = Math.min(255, luminance * 2);   // A
+            }
+            
+            ctx.putImageData(imageData, 0, 0);
+          };
+        }
       }}
       style={{
         position: 'absolute',
@@ -264,7 +530,7 @@ const AttentionMapOverlay = memo(({
         width: `${fittedDims.width}px`,
         height: `${fittedDims.height}px`,
         pointerEvents: 'none',
-        opacity: 0.8,
+        opacity: overlayMode === 'multiply' ? 1.0 : 0.8,
         imageRendering: 'pixelated'
       }}
     />
@@ -442,7 +708,7 @@ const AttentionMapGrid = memo(({
   const attentionHeightPerToken = attentionMapData.height / tokenCount;
 
   return (
-    <Flex gap={2} flexWrap="wrap" maxH={maxHeight} overflow="auto">
+    <Flex gap={0} flexWrap="wrap" maxH={maxHeight} overflow="auto">
       {Array.from({ length: columnCount }, (_, colIdx) => {
         const startTokenIdx = colIdx * tokensPerColumn;
         const endTokenIdx = Math.min(startTokenIdx + tokensPerColumn, tokenCount);
@@ -475,6 +741,8 @@ const InteractiveImage = memo(({
   attentionMapImageUrl,
   attentionMapData,
   tokenCount,
+  overlayMode,
+  hoverMode,
   onCrosshairChange,
   onLuminanceChange
 }: {
@@ -484,11 +752,16 @@ const InteractiveImage = memo(({
   attentionMapImageUrl: string | undefined;
   attentionMapData: ImageData | null;
   tokenCount: number;
+  overlayMode: 'yellow' | 'multiply' | 'multiplyNormalized';
+  hoverMode: 'hoverNormal' | 'hoverParticular';
   onCrosshairChange: (pos: AttentionMapCoordinates | null) => void;
   onLuminanceChange: (values: number[]) => void;
 }) => {
   const crossOrigin = useStore($crossOrigin);
   const calculateLuminance = useLuminanceCalculator(attentionMapData, tokenCount);
+  const calculateParticularityA = useParticularityCalculator(attentionMapData, tokenCount, 'optionA');
+  const calculateParticularityB = useParticularityCalculator(attentionMapData, tokenCount, 'optionB');
+  const calculateParticularityC = useParticularityCalculator(attentionMapData, tokenCount, 'optionC');
 
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLImageElement>) => {
     if (!attentionMapData || tokenCount === 0) {
@@ -506,8 +779,27 @@ const InteractiveImage = memo(({
     const attentionY = Math.floor((y * scaleY) / 8);
 
     onCrosshairChange({ x: attentionX, y: attentionY });
-    onLuminanceChange(calculateLuminance(attentionX, attentionY));
-  }, [attentionMapData, tokenCount, imageDTO, calculateLuminance, onCrosshairChange, onLuminanceChange]);
+    
+    if (hoverMode === 'hoverNormal') {
+      onLuminanceChange(calculateLuminance(attentionX, attentionY));
+    } else {
+      // For hoverParticular, use optionC (z-score approach) as it's theoretically best
+      const scoresC = calculateParticularityC(attentionX, attentionY);
+      
+      // Normalize to 0-1 range for display
+      const max = Math.max(...scoresC, 0.001); // Avoid division by zero
+      const normalizedScores = scoresC.map(s => s / max);
+      
+      // Debug: log top 5 tokens to see if particularity is working
+      if (Math.random() < 0.05) { // Only log 5% of the time to avoid spam
+        const indexed = normalizedScores.map((score, idx) => ({ score, idx }));
+        indexed.sort((a, b) => b.score - a.score);
+        console.log('Top 5 particular tokens:', indexed.slice(0, 5));
+      }
+      
+      onLuminanceChange(normalizedScores);
+    }
+  }, [attentionMapData, tokenCount, imageDTO, hoverMode, calculateLuminance, calculateParticularityC, onCrosshairChange, onLuminanceChange]);
 
   const handleMouseLeave = useCallback(() => {
     onCrosshairChange(null);
@@ -540,6 +832,8 @@ const InteractiveImage = memo(({
           attentionMapData={attentionMapData}
           tokenCount={tokenCount}
           fittedDims={fittedDims}
+          overlayMode={overlayMode}
+          mainImageUrl={imageDTO.image_url}
         />
       )}
     </Box>
@@ -561,6 +855,8 @@ const ImageTokenizationContent = memo(({
   fittedDims: Dimensions;
 }) => {
   const tokenizationDisplayMode = useAppSelector(selectTokenizationDisplayMode);
+  const overlayMode = useAppSelector(selectTokenizationAttentionOverlayMode);
+  const hoverMode = useAppSelector(selectTokenizationHoverMode);
   
   // Extract token metadata
   const tokens = useMemo(() => 
@@ -594,19 +890,38 @@ const ImageTokenizationContent = memo(({
         luminanceValues={luminanceValues}
         hoveredTokenIdx={hoveredTokenIdx}
         onTokenHover={setHoveredTokenIdx}
+        hoverMode={hoverMode}
       />
       
       <Flex gap={4} alignItems="flex-start" position="relative">
-        <InteractiveImage
-          imageDTO={image}
-          fittedDims={fittedDims}
-          hoveredTokenIdx={hoveredTokenIdx}
-          attentionMapImageUrl={attentionMapsDTO.image_url}
-          attentionMapData={attentionMapData}
-          tokenCount={tokenCount}
-          onCrosshairChange={setCrosshairPos}
-          onLuminanceChange={setLuminanceValues}
-        />
+        <Flex flexDir="column" gap={2}>
+          <InteractiveImage
+            imageDTO={image}
+            fittedDims={fittedDims}
+            hoveredTokenIdx={hoveredTokenIdx}
+            attentionMapImageUrl={attentionMapsDTO.image_url}
+            attentionMapData={attentionMapData}
+            tokenCount={tokenCount}
+            overlayMode={overlayMode}
+            hoverMode={hoverMode}
+            onCrosshairChange={setCrosshairPos}
+            onLuminanceChange={setLuminanceValues}
+          />
+          
+          {/* Current token display */}
+          <Box 
+            w="full" 
+            textAlign="center" 
+            py={3}
+            fontSize="5xl"
+            fontWeight="semibold"
+            color={hoveredTokenIdx !== null ? "base.50" : "base.500"}
+            minH="4rem"
+            transition="color 0.2s ease"
+          >
+            {hoveredTokenIdx !== null ? tokens[hoveredTokenIdx] : '—'}
+          </Box>
+        </Flex>
         
         <AttentionMapGrid
           attentionMapImageUrl={attentionMapsDTO.image_url}
