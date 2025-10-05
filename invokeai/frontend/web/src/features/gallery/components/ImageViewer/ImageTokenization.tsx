@@ -57,7 +57,16 @@ const Tokens = ({ tokens, luminanceValues }: { tokens: string[] | undefined; lum
   const getHeatmapColor = (value: number): string => {
     // Heatmap: blue (0) -> purple (0.5) -> red (1)
     // Blue: (0, 0, 255), Purple: (128, 0, 255), Red: (255, 0, 0)
-    let r: number, g: number, b: number;
+    // First 10% fades alpha from 0 to 100%
+    let r: number, g: number, b: number, alpha: number;
+
+    // Alpha fade in first 20%
+    const alphaFadeInRange = 0.2;
+    if (value < alphaFadeInRange) {
+      alpha = value/alphaFadeInRange; // 0-0.1 maps to 0-1
+    } else {
+      alpha = 1;
+    }
     
     if (value < 0.5) {
       // Blue to Purple (0 to 0.5)
@@ -73,10 +82,10 @@ const Tokens = ({ tokens, luminanceValues }: { tokens: string[] | undefined; lum
       b = Math.round(255 * (1 - t));
     }
     
-    return `rgb(${r}, ${g}, ${b})`;
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
   };
 
-  return <Box mb={2} maxH={24} overflowY="auto">
+  return <Box mb={2} overflowY="auto">
     <Flex gap={2} flexWrap="wrap">
       {tokens && tokens.map((token, index) => {
         const luminance = Math.pow(luminanceValues[index] || 0, 1);
