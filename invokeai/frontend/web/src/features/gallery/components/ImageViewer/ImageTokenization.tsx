@@ -4,7 +4,7 @@ import { ImageComparisonDroppable } from "./ImageComparisonDroppable";
 import { useImageDTO } from "services/api/endpoints/images";
 import { useAppSelector } from "app/store/storeHooks";
 
-import { selectImageToTokenize, selectTokenizationPrompt } from 'features/gallery/store/gallerySelectors';
+import { selectLastSelectedItem, selectTokenizationPrompt } from 'features/gallery/store/gallerySelectors';
 import { useDebouncedMetadata } from "services/api/hooks/useDebouncedMetadata";
 import { Dimensions } from "@xyflow/react";
 import { $crossOrigin } from 'app/store/nanostores/authToken';
@@ -17,7 +17,8 @@ export const ImageTokenization = memo(() => {
   const [rect, setRect] = useState<DOMRect | null>(null);
   const ref = useRef<HTMLDivElement | null>(null);
 
-  const imageDTO = useImageDTO(useAppSelector(selectImageToTokenize));
+  const lastSelectedItem = useAppSelector(selectLastSelectedItem);
+  const imageDTO = useImageDTO(lastSelectedItem?.type == 'image' ? lastSelectedItem?.id : null);
   const { metadata, isLoading } = useDebouncedMetadata(imageDTO?.image_name);
 
   // Ref callback runs synchronously when the DOM node is attached, ensuring we have a measurement before
