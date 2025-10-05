@@ -113,7 +113,7 @@ class CompelInvocation(BaseInvocation):
                 log_tokenization_for_conjunction(conjunction, patched_tokenizer)
 
             c, tokenization, _options = compel.build_conditioning_tensor_for_conjunction(conjunction, return_tokenization=True)
-            tokenization = _get_clean_tokens(tokenization, tokenizer)
+            tokenization = _get_clean_tokens(tokenization[0], tokenizer)
 
         del compel
         del patched_tokenizer
@@ -535,11 +535,11 @@ def log_tokenization_for_text(
         print(f"{discarded}\x1b[0m")
 
 
-def _get_clean_tokens(tokenization: list[torch.Tensor], tokenizer: CLIPTokenizer) -> List[List[str]]:
+def _get_clean_tokens(tokenization: torch.Tensor, tokenizer: CLIPTokenizer) -> List[List[str]]:
     """
     standardise eos/bos/pad, suppress chains of '<eos>' or 0 (padding), split to <bos> ... <eos> groups
     """
-    tokens = tokenizer.convert_ids_to_tokens(tokenization[0][0].tolist())
+    tokens = tokenizer.convert_ids_to_tokens(tokenization.squeeze(0).tolist())
     all_tokens_cleaned = []
     current_tokens_cleaned = []
     for i, t in enumerate(tokens):

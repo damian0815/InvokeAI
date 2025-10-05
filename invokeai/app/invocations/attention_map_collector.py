@@ -162,6 +162,7 @@ class CrossAttentionMapCollector:
                 num_steps = maps_stacked.shape[1]
                 ramp = torch.linspace(0, 1, steps=num_steps,
                                       dtype=maps_stacked.dtype, device=maps_stacked.device)
+                # beta > 1 means later timesteps are weighted (even more) strongly
                 ramp_curve = ramp.pow(timestep_weighting_beta)
 
                 weights = (1 - timestep_weighting_alpha) * torch.ones(num_steps,
