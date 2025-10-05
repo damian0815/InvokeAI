@@ -5,7 +5,7 @@ import { useAppSelector } from "app/store/storeHooks";
 
 import { selectLastSelectedItem, selectTokenizationDisplayMode } from 'features/gallery/store/gallerySelectors';
 import { useDebouncedMetadata } from "services/api/hooks/useDebouncedMetadata";
-import { Dimensions } from "@xyflow/react";
+import type { Dimensions } from "@xyflow/react";
 import { $crossOrigin } from 'app/store/nanostores/authToken';
 import { useStore } from '@nanostores/react';
 import { fitDimsToContainer } from "./common";
@@ -17,7 +17,7 @@ export const ImageTokenization = memo(() => {
   const ref = useRef<HTMLDivElement | null>(null);
 
   const lastSelectedItem = useAppSelector(selectLastSelectedItem);
-  const imageDTO = useImageDTO(lastSelectedItem?.type == 'image' ? lastSelectedItem?.id : null);
+  const imageDTO = useImageDTO(lastSelectedItem?.type === 'image' ? lastSelectedItem?.id : null);
   const { metadata, isLoading } = useDebouncedMetadata(imageDTO?.image_name);
 
   // Ref callback runs synchronously when the DOM node is attached, ensuring we have a measurement before
@@ -146,7 +146,9 @@ const ImageTokenizationContent = memo(({ image, metadata, fittedDims }: { image:
 
   // Load attention maps image onto canvas when available
   useEffect(() => {
-    if (!attentionMapsDTO?.image_url || !canvasRef.current) return;
+    if (!attentionMapsDTO?.image_url || !canvasRef.current) {
+      return;
+    }
 
     const img = new window.Image();
     img.crossOrigin = crossOrigin || 'anonymous';
@@ -154,12 +156,16 @@ const ImageTokenizationContent = memo(({ image, metadata, fittedDims }: { image:
     
     img.onload = () => {
       const canvas = canvasRef.current;
-      if (!canvas) return;
+      if (!canvas) {
+        return;
+      }
 
       canvas.width = img.width;
       canvas.height = img.height;
       const ctx = canvas.getContext('2d', { willReadFrequently: true });
-      if (!ctx) return;
+      if (!ctx) {
+        return;
+      }
 
       ctx.drawImage(img, 0, 0);
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -168,7 +174,9 @@ const ImageTokenizationContent = memo(({ image, metadata, fittedDims }: { image:
   }, [attentionMapsDTO?.image_url, crossOrigin]);
 
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLImageElement>) => {
-    if (!attentionMapData || tokenCount === 0 || !image) return;
+    if (!attentionMapData || tokenCount === 0 || !image) {
+      return;
+    }
 
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left;

@@ -128,8 +128,8 @@ class CrossAttentionMapCollector:
             # maps has shape [B, steps, (H*W), N] for N tokens
             # but we want [B, steps, N, H, W] for torchvision_resize
             this_scale_factor = math.sqrt(maps.shape[2] / (latents_width * latents_height))
-            this_maps_height = int(float(latents_height) * this_scale_factor)
-            this_maps_width = int(float(latents_width) * this_scale_factor)
+            this_maps_height = round(float(latents_height) * this_scale_factor)
+            this_maps_width = round(float(latents_width) * this_scale_factor)
             # and we need to do some dimension juggling
             bsz = maps.shape[0]
             num_steps = maps.shape[1]
