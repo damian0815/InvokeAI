@@ -32,8 +32,8 @@ class CrossAttentionMapCollector:
     def register_hooks(self):
         """Register forward hooks on all cross-attention modules in the UNet."""
 
-        def _sdp_with_map_saving(query, key, value, attn_mask=None, dropout_p=0.0, is_causal=False, scale=None, target: CrossAttentionMapCollector=None, map_name: str=""):
-            attn_output, attn_weights = _scaled_dot_product_attention_with_weight_return(query, key, value, attn_mask=attn_mask, dropout_p=dropout_p, is_causal=is_causal, scale=scale)
+        def _sdp_with_map_saving(query, key, value, attn_mask=None, dropout_p=0.0, is_causal=False, scale=None, enable_gqa=False, target: CrossAttentionMapCollector=None, map_name: str=""):
+            attn_output, attn_weights = _scaled_dot_product_attention_with_weight_return(query, key, value, attn_mask=attn_mask, dropout_p=dropout_p, is_causal=is_causal, scale=scale, enable_gqa=enable_gqa)
             if self.verbose and map_name not in target.attention_maps:
                 # log on first addition
                 print(f"storing maps of size {attn_weights.shape} for '{map_name}'")
@@ -174,11 +174,11 @@ class CrossAttentionMapCollector:
         return PIL.Image.fromarray(merged_bytes.numpy(), mode='L')
 
 
-def _scaled_dot_product_attention_with_weight_return(query, key, value, attn_mask=None, dropout_p=0.0, is_causal=False, scale=None) -> Tuple[torch.Tensor, torch.Tensor]:
+def _scaled_dot_product_attention_with_weight_return(query, key, value, attn_mask=None, dropout_p=0.0, is_causal=False, scale=None, enable_gqa=False) -> Tuple[torch.Tensor, torch.Tensor]:
     # Efficient implementation equivalent to the following:
     L, S = query.size(-2), key.size(-2)
     scale_factor = 1 / math.sqrt(query.size(-1)) if scale is None else scale
-    attn_bias = torch.zeros(L, S, dtype=query.dtype)
+    attn_bias = torch.zeros(L, S, dtype=query.dtype, device=query.device)
     if is_causal:
         assert attn_mask is None
         temp_mask = torch.ones(L, S, dtype=torch.bool).tril(diagonal=0)
@@ -187,12 +187,16 @@ def _scaled_dot_product_attention_with_weight_return(query, key, value, attn_mas
 
     if attn_mask is not None:
         if attn_mask.dtype == torch.bool:
-            attn_mask.masked_fill_(attn_mask.logical_not(), float("-inf"))
+            attn_bias.masked_fill_(attn_mask.logical_not(), float("-inf"))
         else:
-            attn_bias += attn_mask
+            attn_bias = attn_mask + attn_bias
+
+    if enable_gqa:
+        key = key.repeat_interleave(query.size(-3) // key.size(-3), -3)
+        value = value.repeat_interleave(query.size(-3) // value.size(-3), -3)
+
     attn_weight = query @ key.transpose(-2, -1) * scale_factor
-    attn_weight += attn_bias.to(attn_weight.device)
+    attn_weight += attn_bias
     attn_weight = torch.softmax(attn_weight, dim=-1)
     attn_weight_with_dropout = torch.dropout(attn_weight, dropout_p, train=True)
-
     return attn_weight_with_dropout @ value, attn_weight
