@@ -11,6 +11,7 @@ import { useDebouncedMetadata } from "services/api/hooks/useDebouncedMetadata";
 
 import { fitDimsToContainer } from "./common";
 import { TokenizationToolbar } from "./TokenizationToolbar";
+import { log } from "console";
 
 // ============================================================================
 // Types
@@ -690,7 +691,8 @@ const AttentionMapGrid = memo(({
   tokenCount,
   hoveredTokenIdx,
   crosshairPos,
-  onTokenHover
+  onTokenHover,
+  targetWidth
 }: {
   attentionMapImageUrl: string;
   attentionMapData: ImageData;
@@ -698,26 +700,57 @@ const AttentionMapGrid = memo(({
   hoveredTokenIdx: number | null;
   crosshairPos: AttentionMapCoordinates | null;
   onTokenHover: (index: number | null) => void;
+  targetWidth: number;
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [tokensPerColumn, setTokensPerColumn] = useState(8);
-  const scale = 0.5;
+  const [scale, setScale] = useState(1);
   const attentionHeightPerToken = scale * attentionMapData.height / tokenCount;
 
-  // Calculate tokens per column based on available height
+  // Calculate scale and tokens per column based on available space
   useEffect(() => {
-    const updateTokensPerColumn = () => {
+    const updateLayoutParams = () => {
       if (!containerRef.current) {
         return;
       }
       
       const containerHeight = containerRef.current.clientHeight;
-      const containerWidth = containerRef.current.clientWidth;
-
-      // Each attention map token has the same height as attentionHeightPerToken
-      // Calculate how many can fit in the available height
-      const fittingTokens = Math.floor(containerHeight / attentionHeightPerToken);
-      // Use at least 1, at most the total token count
+      
+      // Don't calculate if container hasn't been sized yet
+      if (containerHeight === 0 || targetWidth === 0) {
+        return;
+      }
+      
+      // Define available scale steps (from largest to smallest)
+      const scaleSteps = [1.0, 0.9, 0.81, 0.729, 0.6561, 0.59049, 0.531441, 0.4782969, 0.43046721, 0.387420489, 0.3486784401];
+      
+      // Find the largest scale that fits both width AND height constraints
+      let chosenScale = scaleSteps[scaleSteps.length - 1]!; // Default to smallest
+      let chosenScaleError: number | undefined = undefined;
+      
+      for (const testScale of scaleSteps) {
+        const testAttentionHeight = testScale * attentionMapData.height / tokenCount;
+        const testTokensPerColumn = Math.max(1, Math.floor(containerHeight / testAttentionHeight));
+        const columnsNeeded = Math.ceil(tokenCount / testTokensPerColumn);
+        const totalWidth = columnsNeeded * (attentionMapData.width * testScale);
+        
+        //console.log(`Testing scale ${testScale}: ${columnsNeeded} columns × ${attentionMapData.width * testScale}px = ${totalWidth}px (target: ${targetWidth}px)`);
+        
+        let error = Math.log10(Math.abs(totalWidth - targetWidth) + 1);
+        if (error < (chosenScaleError ?? Infinity)) {
+          chosenScaleError = error;
+          chosenScale = testScale;
+          console.log(` -> new best ${testScale}, error ${chosenScaleError}`);
+        }
+      }
+      
+      console.log(`Final chosen scale: ${chosenScale}`);
+      
+      setScale(chosenScale);
+      
+      // Now calculate tokens per column with the chosen scale
+      const finalAttentionHeight = chosenScale * attentionMapData.height / tokenCount;
+      const fittingTokens = Math.floor(containerHeight / finalAttentionHeight);
       const calculated = Math.max(1, Math.min(fittingTokens, tokenCount));
       setTokensPerColumn(calculated);
     };
@@ -728,18 +761,18 @@ const AttentionMapGrid = memo(({
 
     // Use ResizeObserver to track container size changes
     const resizeObserver = new ResizeObserver(() => {
-      updateTokensPerColumn();
+      updateLayoutParams();
     });
     
     resizeObserver.observe(containerRef.current);
     
     // Initial calculation
-    updateTokensPerColumn();
+    updateLayoutParams();
     
     return () => {
       resizeObserver.disconnect();
     };
-  }, [attentionHeightPerToken, tokenCount]);
+  }, [attentionMapData.height, attentionMapData.width, tokenCount, targetWidth]);
 
   const columnCount = Math.ceil(tokenCount / tokensPerColumn);
 
@@ -957,6 +990,30 @@ const ImageTokenizationContent = memo(({
   const [luminanceValues, setLuminanceValues] = useState<number[]>([]);
   const [crosshairPos, setCrosshairPos] = useState<AttentionMapCoordinates | null>(null);
   const [hoveredTokenIdx, setHoveredTokenIdx] = useState<number | null>(null);
+  const [parentContainerWidth, setParentContainerWidth] = useState(0);
+  
+  const parentContainerRef = useRef<HTMLDivElement>(null);
+  
+  // Measure parent container width and pass half to attention maps
+  useEffect(() => {
+    if (!parentContainerRef.current) {
+      return;
+    }
+    
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const width = entry.contentRect.width;
+        setParentContainerWidth(width);
+        console.log(`Parent container width: ${width}px, passing ${width * 0.5}px to attention maps`);
+      }
+    });
+    
+    resizeObserver.observe(parentContainerRef.current);
+    
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, []);
   
   const tokenCount = tokens?.length || 0;
 
@@ -976,8 +1033,8 @@ const ImageTokenizationContent = memo(({
         />
       </Box>
       
-      <Flex gap={4} alignItems="flex-start" position="relative" flex={1} minH={0} overflow="hidden">
-        <Flex flexDir="column" gap={2} flex={1} minH={0} minW={0} h="full">
+      <Flex ref={parentContainerRef} gap={4} alignItems="flex-start" position="relative" flex={1} minH={0} overflow="hidden">
+        <Flex flexDir="column" gap={2} flex="3 1 auto" minH={0} minW={0} h="full">
           <Box flex={1} minH={0} w="full" h="full">
             <InteractiveImage
               imageDTO={image}
@@ -1011,7 +1068,7 @@ const ImageTokenizationContent = memo(({
           </Box>
         </Flex>
         
-        <Box flex="0 0 auto" h="full" overflowY="auto">
+        <Box flex="1 1 auto" h="full" w="33%" overflowY="auto" minW={0}>
           <AttentionMapGrid
             attentionMapImageUrl={attentionMapsDTO.image_url}
             attentionMapData={attentionMapData}
@@ -1019,6 +1076,7 @@ const ImageTokenizationContent = memo(({
             hoveredTokenIdx={hoveredTokenIdx}
             crosshairPos={crosshairPos}
             onTokenHover={setHoveredTokenIdx}
+            targetWidth={parentContainerWidth*0.3}
           />
         </Box>
       </Flex>
