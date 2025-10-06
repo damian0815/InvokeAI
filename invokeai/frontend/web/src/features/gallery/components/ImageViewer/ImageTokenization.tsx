@@ -696,76 +696,70 @@ const AttentionMapGrid = memo(({
   crosshairPos: AttentionMapCoordinates | null;
   onTokenHover: (index: number | null) => void;
 }) => {
-  const crossOrigin = useStore($crossOrigin);
-  const [dataUrl, setDataUrl] = useState<string>('');
   const containerRef = useRef<HTMLDivElement>(null);
-  
-  // Convert the attention maps to a data URL once
+  const [tokensPerColumn, setTokensPerColumn] = useState(8);
+  const attentionHeightPerToken = attentionMapData.height / tokenCount;
+
+  // Calculate tokens per column based on available height
   useEffect(() => {
-    const canvas = document.createElement('canvas');
-    canvas.width = attentionMapData.width;
-    canvas.height = attentionMapData.height;
-    
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    
-    const img = new window.Image();
-    img.crossOrigin = crossOrigin || 'anonymous';
-    img.src = attentionMapImageUrl;
-    
-    img.onload = () => {
-      ctx.drawImage(img, 0, 0);
-      setDataUrl(canvas.toDataURL());
+    const updateTokensPerColumn = () => {
+      if (!containerRef.current) {
+        return;
+      }
+      
+      const containerHeight = containerRef.current.clientHeight;
+      // Each attention map token has the same height as attentionHeightPerToken
+      // Calculate how many can fit in the available height
+      const fittingTokens = Math.floor(containerHeight / attentionHeightPerToken);
+      // Use at least 1, at most the total token count
+      const calculated = Math.max(1, Math.min(fittingTokens, tokenCount));
+      setTokensPerColumn(calculated);
     };
-  }, [attentionMapImageUrl, attentionMapData, crossOrigin]);
 
-  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLImageElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const y = e.clientY - rect.top;
-    const tokenIdx = Math.floor((y / rect.height) * tokenCount);
-    onTokenHover(Math.min(tokenIdx, tokenCount - 1));
-  }, [tokenCount, onTokenHover]);
+    if (!containerRef.current) {
+      return;
+    }
 
-  const handleMouseLeave = useCallback(() => {
-    onTokenHover(null);
-  }, [onTokenHover]);
+    // Use ResizeObserver to track container size changes
+    const resizeObserver = new ResizeObserver(() => {
+      updateTokensPerColumn();
+    });
+    
+    resizeObserver.observe(containerRef.current);
+    
+    // Initial calculation
+    updateTokensPerColumn();
+    
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [attentionHeightPerToken, tokenCount]);
 
-  if (!dataUrl) return null;
-
-  const heightPerToken = attentionMapData.height / tokenCount;
+  const columnCount = Math.ceil(tokenCount / tokensPerColumn);
 
   return (
-    <Box position="relative" ref={containerRef} h="full">
-      <Image
-        src={dataUrl}
-        maxH="full"
-        objectFit="contain"
-        objectPosition="top left"
-        cursor="pointer"
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
-        display="block"
-      />
-      
-      {/* Yellow border around hovered token */}
-      {hoveredTokenIdx !== null && containerRef.current && (
-        <Box
-          position="absolute"
-          left={0}
-          top={`${(hoveredTokenIdx / tokenCount) * 100}%`}
-          w="full"
-          h={`${(1 / tokenCount) * 100}%`}
-          border="2px solid"
-          borderColor="yellow.400"
-          pointerEvents="none"
-        />
-      )}
-      
-      {/* Crosshair */}
-      {crosshairPos && containerRef.current && (
-        <AttentionMapCrosshair x={crosshairPos.x} y={crosshairPos.y} />
-      )}
-    </Box>
+    <Flex ref={containerRef} gap={0} flexWrap="wrap" h="full">
+      {Array.from({ length: columnCount }, (_, colIdx) => {
+        const startTokenIdx = colIdx * tokensPerColumn;
+        const endTokenIdx = Math.min(startTokenIdx + tokensPerColumn, tokenCount);
+        const tokensInColumn = endTokenIdx - startTokenIdx;
+        
+        return (
+          <AttentionMapColumn
+            key={colIdx}
+            columnIndex={colIdx}
+            startTokenIdx={startTokenIdx}
+            tokensInColumn={tokensInColumn}
+            attentionMapImageUrl={attentionMapImageUrl}
+            attentionMapData={attentionMapData}
+            attentionHeightPerToken={attentionHeightPerToken}
+            hoveredTokenIdx={hoveredTokenIdx}
+            crosshairPos={crosshairPos}
+            onTokenHover={onTokenHover}
+          />
+        );
+      })}
+    </Flex>
   );
 });
 AttentionMapGrid.displayName = 'AttentionMapGrid';
@@ -779,10 +773,8 @@ const InteractiveImage = memo(({
   tokenCount,
   overlayMode,
   hoverMode,
-  crosshairPos,
   onCrosshairChange,
-  onLuminanceChange,
-  onTokenHover
+  onLuminanceChange
 }: {
   imageDTO: ImageDTO;
   fittedDims: Dimensions;
@@ -792,10 +784,8 @@ const InteractiveImage = memo(({
   tokenCount: number;
   overlayMode: 'yellow' | 'multiply' | 'multiplyNormalized';
   hoverMode: 'hoverNormal' | 'hoverParticular';
-  crosshairPos: AttentionMapCoordinates | null;
   onCrosshairChange: (pos: AttentionMapCoordinates | null) => void;
   onLuminanceChange: (values: number[]) => void;
-  onTokenHover: (index: number | null) => void;
 }) => {
   const crossOrigin = useStore($crossOrigin);
   const calculateLuminance = useLuminanceCalculator(attentionMapData, tokenCount);
@@ -884,62 +874,42 @@ const InteractiveImage = memo(({
 
   return (
     <Box position="relative" w="full" h="full" display="flex" alignItems="center" justifyContent="center">
-      <Flex gap={2} alignItems="flex-start" display="inline-flex" maxW="full" maxH="full">
-        <Box position="relative" display="inline-block" maxW="full" maxH="full">
-          <Image
-            ref={imageRef}
-            id="image"
-            src={imageDTO.image_url}
-            fallbackSrc={imageDTO.thumbnail_url}
-            crossOrigin={crossOrigin}
-            maxW="full"
-            maxH="full"
-            objectFit="contain"
-            onMouseMove={handleMouseMove}
-            onMouseLeave={handleMouseLeave}
-            onLoad={() => {
-              // Update dimensions when image loads
-              if (imageRef.current) {
-                const rect = imageRef.current.getBoundingClientRect();
-                setActualImageDims({ width: rect.width, height: rect.height });
-              }
-            }}
-            cursor="crosshair"
-            display="block"
-          />
-          
-          {/* Overlay attention map when hovering over a token */}
-          {hoveredTokenIdx !== null && attentionMapImageUrl && attentionMapData && actualImageDims.width > 0 && (
-            <AttentionMapOverlay
-              tokenIdx={hoveredTokenIdx}
-              attentionMapImageUrl={attentionMapImageUrl}
-              attentionMapData={attentionMapData}
-              tokenCount={tokenCount}
-              fittedDims={actualImageDims}
-              overlayMode={overlayMode}
-              mainImageUrl={imageDTO.image_url}
-            />
-          )}
-        </Box>
+      <Box position="relative" display="inline-block" maxW="full" maxH="full">
+        <Image
+          ref={imageRef}
+          id="image"
+          src={imageDTO.image_url}
+          fallbackSrc={imageDTO.thumbnail_url}
+          crossOrigin={crossOrigin}
+          maxW="full"
+          maxH="full"
+          objectFit="contain"
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
+          onLoad={() => {
+            // Update dimensions when image loads
+            if (imageRef.current) {
+              const rect = imageRef.current.getBoundingClientRect();
+              setActualImageDims({ width: rect.width, height: rect.height });
+            }
+          }}
+          cursor="crosshair"
+          display="block"
+        />
         
-        {/* Attention maps grid as sibling - will scale with image */}
-        {attentionMapImageUrl && attentionMapData && actualImageDims.width > 0 && (
-          <Box 
-            maxH="full"
-            overflowY="auto"
-            flexShrink={0}
-          >
-            <AttentionMapGrid
-              attentionMapImageUrl={attentionMapImageUrl}
-              attentionMapData={attentionMapData}
-              tokenCount={tokenCount}
-              hoveredTokenIdx={hoveredTokenIdx}
-              crosshairPos={crosshairPos}
-              onTokenHover={onTokenHover}
-            />
-          </Box>
+        {/* Overlay attention map when hovering over a token */}
+        {hoveredTokenIdx !== null && attentionMapImageUrl && attentionMapData && actualImageDims.width > 0 && (
+          <AttentionMapOverlay
+            tokenIdx={hoveredTokenIdx}
+            attentionMapImageUrl={attentionMapImageUrl}
+            attentionMapData={attentionMapData}
+            tokenCount={tokenCount}
+            fittedDims={actualImageDims}
+            overlayMode={overlayMode}
+            mainImageUrl={imageDTO.image_url}
+          />
         )}
-      </Flex>
+      </Box>
     </Box>
   );
 });
@@ -999,10 +969,9 @@ const ImageTokenizationContent = memo(({
         />
       </Box>
       
-      <Flex gap={0} alignItems="center" justifyContent="center" position="relative" flex={1} minH={0} overflow="hidden">
-        <Flex flexDir="column" gap={2} h="full" justifyContent="center" alignItems="center">
-          {/* Main image with attention maps as sibling */}
-          <Box position="relative" h="full" maxH="full">
+      <Flex gap={4} alignItems="flex-start" position="relative" flex={1} minH={0} overflow="hidden">
+        <Flex flexDir="column" gap={2} flex={1} minH={0} minW={0} h="full">
+          <Box flex={1} minH={0} w="full" h="full">
             <InteractiveImage
               imageDTO={image}
               fittedDims={fittedDims}
@@ -1012,10 +981,8 @@ const ImageTokenizationContent = memo(({
               tokenCount={tokenCount}
               overlayMode={overlayMode}
               hoverMode={hoverMode}
-              crosshairPos={crosshairPos}
               onCrosshairChange={setCrosshairPos}
               onLuminanceChange={setLuminanceValues}
-              onTokenHover={setHoveredTokenIdx}
             />
           </Box>
           
@@ -1036,6 +1003,17 @@ const ImageTokenizationContent = memo(({
             {hoveredTokenIdx !== null ? tokens[hoveredTokenIdx] : '—'}
           </Box>
         </Flex>
+        
+        <Box flex="0 0 auto" h="full" overflowY="auto">
+          <AttentionMapGrid
+            attentionMapImageUrl={attentionMapsDTO.image_url}
+            attentionMapData={attentionMapData}
+            tokenCount={tokenCount}
+            hoveredTokenIdx={hoveredTokenIdx}
+            crosshairPos={crosshairPos}
+            onTokenHover={setHoveredTokenIdx}
+          />
+        </Box>
       </Flex>
     </Flex>
   );
