@@ -1,8 +1,9 @@
 # Copyright (c) 2023 Kyle Schouviller (https://github.com/kyle0654)
+import contextlib
 import inspect
 import os
 from contextlib import ExitStack
-from typing import Any, Dict, Iterator, List, Optional, Tuple, Union
+from typing import Any, Dict, Iterator, List, Optional, Tuple, Union, ContextManager
 
 import PIL
 import torch
@@ -18,6 +19,7 @@ from diffusers.schedulers.scheduling_tcd import TCDScheduler
 from diffusers.schedulers.scheduling_utils import SchedulerMixin as Scheduler
 from PIL import Image
 from pydantic import field_validator
+from pydantic.v1 import StrictBool
 from torchvision.transforms.functional import resize as tv_resize
 from transformers import CLIPVisionModelWithProjection
 
@@ -205,6 +207,12 @@ class DenoiseLatentsInvocation(BaseInvocation):
         description=FieldDescriptions.denoise_mask,
         input=Input.Connection,
         ui_order=8,
+    )
+    compute_attention_maps: Optional[StrictBool] = InputField(
+        default=False,
+        description="Whether to compute and save attention maps during denoising.",
+        input=Input.Any,
+        ui_order=9,
     )
 
     @field_validator("cfg_scale")
@@ -1089,7 +1097,11 @@ class DenoiseLatentsInvocation(BaseInvocation):
                 seed=seed,
             )
 
-            with collect_attention_maps(unet, text_encoder_hidden_size=conditioning_data.cond_text.embeds.shape[-1]) as attention_map_collector:
+            with (
+                collect_attention_maps(unet, text_encoder_hidden_size=conditioning_data.cond_text.embeds.shape[-1])
+                if self.compute_attention_maps
+                else contextlib.nullcontext()
+            ) as attention_map_collector_maybe:
                 result_latents = pipeline.latents_from_embeddings(
                     latents=latents,
                     timesteps=timesteps,
@@ -1107,39 +1119,43 @@ class DenoiseLatentsInvocation(BaseInvocation):
                     callback=step_callback,
                 )
 
-                def get_tokens(conditioning: ConditioningField | list[ConditioningField] | None) -> Optional[list[list[str]]]:
+                def get_tokens(conditioning: ConditioningField | list[ConditioningField] | None) -> Optional[
+                    list[list[str]]]:
                     if conditioning is None:
                         return None
                     if type(conditioning) is list:
                         conditioning = conditioning[0]
                     return conditioning.tokenization
-
                 uncond_tokens = get_tokens(self.negative_conditioning)
                 cond_tokens = get_tokens(self.positive_conditioning)
                 # No long prompt support for now
                 uncond_tokens = uncond_tokens[0] if uncond_tokens is not None else None
                 cond_tokens = cond_tokens[0] if cond_tokens is not None else None
-                eos_token_index = [
-                    None if uncond_tokens is None else (-1 if "<eos>" not in uncond_tokens else uncond_tokens.index("<eos>")),
-                    None if cond_tokens is None else (-1 if "<eos>" not in cond_tokens else cond_tokens.index("<eos>"))
-                ]
-                # eos/bos have been replaced by -1
-                drop_eos_bos = False if cond_tokens is None else (uncond_tokens[-1] == "<eos>")
-                attention_maps = [
-                    attention_map_collector.get_stacked_maps(
-                        latents_width=latents.shape[-1],
-                        latents_height=latents.shape[-2],
-                        kernel_size=unet.config["conv_in_kernel"],
-                        downsample_padding=unet.config["downsample_padding"],
-                        prompt_index=prompt_index,
-                        eos_token_index=eos_token_index[prompt_index],
-                        drop_bos_eos=drop_eos_bos,
-                        merge_timesteps=True,
-                        timestep_weighting_alpha=0.8,
-                        timestep_weighting_beta=2.0,
-                    )
-                    for prompt_index in range(2)
-                ]
+
+                if self.compute_attention_maps:
+                    eos_token_index = [
+                        None if uncond_tokens is None else (-1 if "<eos>" not in uncond_tokens else uncond_tokens.index("<eos>")),
+                        None if cond_tokens is None else (-1 if "<eos>" not in cond_tokens else cond_tokens.index("<eos>"))
+                    ]
+                    # eos/bos have been replaced by -1
+                    drop_eos_bos = False if cond_tokens is None else (uncond_tokens[-1] == "<eos>")
+                    attention_maps = [
+                        attention_map_collector_maybe.get_stacked_maps(
+                            latents_width=latents.shape[-1],
+                            latents_height=latents.shape[-2],
+                            kernel_size=unet.config["conv_in_kernel"],
+                            downsample_padding=unet.config["downsample_padding"],
+                            prompt_index=prompt_index,
+                            eos_token_index=eos_token_index[prompt_index],
+                            drop_bos_eos=drop_eos_bos,
+                            merge_timesteps=True,
+                            timestep_weighting_alpha=0.8,
+                            timestep_weighting_beta=2.0,
+                        )
+                        for prompt_index in range(2)
+                    ]
+                else:
+                    attention_maps = []
 
         # https://discuss.huggingface.co/t/memory-usage-by-later-pipeline-stages/23699
         result_latents = result_latents.to("cpu")
@@ -1147,10 +1163,13 @@ class DenoiseLatentsInvocation(BaseInvocation):
         TorchDevice.empty_cache()
 
         name = context.tensors.save(tensor=result_latents)
-
-        attention_map_names = [context.tensors.save(tensor=map) for map in attention_maps]
-
         tokenization_dict = {"negative": uncond_tokens, "positive": cond_tokens}
+
+        if self.compute_attention_maps:
+            attention_map_names = [context.tensors.save(tensor=map) for map in attention_maps] if attention_maps else None
+        else:
+            attention_map_names = None
+            tokenization_dict = None
 
         return LatentsOutput.build(latents_name=name, latents=result_latents, seed=None,
                                    attention_map_names=attention_map_names,

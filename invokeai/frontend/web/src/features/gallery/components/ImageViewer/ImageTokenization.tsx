@@ -522,10 +522,10 @@ const AttentionMapOverlay = memo(({
         position: 'absolute',
         top: 0,
         left: 0,
-        width: `${fittedDims.width}px`,
-        height: `${fittedDims.height}px`,
+        width: '100%',
+        height: '100%',
         pointerEvents: 'none',
-        opacity: overlayMode === 'multiply' ? 1.0 : 0.8,
+        opacity: overlayMode === 'multiply' || overlayMode === 'multiplyNormalized' ? 1.0 : 0.8,
         imageRendering: 'pixelated'
       }}
     />
@@ -687,7 +687,6 @@ const AttentionMapGrid = memo(({
   tokenCount,
   hoveredTokenIdx,
   crosshairPos,
-  maxHeight,
   onTokenHover
 }: {
   attentionMapImageUrl: string;
@@ -695,7 +694,6 @@ const AttentionMapGrid = memo(({
   tokenCount: number;
   hoveredTokenIdx: number | null;
   crosshairPos: AttentionMapCoordinates | null;
-  maxHeight: number;
   onTokenHover: (index: number | null) => void;
 }) => {
   const tokensPerColumn = 8;
@@ -703,7 +701,7 @@ const AttentionMapGrid = memo(({
   const attentionHeightPerToken = attentionMapData.height / tokenCount;
 
   return (
-    <Flex gap={0} flexWrap="wrap" maxH={maxHeight} overflow="auto">
+    <Flex gap={0} flexWrap="wrap">
       {Array.from({ length: columnCount }, (_, colIdx) => {
         const startTokenIdx = colIdx * tokensPerColumn;
         const endTokenIdx = Math.min(startTokenIdx + tokensPerColumn, tokenCount);
@@ -758,6 +756,24 @@ const InteractiveImage = memo(({
   const calculateParticularityB = useParticularityCalculator(attentionMapData, tokenCount, 'optionB');
   const calculateParticularityC = useParticularityCalculator(attentionMapData, tokenCount, 'optionC');
 
+  // Track the actual rendered image dimensions
+  const [actualImageDims, setActualImageDims] = useState<Dimensions>({ width: 0, height: 0 });
+  const imageRef = useRef<HTMLImageElement>(null);
+
+  // Measure the actual rendered image size
+  useEffect(() => {
+    const updateDims = () => {
+      if (imageRef.current) {
+        const rect = imageRef.current.getBoundingClientRect();
+        setActualImageDims({ width: rect.width, height: rect.height });
+      }
+    };
+    
+    updateDims();
+    window.addEventListener('resize', updateDims);
+    return () => window.removeEventListener('resize', updateDims);
+  }, [imageDTO.image_url]);
+
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLImageElement>) => {
     if (!attentionMapData || tokenCount === 0) {
       return;
@@ -802,35 +818,43 @@ const InteractiveImage = memo(({
   }, [onCrosshairChange, onLuminanceChange]);
 
   return (
-    <Box position="relative">
-      <Image
-        id="image"
-        src={imageDTO.image_url}
-        fallbackSrc={imageDTO.thumbnail_url}
-        crossOrigin={crossOrigin}
-        w={fittedDims.width}
-        h={fittedDims.height}
-        maxW="full"
-        maxH="full"
-        objectFit="cover"
-        objectPosition="top left"
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
-        cursor="crosshair"
-      />
-      
-      {/* Overlay attention map when hovering over a token */}
-      {hoveredTokenIdx !== null && attentionMapImageUrl && attentionMapData && (
-        <AttentionMapOverlay
-          tokenIdx={hoveredTokenIdx}
-          attentionMapImageUrl={attentionMapImageUrl}
-          attentionMapData={attentionMapData}
-          tokenCount={tokenCount}
-          fittedDims={fittedDims}
-          overlayMode={overlayMode}
-          mainImageUrl={imageDTO.image_url}
+    <Box position="relative" w="full" h="full" display="flex" alignItems="center" justifyContent="center">
+      <Box position="relative" display="inline-block" maxW="full" maxH="full">
+        <Image
+          ref={imageRef}
+          id="image"
+          src={imageDTO.image_url}
+          fallbackSrc={imageDTO.thumbnail_url}
+          crossOrigin={crossOrigin}
+          maxW="full"
+          maxH="full"
+          objectFit="contain"
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
+          onLoad={() => {
+            // Update dimensions when image loads
+            if (imageRef.current) {
+              const rect = imageRef.current.getBoundingClientRect();
+              setActualImageDims({ width: rect.width, height: rect.height });
+            }
+          }}
+          cursor="crosshair"
+          display="block"
         />
-      )}
+        
+        {/* Overlay attention map when hovering over a token */}
+        {hoveredTokenIdx !== null && attentionMapImageUrl && attentionMapData && actualImageDims.width > 0 && (
+          <AttentionMapOverlay
+            tokenIdx={hoveredTokenIdx}
+            attentionMapImageUrl={attentionMapImageUrl}
+            attentionMapData={attentionMapData}
+            tokenCount={tokenCount}
+            fittedDims={actualImageDims}
+            overlayMode={overlayMode}
+            mainImageUrl={imageDTO.image_url}
+          />
+        )}
+      </Box>
     </Box>
   );
 });
@@ -891,8 +915,8 @@ const ImageTokenizationContent = memo(({
       </Box>
       
       <Flex gap={4} alignItems="flex-start" position="relative" flex={1} minH={0} overflow="hidden">
-        <Flex flexDir="column" gap={2} flex={1} minH={0} minW={0}>
-          <Box flex={1} minH={0} display="flex" alignItems="center" justifyContent="center">
+        <Flex flexDir="column" gap={2} flex={1} minH={0} minW={0} h="full">
+          <Box flex={1} minH={0} w="full" h="full">
             <InteractiveImage
               imageDTO={image}
               fittedDims={fittedDims}
@@ -925,15 +949,16 @@ const ImageTokenizationContent = memo(({
           </Box>
         </Flex>
         
-        <AttentionMapGrid
-          attentionMapImageUrl={attentionMapsDTO.image_url}
-          attentionMapData={attentionMapData}
-          tokenCount={tokenCount}
-          hoveredTokenIdx={hoveredTokenIdx}
-          crosshairPos={crosshairPos}
-          maxHeight={fittedDims.height}
-          onTokenHover={setHoveredTokenIdx}
-        />
+        <Box flex="0 0 auto" h="full" overflowY="auto">
+          <AttentionMapGrid
+            attentionMapImageUrl={attentionMapsDTO.image_url}
+            attentionMapData={attentionMapData}
+            tokenCount={tokenCount}
+            hoveredTokenIdx={hoveredTokenIdx}
+            crosshairPos={crosshairPos}
+            onTokenHover={setHoveredTokenIdx}
+          />
+        </Box>
       </Flex>
     </Flex>
   );
