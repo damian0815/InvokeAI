@@ -576,6 +576,7 @@ const AttentionMapColumn = memo(({
   attentionMapImageUrl,
   attentionMapData,
   attentionHeightPerToken,
+  scale,
   hoveredTokenIdx,
   crosshairPos,
   onTokenHover
@@ -586,6 +587,7 @@ const AttentionMapColumn = memo(({
   attentionMapImageUrl: string;
   attentionMapData: ImageData;
   attentionHeightPerToken: number;
+  scale: number;
   hoveredTokenIdx: number | null;
   crosshairPos: AttentionMapCoordinates | null;
   onTokenHover: (index: number | null) => void;
@@ -602,24 +604,25 @@ const AttentionMapColumn = memo(({
       return;
     }
 
-    canvas.width = attentionMapData.width;
+    canvas.width = attentionMapData.width * scale;
     canvas.height = columnHeight;
 
     const ctx = canvas.getContext('2d');
     if (!ctx) {
       return;
     }
+    ctx.scale(scale, scale);
 
     const img = new window.Image();
     img.crossOrigin = crossOrigin || 'anonymous';
     img.src = attentionMapImageUrl;
 
     img.onload = () => {
-      const sourceY = startTokenIdx * attentionHeightPerToken;
+      const sourceY = startTokenIdx * attentionHeightPerToken / scale;
       ctx.drawImage(
         img,
-        0, sourceY, attentionMapData.width, columnHeight,
-        0, 0, attentionMapData.width, columnHeight
+        0, sourceY, attentionMapData.width, columnHeight / scale,
+        0, 0, attentionMapData.width, columnHeight / scale
       );
     };
   }, [attentionMapImageUrl, attentionMapData, columnHeight, startTokenIdx, attentionHeightPerToken, crossOrigin]);
@@ -641,7 +644,7 @@ const AttentionMapColumn = memo(({
       <canvas
         ref={canvasRef}
         style={{
-          width: `${attentionMapData.width}px`,
+          width: `${attentionMapData.width*scale}px`,
           height: `${columnHeight}px`,
           display: 'block',
           cursor: 'pointer'
@@ -698,7 +701,8 @@ const AttentionMapGrid = memo(({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [tokensPerColumn, setTokensPerColumn] = useState(8);
-  const attentionHeightPerToken = attentionMapData.height / tokenCount;
+  const scale = 0.5;
+  const attentionHeightPerToken = scale * attentionMapData.height / tokenCount;
 
   // Calculate tokens per column based on available height
   useEffect(() => {
@@ -708,6 +712,8 @@ const AttentionMapGrid = memo(({
       }
       
       const containerHeight = containerRef.current.clientHeight;
+      const containerWidth = containerRef.current.clientWidth;
+
       // Each attention map token has the same height as attentionHeightPerToken
       // Calculate how many can fit in the available height
       const fittingTokens = Math.floor(containerHeight / attentionHeightPerToken);
@@ -753,6 +759,7 @@ const AttentionMapGrid = memo(({
             attentionMapImageUrl={attentionMapImageUrl}
             attentionMapData={attentionMapData}
             attentionHeightPerToken={attentionHeightPerToken}
+            scale={scale}
             hoveredTokenIdx={hoveredTokenIdx}
             crosshairPos={crosshairPos}
             onTokenHover={onTokenHover}
