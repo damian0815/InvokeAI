@@ -316,6 +316,7 @@ class InvocationRegistry:
             cls._invocation_classes.remove(clobbered_invocation)
 
         cls._invocation_classes.add(invocation)
+        #print("registered invocation", invocation_type, "from", node_pack)
         cls.invalidate_invocation_typeadapter()
 
     @classmethod

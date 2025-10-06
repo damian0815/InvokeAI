@@ -1,5 +1,5 @@
 import math
-from typing import Tuple, Self
+from typing import Tuple
 import torch
 from collections import defaultdict
 from contextlib import contextmanager
@@ -84,7 +84,7 @@ class CrossAttentionMapCollector:
         """Return the collected cross-attention maps."""
         return self.attention_maps
 
-    def get_stacked_maps(self, latents_width: int, latents_height: int,
+    def get_stacked_maps(self, latents_width: int, latents_height: int, kernel_size: int, downsample_padding: int,
                          prompt_index: int, eos_token_index: int = None, drop_bos_eos=True,
                          merge_timesteps=False, timestep_weighting_alpha=0, timestep_weighting_beta=1,
                          contrast_boost_pow=2) -> torch.Tensor:
@@ -93,6 +93,8 @@ class CrossAttentionMapCollector:
         latents_width and latents_height are the width and height of the latent space, e.g. 64x64 for 512x512 images with 8x downsampling.
         :param latents_width: The width of the latent space.
         :param latents_height: The height of the latent space.
+        :param kernel_size: The kernel size of the conv layers in the UNet.
+        :param downsample_padding: The padding of the downsampling layers in the UNet.
         :param prompt_index: The index of the prompt to visualize.
         :param eos_token_index: The index of the end-of-sequence token - map stacking will be truncated to this index if provided.
         :param drop_bos_eos: If True, drop the the 0th and last token maps (BOS and EOS). Only applied if eos_token_index is provided. It's up to you to determine if your tokenizer actually outputs BOS/EOS.
@@ -100,7 +102,6 @@ class CrossAttentionMapCollector:
         :param timestep_weighting_alpha: If merge_timesteps is True, this controls the weighting of timesteps (0 means equal weighting, 1 means linear ramp such that later timesteps carry more weight that earlier).
         :param timestep_weighting_beta: If merge_timesteps is True, this controls the sharpness of the weighting curve (1 means linear, >1 means later timesteps are weighted more strongly).
         :param contrast_boost_pow: If >1, increase the contrast of the attention maps by raising them to this power.
-        :param _
         :return: An image containing a vertical stack of blended attention maps, one for each requested token.
         """
         maps_dict = self.get_attention_maps()
@@ -127,9 +128,16 @@ class CrossAttentionMapCollector:
 
             # maps has shape [B, steps, (H*W), N] for N tokens
             # but we want [B, steps, N, H, W] for torchvision_resize
-            this_scale_factor = math.sqrt(maps.shape[2] / (latents_width * latents_height))
-            this_maps_height = round(float(latents_height) * this_scale_factor)
-            this_maps_width = round(float(latents_width) * this_scale_factor)
+            # first we need to figure out what size to scale to: use standard convolution downsampling formula
+            def conv_downsample_size(input_size: int, stride=2):
+                return math.floor((input_size + 2 * downsample_padding - kernel_size) / stride) + 1
+            this_maps_width = latents_width
+            this_maps_height = latents_height
+            while this_maps_height * this_maps_width - maps.shape[2] > 64:
+                this_maps_width = conv_downsample_size(this_maps_width)
+                this_maps_height = conv_downsample_size(this_maps_height)
+            if this_maps_width * this_maps_height != maps.shape[2]:
+                raise RuntimeError("Unable to determine downscaled attention map size")
             # and we need to do some dimension juggling
             bsz = maps.shape[0]
             num_steps = maps.shape[1]
@@ -138,7 +146,7 @@ class CrossAttentionMapCollector:
                                  [bsz, num_steps, num_tokens, this_maps_height, this_maps_width])
 
             # scale to output size if necessary
-            if this_scale_factor != 1:
+            if this_maps_width != latents_width:
                 # torchvision resize expects [..., H, W]
                 maps = maps.reshape(bsz * num_steps, num_tokens, this_maps_height, this_maps_width)
                 maps = torchvision_resize(maps, [latents_height, latents_width], InterpolationMode.BICUBIC)

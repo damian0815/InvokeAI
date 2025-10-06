@@ -21,7 +21,7 @@ from pydantic import field_validator
 from torchvision.transforms.functional import resize as tv_resize
 from transformers import CLIPVisionModelWithProjection
 
-from invokeai.app.invocations.attention_map_collector import collect_attention_maps
+from invokeai.app.invocations.attention_maps import collect_attention_maps
 from invokeai.app.invocations.baseinvocation import BaseInvocation, invocation
 from invokeai.app.invocations.constants import LATENT_SCALE_FACTOR
 from invokeai.app.invocations.controlnet import ControlField
@@ -38,6 +38,7 @@ from invokeai.app.invocations.ip_adapter import IPAdapterField
 from invokeai.app.invocations.model import ModelIdentifierField, UNetField
 from invokeai.app.invocations.primitives import LatentsOutput
 from invokeai.app.invocations.t2i_adapter import T2IAdapterField
+from invokeai.app.services.images.images_common import ImageDTO
 from invokeai.app.services.shared.invocation_context import InvocationContext
 from invokeai.app.util.controlnet_utils import prepare_control_image
 from invokeai.backend.ip_adapter.ip_adapter import IPAdapter
@@ -1128,6 +1129,8 @@ class DenoiseLatentsInvocation(BaseInvocation):
                     attention_map_collector.get_stacked_maps(
                         latents_width=latents.shape[-1],
                         latents_height=latents.shape[-2],
+                        kernel_size=unet.config["conv_in_kernel"],
+                        downsample_padding=unet.config["downsample_padding"],
                         prompt_index=prompt_index,
                         eos_token_index=eos_token_index[prompt_index],
                         drop_bos_eos=drop_eos_bos,
@@ -1145,15 +1148,10 @@ class DenoiseLatentsInvocation(BaseInvocation):
 
         name = context.tensors.save(tensor=result_latents)
 
-        # save attention map images
-        attention_map_image_dtos = []
-        # negative = index 0, positive = index 1
-        for attention_map in attention_maps:
-            attention_map = attention_map.mul(0xff).byte()
-            attention_map_image = context.images.save(image=PIL.Image.fromarray(attention_map.numpy(), mode='L'))
-            attention_map_image_dtos.append(attention_map_image)
+        attention_map_names = [context.tensors.save(tensor=map) for map in attention_maps]
+
         tokenization_dict = {"negative": uncond_tokens, "positive": cond_tokens}
 
         return LatentsOutput.build(latents_name=name, latents=result_latents, seed=None,
-                                   attention_map_image_dtos=attention_map_image_dtos,
+                                   attention_map_names=attention_map_names,
                                    tokenization=tokenization_dict)

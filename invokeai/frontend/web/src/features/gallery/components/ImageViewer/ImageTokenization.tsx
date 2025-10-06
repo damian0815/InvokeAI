@@ -16,11 +16,6 @@ import { TokenizationToolbar } from "./TokenizationToolbar";
 // Types
 // ============================================================================
 
-type TokenMetadata = {
-  tokens: string[];
-  attentionMapsImageName: string;
-};
-
 type AttentionMapCoordinates = {
   x: number;
   y: number;
@@ -450,11 +445,11 @@ const AttentionMapOverlay = memo(({
               for (let i = 0; i < attentionData.length; i += 4) {
                 const val = attentionData[i] ?? 0;
                 if (val < minVal) {
-minVal = val;
-}
+                  minVal = val;
+                }
                 if (val > maxVal) {
-maxVal = val;
-}
+                  maxVal = val;
+                }
               }
               
               // Normalize the attention map
@@ -865,7 +860,7 @@ const ImageTokenizationContent = memo(({
   );
   
   const attentionMapImageName = useMemo(() => 
-    metadata["attention_maps"]["collection"][tokenizationDisplayMode === 'positive' ? 1 : 0]["image_name"],
+    metadata["attention_maps"][tokenizationDisplayMode === 'positive' ? 1 : 0]["image_name"],
     [metadata, tokenizationDisplayMode]
   );
   
@@ -884,32 +879,37 @@ const ImageTokenizationContent = memo(({
   }
 
   return (
-    <Flex flexDir="column" w="full" h="full" gap={2}>
-      <TokenList 
-        tokens={tokens}
-        luminanceValues={luminanceValues}
-        hoveredTokenIdx={hoveredTokenIdx}
-        onTokenHover={setHoveredTokenIdx}
-        hoverMode={hoverMode}
-      />
+    <Flex flexDir="column" w="full" h="full" gap={2} overflow="hidden">
+      <Box flexShrink={0} maxH="20%" overflowY="auto">
+        <TokenList 
+          tokens={tokens}
+          luminanceValues={luminanceValues}
+          hoveredTokenIdx={hoveredTokenIdx}
+          onTokenHover={setHoveredTokenIdx}
+          hoverMode={hoverMode}
+        />
+      </Box>
       
-      <Flex gap={4} alignItems="flex-start" position="relative">
-        <Flex flexDir="column" gap={2}>
-          <InteractiveImage
-            imageDTO={image}
-            fittedDims={fittedDims}
-            hoveredTokenIdx={hoveredTokenIdx}
-            attentionMapImageUrl={attentionMapsDTO.image_url}
-            attentionMapData={attentionMapData}
-            tokenCount={tokenCount}
-            overlayMode={overlayMode}
-            hoverMode={hoverMode}
-            onCrosshairChange={setCrosshairPos}
-            onLuminanceChange={setLuminanceValues}
-          />
+      <Flex gap={4} alignItems="flex-start" position="relative" flex={1} minH={0} overflow="hidden">
+        <Flex flexDir="column" gap={2} flex={1} minH={0} minW={0}>
+          <Box flex={1} minH={0} display="flex" alignItems="center" justifyContent="center">
+            <InteractiveImage
+              imageDTO={image}
+              fittedDims={fittedDims}
+              hoveredTokenIdx={hoveredTokenIdx}
+              attentionMapImageUrl={attentionMapsDTO.image_url}
+              attentionMapData={attentionMapData}
+              tokenCount={tokenCount}
+              overlayMode={overlayMode}
+              hoverMode={hoverMode}
+              onCrosshairChange={setCrosshairPos}
+              onLuminanceChange={setLuminanceValues}
+            />
+          </Box>
           
           {/* Current token display */}
           <Box 
+            flexShrink={0}
             w="full" 
             textAlign="center" 
             py={3}
@@ -917,6 +917,8 @@ const ImageTokenizationContent = memo(({
             fontWeight="semibold"
             color={hoveredTokenIdx !== null ? "base.50" : "base.500"}
             minH="4rem"
+            maxH="4rem"
+            overflow="hidden"
             transition="color 0.2s ease"
           >
             {hoveredTokenIdx !== null ? tokens[hoveredTokenIdx] : '—'}

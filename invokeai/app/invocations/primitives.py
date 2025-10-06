@@ -346,24 +346,21 @@ class LatentsOutput(BaseInvocationOutput):
     latents: LatentsField = OutputField(description=FieldDescriptions.latents)
     width: int = OutputField(description=FieldDescriptions.width)
     height: int = OutputField(description=FieldDescriptions.height)
-    attention_maps: Optional[ImageCollectionOutput] = OutputField(description=FieldDescriptions.attention_maps, default=None)
+    attention_maps: Optional[list[TensorField]] = OutputField(description=FieldDescriptions.attention_maps, default=None)
     tokenization_metadata: Optional[StringOutput] = OutputField(description="Tokenization metadata", default=None)
 
     @classmethod
     def build(cls, latents_name: str, latents: torch.Tensor, seed: Optional[int] = None,
-              attention_map_image_dtos: Optional[list[ImageDTO]]=None,
+              attention_map_names: Optional[list[str]]=None,
               tokenization: Optional[dict[str, list[str]]]=None) -> "LatentsOutput":
-        attention_maps = [ImageField(image_name=dto.image_name)
-            for dto in attention_map_image_dtos
-        ] if attention_map_image_dtos else None
+        attention_maps = [TensorField(tensor_name=name) for name in attention_map_names] if attention_map_names else None
         return cls(
             latents=LatentsField(latents_name=latents_name, seed=seed),
             width=latents.size()[3] * LATENT_SCALE_FACTOR,
             height=latents.size()[2] * LATENT_SCALE_FACTOR,
-            attention_maps=ImageCollectionOutput(collection=attention_maps),
+            attention_maps=attention_maps,
             tokenization_metadata=StringOutput(value=json.dumps(tokenization)) if tokenization else None,
         )
-
 
 @invocation_output("latents_collection_output")
 class LatentsCollectionOutput(BaseInvocationOutput):
