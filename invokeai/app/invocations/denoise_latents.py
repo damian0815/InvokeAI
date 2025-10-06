@@ -208,9 +208,9 @@ class DenoiseLatentsInvocation(BaseInvocation):
         input=Input.Connection,
         ui_order=8,
     )
-    compute_attention_maps: Optional[StrictBool] = InputField(
+    compute_attention_maps: Optional[bool] = InputField(
         default=False,
-        description="Whether to compute and save attention maps during denoising.",
+        description=FieldDescriptions.compute_attention_maps,
         input=Input.Any,
         ui_order=9,
     )

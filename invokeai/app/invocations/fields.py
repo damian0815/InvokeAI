@@ -228,6 +228,7 @@ class FieldDescriptions:
     vllm_model = "The VLLM model to use"
     flux_fill_conditioning = "FLUX Fill conditioning tensor"
     flux_kontext_conditioning = "FLUX Kontext conditioning (reference image)"
+    compute_attention_maps = "Whether or not to compute per-token attention maps during denoising. This will increase memory consumption."
 
 
 class ImageField(BaseModel):

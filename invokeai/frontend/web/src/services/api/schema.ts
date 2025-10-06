@@ -6476,6 +6476,12 @@ export type components = {
              */
             denoise_mask?: components["schemas"]["DenoiseMaskField"] | null;
             /**
+             * Compute Attention Maps
+             * @description Whether to compute and save attention maps during denoising.
+             * @default false
+             */
+            compute_attention_maps?: boolean | null;
+            /**
              * type
              * @default denoise_latents
              * @constant
@@ -6593,6 +6599,12 @@ export type components = {
              * @default null
              */
             denoise_mask?: components["schemas"]["DenoiseMaskField"] | null;
+            /**
+             * Compute Attention Maps
+             * @description Whether to compute and save attention maps during denoising.
+             * @default false
+             */
+            compute_attention_maps?: boolean | null;
             /**
              * type
              * @default denoise_latents_meta
