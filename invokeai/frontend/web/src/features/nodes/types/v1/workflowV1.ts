@@ -24,6 +24,7 @@ const zScheduler = z.enum([
   'heun_k',
   'lms_k',
   'euler_a',
+  'euler_flowmatch',
   'kdpm_2_a',
   'lcm',
 ]);
