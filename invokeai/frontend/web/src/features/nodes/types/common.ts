@@ -50,6 +50,7 @@ export const zSchedulerField = z.enum([
   'dpmpp_2m_sde_k',
   'dpmpp_sde_k',
   'heun_k',
+  'heun_flowmatch',
   'kdpm_2_k',
   'kdpm_2_a_k',
   'lms_k',

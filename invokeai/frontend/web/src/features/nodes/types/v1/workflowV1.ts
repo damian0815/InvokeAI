@@ -22,6 +22,7 @@ const zScheduler = z.enum([
   'dpmpp_2m_sde_k',
   'dpmpp_sde_k',
   'heun_k',
+  'heun_flowmatch',
   'lms_k',
   'euler_a',
   'euler_flowmatch',

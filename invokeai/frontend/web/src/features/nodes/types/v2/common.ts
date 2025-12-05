@@ -39,6 +39,7 @@ export const zSchedulerField = z.enum([
   'lms_k',
   'euler_a',
   'euler_flowmatch',
+  'heun_flowmatch',
   'kdpm_2_a',
   'lcm',
 ]);

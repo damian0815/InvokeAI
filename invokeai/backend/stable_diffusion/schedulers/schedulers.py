@@ -17,7 +17,7 @@ from diffusers import (
     LMSDiscreteScheduler,
     PNDMScheduler,
     TCDScheduler,
-    UniPCMultistepScheduler,
+    UniPCMultistepScheduler, FlowMatchHeunDiscreteScheduler,
 )
 from diffusers.schedulers.scheduling_utils import SchedulerMixin
 
@@ -38,6 +38,7 @@ SCHEDULER_NAME_VALUES = Literal[
     "euler_k",
     "euler_a",
     "euler_flowmatch",
+    "heun_flowmatch",
     "kdpm_2",
     "kdpm_2_k",
     "kdpm_2_a",
@@ -68,6 +69,7 @@ SCHEDULER_MAP: dict[SCHEDULER_NAME_VALUES, tuple[Type[SchedulerMixin], dict[str,
     "pndm": (PNDMScheduler, {}),
     "heun": (HeunDiscreteScheduler, {"use_karras_sigmas": False}),
     "heun_k": (HeunDiscreteScheduler, {"use_karras_sigmas": True}),
+    "heun_flowmatch": (FlowMatchHeunDiscreteScheduler, {}),
     "euler": (EulerDiscreteScheduler, {"use_karras_sigmas": False}),
     "euler_k": (EulerDiscreteScheduler, {"use_karras_sigmas": True}),
     "euler_a": (EulerAncestralDiscreteScheduler, {}),
