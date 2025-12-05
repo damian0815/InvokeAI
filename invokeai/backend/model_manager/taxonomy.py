@@ -110,6 +110,7 @@ class SchedulerPredictionType(str, Enum):
 
     Epsilon = "epsilon"
     VPrediction = "v_prediction"
+    FlowPrediction = "flow_prediction"
     Sample = "sample"
 
 

@@ -869,8 +869,10 @@ class PipelineFolderProbe(FolderProbeBase):
     def get_scheduler_prediction_type(self) -> SchedulerPredictionType:
         with open(self.model_path / "scheduler" / "scheduler_config.json", "r") as file:
             scheduler_conf = json.load(file)
-        if scheduler_conf.get("prediction_type", "epsilon") in ["flow-matching", "flow_prediction", "v_prediction"]:
+        if scheduler_conf.get("prediction_type", "epsilon") == "v_prediction":
             return SchedulerPredictionType.VPrediction
+        elif scheduler_conf.get("prediction_type", "epsilon") in ["flow-matching", "flow_prediction"]:
+            return SchedulerPredictionType.FlowPrediction
         elif scheduler_conf.get("prediction_type", "epsilon") == "epsilon":
             return SchedulerPredictionType.Epsilon
         else:
