@@ -113,6 +113,7 @@ export const SCHEDULER_OPTIONS: ComboboxOption[] = [
   { value: 'euler_k', label: 'Euler Karras' },
   { value: 'euler_a', label: 'Euler Ancestral' },
   { value: 'euler_flowmatch', label: 'Euler Flow Matching' },
+  { value: 'euler_flowmatch_shift2', label: 'Euler Flow Matching alt shift' },
   { value: 'heun', label: 'Heun' },
   { value: 'heun_k', label: 'Heun Karras' },
   { value: 'heun_flowmatch', label: 'Heun Flow Matching' },

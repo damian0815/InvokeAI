@@ -27,7 +27,7 @@
     "lint:knip": "knip --tags=-knipignore",
     "lint:dpdm": "dpdm --no-warning --no-tree --transform --exit-code circular:1 src/main.tsx",
     "lint:eslint": "eslint --max-warnings=0 .",
-    "lint:prettier": "prettier --check .",
+    "lint:prettier": "prettier --check --write .",
     "lint:tsc": "tsc --noEmit",
     "lint": "concurrently -g -c red,green,yellow,blue,magenta pnpm:lint:*",
     "fix": "eslint --fix . && prettier --log-level warn --write .",

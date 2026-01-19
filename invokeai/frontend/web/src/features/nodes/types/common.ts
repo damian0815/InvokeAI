@@ -57,6 +57,7 @@ export const zSchedulerField = z.enum([
   'unipc_k',
   'euler_a',
   'euler_flowmatch',
+  'euler_flowmatch_shift2',
   'kdpm_2_a',
   'lcm',
   'tcd',

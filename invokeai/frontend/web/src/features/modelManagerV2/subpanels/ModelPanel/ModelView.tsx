@@ -57,7 +57,9 @@ export const ModelView = memo(({ modelConfig }: Props) => {
               <ModelAttrView label={t('modelManager.variant')} value={modelConfig.variant} />
             )}
             {modelConfig.type === 'main' && modelConfig.format === 'diffusers' && modelConfig.repo_variant && (
-              <ModelAttrView label={t('modelManager.repoVariant')} value={modelConfig.repo_variant} />
+              <>
+                <ModelAttrView label={t('modelManager.repoVariant')} value={modelConfig.repo_variant} />
+              </>
             )}
             {modelConfig.type === 'main' && modelConfig.format === 'checkpoint' && (
               <>
