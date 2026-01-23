@@ -7,7 +7,6 @@ from typing import Any, Dict, Iterator, List, Optional, Tuple, Union
 import torch
 import torchvision
 import torchvision.transforms as T
-from diffusers import FlowMatchEulerDiscreteScheduler, FlowMatchHeunDiscreteScheduler
 from diffusers.configuration_utils import ConfigMixin
 from diffusers.models.adapter import T2IAdapter
 from diffusers.models.unets.unet_2d_condition import UNet2DConditionModel
@@ -75,6 +74,8 @@ from invokeai.backend.stable_diffusion.extensions.seamless import SeamlessExt
 from invokeai.backend.stable_diffusion.extensions.t2i_adapter import T2IAdapterExt
 from invokeai.backend.stable_diffusion.extensions_manager import ExtensionsManager
 from invokeai.backend.stable_diffusion.schedulers import SCHEDULER_MAP
+from invokeai.backend.stable_diffusion.schedulers.sdpipeline_flow_match_schedulers \
+    import SDPipelineInferenceFlowMatchHeunDiscreteScheduler, SDPipelineInferenceFlowMatchEulerDiscreteScheduler
 from invokeai.backend.stable_diffusion.schedulers.schedulers import SCHEDULER_NAME_VALUES
 from invokeai.backend.util.devices import TorchDevice
 from invokeai.backend.util.hotfixes import ControlNetModel
@@ -108,6 +109,10 @@ def get_scheduler(
 
     if hasattr(unet_config, "prediction_type"):
         scheduler_config["prediction_type"] = unet_config.prediction_type
+    else:
+        print("*** no prediction_type in unet_config")
+        print("*** forcing it")
+        #scheduler_config["prediction_type"] = 'flow_prediction'
 
     # make dpmpp_sde reproducable(seed can be passed only in initializer)
     if scheduler_class is DPMSolverSDEScheduler:
@@ -117,18 +122,10 @@ def get_scheduler(
         if scheduler_config["_class_name"] == "DEISMultistepScheduler" and scheduler_config["algorithm_type"] == "deis":
             scheduler_config["algorithm_type"] = "dpmsolver++"
 
-    scheduler = scheduler_class.from_config(scheduler_config)
-    if scheduler_class is FlowMatchEulerDiscreteScheduler or scheduler_class is FlowMatchHeunDiscreteScheduler:
-        # hack for SD2-flowmatch
-        scheduler.init_noise_sigma = 1
-        scheduler.scale_model_input = lambda x, t: x
-        def add_noise(self, latents: torch.Tensor, noise: torch.Tensor, timesteps: torch.Tensor) -> torch.Tensor:
-            alpha = (timesteps / self.config.num_train_timesteps).view(-1, 1, 1, 1).to(latents.device, dtype=latents.dtype)
-            x_t = alpha * noise + (1 - alpha) * latents
-            return x_t
-        #scheduler.add_noise = add_noise.__get__(scheduler, scheduler_class)
-        scheduler.add_noise = lambda l, n, t: scheduler.scale_noise(l, t, n)
+    if scheduler_config.get("prediction_type", "epsilon") == "flow_prediction":
+        scheduler_config["use_flow_sigms"] = True
 
+    scheduler = scheduler_class.from_config(scheduler_config)
 
     # hack copied over from generate.py
     if not hasattr(scheduler, "uses_inpainting_model"):
@@ -1052,6 +1049,18 @@ class DenoiseLatentsInvocation(BaseInvocation):
                 seed=seed,
                 unet_config=unet_config,
             )
+
+            if (
+                type(scheduler) in [SDPipelineInferenceFlowMatchHeunDiscreteScheduler,
+                                    SDPipelineInferenceFlowMatchEulerDiscreteScheduler]
+                and scheduler.config.use_dynamic_shifting
+            ):
+                image_pixel_count = latents.shape[2] * latents.shape[3] * (LATENT_SCALE_FACTOR ** 2)
+                # for exponential shift, we go from 0 to 3 over 1 megapixel
+                shift = 3.0 * (image_pixel_count / 1024 ** 2)
+                scheduler.set_shift(shift)
+                # pipe.scheduler = type(pipe.scheduler).from_config(pipe.scheduler.config, shift=shift)
+                print("updated scheduler with shift", shift)
 
             pipeline = self.create_pipeline(unet, scheduler)
 

@@ -1,4 +1,5 @@
-from typing import Any, Literal, Type
+import logging
+from typing import Any, Literal, Type, Union, Dict, Self, Tuple
 
 from diffusers import (
     DDIMScheduler,
@@ -21,6 +22,9 @@ from diffusers import (
 )
 from diffusers.schedulers.scheduling_utils import SchedulerMixin
 
+from invokeai.backend.stable_diffusion.schedulers.sdpipeline_flow_match_schedulers import \
+    SDPipelineInferenceFlowMatchEulerDiscreteScheduler, SDPipelineInferenceFlowMatchHeunDiscreteScheduler
+
 # TODO: add dpmpp_3s/dpmpp_3s_k when fix released
 # https://github.com/huggingface/diffusers/issues/9007
 
@@ -37,8 +41,12 @@ SCHEDULER_NAME_VALUES = Literal[
     "euler",
     "euler_k",
     "euler_a",
-    "euler_flowmatch",
-    "heun_flowmatch",
+    "euler_flowmatch_shift1",
+    "euler_flowmatch_shift3",
+    "euler_flowmatch_dynshift",
+    "heun_flowmatch_shift1",
+    "heun_flowmatch_shift3",
+    "heun_flowmatch_dynshift",
     "kdpm_2",
     "kdpm_2_k",
     "kdpm_2_a",
@@ -69,11 +77,15 @@ SCHEDULER_MAP: dict[SCHEDULER_NAME_VALUES, tuple[Type[SchedulerMixin], dict[str,
     "pndm": (PNDMScheduler, {}),
     "heun": (HeunDiscreteScheduler, {"use_karras_sigmas": False}),
     "heun_k": (HeunDiscreteScheduler, {"use_karras_sigmas": True}),
-    "heun_flowmatch": (FlowMatchHeunDiscreteScheduler, {}),
+    "heun_flowmatch_shift1": (SDPipelineInferenceFlowMatchHeunDiscreteScheduler, {"shift": 1.0, "use_dynamic_shifting": False}),
+    "heun_flowmatch_shift3": (SDPipelineInferenceFlowMatchHeunDiscreteScheduler, {"shift": 3.0, "use_dynamic_shifting": False}),
+    "heun_flowmatch_dynshift": (SDPipelineInferenceFlowMatchHeunDiscreteScheduler, {"use_dynamic_shifting": True}),
     "euler": (EulerDiscreteScheduler, {"use_karras_sigmas": False}),
     "euler_k": (EulerDiscreteScheduler, {"use_karras_sigmas": True}),
     "euler_a": (EulerAncestralDiscreteScheduler, {}),
-    "euler_flowmatch": (FlowMatchEulerDiscreteScheduler, {}),
+    "euler_flowmatch_shift1": (SDPipelineInferenceFlowMatchEulerDiscreteScheduler, {"shift": 1.0, "use_dynamic_shifting": False}),
+    "euler_flowmatch_shift3": (SDPipelineInferenceFlowMatchEulerDiscreteScheduler, {"shift": 3.0, "use_dynamic_shifting": False}),
+    "euler_flowmatch_dynshift": (SDPipelineInferenceFlowMatchEulerDiscreteScheduler, {"use_dynamic_shifting": True}),
     "kdpm_2": (KDPM2DiscreteScheduler, {"use_karras_sigmas": False}),
     "kdpm_2_k": (KDPM2DiscreteScheduler, {"use_karras_sigmas": True}),
     "kdpm_2_a": (KDPM2AncestralDiscreteScheduler, {"use_karras_sigmas": False}),
